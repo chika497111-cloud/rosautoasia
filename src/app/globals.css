@@ -164,6 +164,22 @@ details .faq-content > div {
   font-size: inherit;
 }
 
+/* Orange checkboxes and radio buttons */
+input[type="checkbox"]:checked {
+  background-color: #f97316;
+  border-color: #f97316;
+}
+input[type="checkbox"] {
+  accent-color: #f97316;
+}
+input[type="radio"]:checked {
+  background-color: #f97316;
+  border-color: #f97316;
+}
+input[type="radio"] {
+  accent-color: #f97316;
+}
+
 ::selection {
   background: var(--primary-fixed);
   color: var(--on-primary-fixed-variant);
