@@ -77,7 +77,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12 items-start">
         {/* Left: Gallery */}
         <div className="space-y-4">
-          <div className="bg-surface-container-lowest rounded-xl p-8 warm-shadow aspect-square flex items-center justify-center overflow-hidden">
+          <div className="bg-surface-lowest rounded-xl p-8 warm-shadow aspect-square flex items-center justify-center overflow-hidden">
             {product.image ? (
               <img
                 alt={product.name}
@@ -92,7 +92,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
           </div>
           {/* Thumbnail placeholders */}
           <div className="grid grid-cols-4 gap-4">
-            <div className="bg-surface-container-lowest rounded-lg p-2 border-2 border-primary-container warm-shadow cursor-pointer">
+            <div className="bg-surface-lowest rounded-lg p-2 border-2 border-primary-container warm-shadow cursor-pointer">
               <div className="w-full h-20 flex items-center justify-center">
                 {product.image ? (
                   <img alt="Thumbnail 1" className="w-full h-20 object-contain" src={product.image} />
@@ -102,7 +102,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
               </div>
             </div>
             {[2, 3, 4].map((i) => (
-              <div key={i} className="bg-surface-container-lowest rounded-lg p-2 hover:bg-surface-container transition-colors cursor-pointer">
+              <div key={i} className="bg-surface-lowest rounded-lg p-2 hover:bg-surface-mid transition-colors cursor-pointer">
                 <div className="w-full h-20 flex items-center justify-center">
                   <span className="material-symbols-outlined text-outline-variant">image</span>
                 </div>
@@ -112,7 +112,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
         </div>
 
         {/* Right: Info Card */}
-        <div className="bg-surface-container-lowest rounded-xl p-8 warm-shadow flex flex-col justify-between">
+        <div className="bg-surface-lowest rounded-xl p-8 warm-shadow flex flex-col justify-between">
           <div>
             {/* Brand badge + rating */}
             <div className="flex justify-between items-start mb-4">
@@ -185,12 +185,12 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
               )}
               <FavoriteButton
                 productId={product.id}
-                className="px-6 py-4 rounded-full border-2 border-outline-variant text-on-surface font-bold hover:bg-surface-container transition-all flex items-center justify-center gap-2 active:scale-95"
+                className="px-6 py-4 rounded-full border-2 border-outline-variant text-on-surface font-bold hover:bg-surface-mid transition-all flex items-center justify-center gap-2 active:scale-95"
               />
             </div>
 
             {/* Delivery info */}
-            <div className="bg-surface-container p-4 rounded-xl flex items-center gap-4">
+            <div className="bg-surface-mid p-4 rounded-xl flex items-center gap-4">
             <div className="bg-primary-container/20 p-2 rounded-lg">
               <span className="material-symbols-outlined text-primary">local_shipping</span>
             </div>

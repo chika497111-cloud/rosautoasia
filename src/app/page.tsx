@@ -85,7 +85,7 @@ export default function Home() {
       <section className="relative overflow-hidden bg-gradient-to-br from-[#FFFBEB] via-[#FEF3C7] to-white py-20 lg:py-32">
         <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-12 items-center">
           <div className="z-10 text-center lg:text-left">
-            <span className="inline-block px-4 py-1.5 rounded-full bg-tertiary-container/10 text-on-tertiary-container text-xs font-bold tracking-wider uppercase mb-6">
+            <span className="inline-block px-4 py-1.5 rounded-full bg-tertiary-container/10 text-on-primary-fixed-variant text-xs font-bold tracking-wider uppercase mb-6">
               Премиум сервис в Кыргызстане
             </span>
             <h1 className="font-[family-name:var(--font-headline)] text-5xl lg:text-6xl font-extrabold text-[#451A03] leading-tight tracking-tight mb-6">

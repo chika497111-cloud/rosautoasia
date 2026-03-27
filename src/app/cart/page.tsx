@@ -86,6 +86,7 @@ export default function CartPage() {
               <div className="flex items-center gap-4 bg-surface-mid rounded-full p-1">
                 <button
                   onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
+                  aria-label="Уменьшить количество"
                   className="w-8 h-8 flex items-center justify-center rounded-full text-primary hover:bg-primary/10 transition-colors font-bold"
                 >
                   -
@@ -93,6 +94,7 @@ export default function CartPage() {
                 <span className="font-bold w-4 text-center">{item.quantity}</span>
                 <button
                   onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
+                  aria-label="Увеличить количество"
                   className="w-8 h-8 flex items-center justify-center rounded-full bg-primary-container text-white shadow-lg shadow-primary-container/20 font-bold"
                 >
                   +
@@ -115,6 +117,7 @@ export default function CartPage() {
               <button
                 onClick={() => removeItem(item.product.id)}
                 className="text-on-surface-variant hover:text-error transition-colors shrink-0"
+                aria-label="Удалить товар из корзины"
                 title="Удалить"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">

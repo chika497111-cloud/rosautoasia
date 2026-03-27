@@ -122,7 +122,7 @@ export default function RootLayout({
             </div>
 
             {/* Мобильный поиск */}
-            <div className="md:hidden px-4 pb-3">
+            <div className="lg:hidden px-4 pb-3">
               <form action="/search">
                 <input
                   type="text"
@@ -135,7 +135,7 @@ export default function RootLayout({
           </nav>
 
           {/* Контент */}
-          <main className="flex-1 pt-20">
+          <main className="flex-1 pt-32 lg:pt-20">
             {children}
           </main>
 

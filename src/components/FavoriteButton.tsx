@@ -14,6 +14,7 @@ export function FavoriteButton({ productId, className = "" }: { productId: strin
         toggleFavorite(productId);
       }}
       className={`group/fav transition-all duration-300 ${className}`}
+      aria-label={active ? "Убрать из избранного" : "Добавить в избранное"}
       title={active ? "Убрать из избранного" : "В избранное"}
     >
       <svg

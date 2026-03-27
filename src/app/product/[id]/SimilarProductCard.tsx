@@ -9,9 +9,9 @@ export function SimilarProductCard({ product }: { product: Product }) {
   return (
     <Link
       href={`/product/${product.id}`}
-      className="bg-surface-container-lowest rounded-xl p-4 warm-shadow hover:-translate-y-1 transition-transform cursor-pointer group block"
+      className="bg-surface-lowest rounded-xl p-4 warm-shadow hover:-translate-y-1 transition-transform cursor-pointer group block"
     >
-      <div className="relative mb-4 aspect-square rounded-lg overflow-hidden bg-surface-container p-4">
+      <div className="relative mb-4 aspect-square rounded-lg overflow-hidden bg-surface-mid p-4">
         {product.image ? (
           <img
             alt={product.name}

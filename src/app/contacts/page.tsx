@@ -88,7 +88,7 @@ export default function ContactsPage() {
               {/* Contact Form */}
               <div className="bg-surface-lowest p-10 rounded-xl warm-shadow space-y-6">
                 <h3 className="text-2xl font-bold font-[family-name:var(--font-headline)] text-[#451A03]">Оставить заявку</h3>
-                <form className="space-y-4">
+                <form className="space-y-4" action="#">
                   <div>
                     <label className="block text-sm font-semibold text-on-surface-variant mb-2">Имя</label>
                     <input

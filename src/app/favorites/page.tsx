@@ -50,6 +50,7 @@ export default function FavoritesPage() {
                 <button
                   onClick={() => toggleFavorite(product.id)}
                   className="absolute top-3 right-3 w-10 h-10 rounded-full bg-error-container flex items-center justify-center text-error hover:bg-error hover:text-on-error transition-all duration-300 hover:scale-110 z-10"
+                  aria-label="Удалить из избранного"
                   title="Удалить из избранного"
                 >
                   <svg

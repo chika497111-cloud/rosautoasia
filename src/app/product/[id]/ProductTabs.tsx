@@ -24,16 +24,16 @@ export function ProductTabs({ product, category }: { product: Product; category?
   ];
 
   return (
-    <div className="bg-surface-container-lowest rounded-xl warm-shadow overflow-hidden mb-16">
+    <div className="bg-surface-lowest rounded-xl warm-shadow overflow-hidden mb-16">
       {/* Tab headers */}
-      <div className="flex border-b border-surface-container">
+      <div className="flex border-b border-surface-high">
         {tabs.map((tab) => (
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
             className={`px-8 py-5 font-[family-name:var(--font-headline)] font-bold transition-colors ${
               activeTab === tab.key
-                ? "text-primary border-b-4 border-primary bg-surface-container-low"
+                ? "text-primary border-b-4 border-primary bg-surface-low"
                 : "text-on-surface-variant hover:text-primary"
             }`}
           >
@@ -56,7 +56,7 @@ export function ProductTabs({ product, category }: { product: Product; category?
               {specs.map((spec, i) => (
                 <div
                   key={spec.label}
-                  className={`flex justify-between py-4 border-b border-surface-container/50 px-2 ${
+                  className={`flex justify-between py-4 border-b border-surface-high/50 px-2 ${
                     i % 3 === 0 ? "bg-surface/30 rounded" : ""
                   }`}
                 >
@@ -68,7 +68,7 @@ export function ProductTabs({ product, category }: { product: Product; category?
             {product.car_brand && (
               <div className="mt-8 flex items-center gap-3 bg-tertiary-container/10 p-4 rounded-xl border border-tertiary-container/20">
                 <span className="material-symbols-outlined text-tertiary">check_circle</span>
-                <p className="text-on-tertiary-container font-medium">
+                <p className="text-on-primary-fixed-variant font-medium">
                   Гарантированная совместимость с вашим {product.car_brand} {product.car_model}
                 </p>
               </div>

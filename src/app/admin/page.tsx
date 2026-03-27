@@ -305,8 +305,8 @@ export default function AdminPage() {
                 <p className="text-on-surface-variant">Клиентов пока нет</p>
               </div>
             ) : (
-              <div className="bg-surface-lowest rounded-xl warm-shadow overflow-hidden">
-                <table className="w-full text-sm">
+              <div className="bg-surface-lowest rounded-xl warm-shadow overflow-x-auto">
+                <table className="w-full text-sm min-w-[600px]">
                   <thead className="bg-surface-mid">
                     <tr>
                       <th className="text-left px-5 py-4 font-semibold text-on-surface-variant uppercase tracking-wider text-xs">Имя</th>
@@ -425,8 +425,8 @@ export default function AdminPage() {
             )}
 
             {/* Staff list */}
-            <div className="bg-surface-lowest rounded-xl warm-shadow overflow-hidden">
-              <table className="w-full text-sm">
+            <div className="bg-surface-lowest rounded-xl warm-shadow overflow-x-auto">
+              <table className="w-full text-sm min-w-[700px]">
                 <thead className="bg-surface-mid">
                   <tr>
                     <th className="text-left px-5 py-4 font-semibold text-on-surface-variant uppercase tracking-wider text-xs">Имя</th>

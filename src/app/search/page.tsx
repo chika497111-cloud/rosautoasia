@@ -208,7 +208,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
             </div>
           </div>
 
-          <form className="space-y-4 bg-surface-lowest rounded-2xl p-6 md:p-8 warm-shadow">
+          <form action="#" className="space-y-4 bg-surface-lowest rounded-2xl p-6 md:p-8 warm-shadow">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1.5">
                 <label className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">
