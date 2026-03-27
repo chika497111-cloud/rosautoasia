@@ -10,7 +10,7 @@ export default function FavoritesPage() {
   const favoriteProducts = products.filter((p) => isFavorite(p.id));
 
   return (
-    <div className="min-h-screen bg-surface-low">
+    <div className="min-h-screen bg-surface">
       {/* Header */}
       <section className="bg-gradient-to-r from-[#451A03] to-[#5d260a] text-white">
         <div className="max-w-7xl mx-auto px-4 py-10">
@@ -21,7 +21,7 @@ export default function FavoritesPage() {
             <span>/</span>
             <span className="text-white">Избранное</span>
           </nav>
-          <h1 className="text-3xl sm:text-4xl font-bold">
+          <h1 className="font-[family-name:var(--font-headline)] text-3xl sm:text-4xl font-bold tracking-tight">
             <span className="text-primary-container">Избранное</span>
           </h1>
           <p className="text-outline-variant mt-2">
@@ -44,12 +44,12 @@ export default function FavoritesPage() {
             {favoriteProducts.map((product) => (
               <div
                 key={product.id}
-                className="bg-white border border-outline-variant/30 rounded-xl p-5 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 relative group"
+                className="bg-surface-lowest rounded-xl warm-shadow p-5 card-hover relative group"
               >
                 {/* Remove from favorites button */}
                 <button
                   onClick={() => toggleFavorite(product.id)}
-                  className="absolute top-3 right-3 w-10 h-10 rounded-full bg-red-50 flex items-center justify-center text-red-500 hover:bg-red-100 transition-all duration-300 hover:scale-110 z-10"
+                  className="absolute top-3 right-3 w-10 h-10 rounded-full bg-error-container flex items-center justify-center text-error hover:bg-error hover:text-on-error transition-all duration-300 hover:scale-110 z-10"
                   title="Удалить из избранного"
                 >
                   <svg
@@ -89,14 +89,14 @@ export default function FavoritesPage() {
                     {product.brand} · {product.car_brand} {product.car_model}
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-lg font-bold text-on-surface">
+                    <span className="text-lg font-bold text-[#451A03]">
                       {product.price.toLocaleString()} сом
                     </span>
                     <span
-                      className={`text-xs px-2 py-1 rounded-full ${
+                      className={`text-xs px-3 py-1 rounded-full font-medium ${
                         product.quantity > 0
-                          ? "bg-green-100 text-green-700"
-                          : "bg-red-100 text-red-700"
+                          ? "bg-primary-container/20 text-primary"
+                          : "bg-error-container text-on-error-container"
                       }`}
                     >
                       {product.quantity > 0 ? "В наличии" : "Под заказ"}
@@ -108,7 +108,7 @@ export default function FavoritesPage() {
           </div>
         ) : (
           /* Empty state */
-          <div className="text-center py-20 bg-white rounded-xl border border-outline-variant/30">
+          <div className="text-center py-20 bg-surface-lowest rounded-xl warm-shadow">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="h-20 w-20 mx-auto text-outline-variant mb-6"
@@ -123,7 +123,7 @@ export default function FavoritesPage() {
                 d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
               />
             </svg>
-            <h2 className="text-xl font-bold text-on-surface mb-2">
+            <h2 className="font-[family-name:var(--font-headline)] text-xl font-bold text-[#451A03] mb-2">
               В избранном пусто
             </h2>
             <p className="text-on-surface-variant mb-8 max-w-md mx-auto">
@@ -132,7 +132,7 @@ export default function FavoritesPage() {
             </p>
             <Link
               href="/catalog"
-              className="inline-block bg-primary-container text-on-surface font-semibold px-8 py-3 rounded-lg hover:bg-primary-container/80 transition-colors"
+              className="inline-block cta-gradient text-white font-bold px-8 py-3.5 rounded-full shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all"
             >
               Перейти в каталог
             </Link>

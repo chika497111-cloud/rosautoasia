@@ -11,6 +11,7 @@ export default function RegisterPage() {
   const router = useRouter();
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("+996");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
   const [error, setError] = useState("");
@@ -25,7 +26,6 @@ export default function RegisterPage() {
     const formatted = formatPhoneInput(value);
     setPhone(formatted);
 
-    // Показываем ошибку только если пользователь уже начал вводить
     if (formatted.length > 4) {
       const result = validatePhone(formatted);
       setPhoneError(result.valid ? "" : result.error || "");
@@ -68,86 +68,117 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="max-w-md mx-auto px-4 py-12">
-      <h1 className="text-2xl font-bold text-on-surface mb-6 text-center">Регистрация</h1>
-
-      <form onSubmit={handleSubmit} className="bg-white border border-outline-variant/30 rounded-xl p-6 space-y-4">
-        {error && (
-          <div className="bg-red-50 text-red-600 text-sm px-4 py-2 rounded-lg">
-            {error}
-          </div>
-        )}
-
-        <div>
-          <label className="block text-sm font-medium text-on-surface-variant mb-1">Имя *</label>
-          <input
-            type="text"
-            required
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Ваше имя"
-            className="w-full border border-outline-variant rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-container/40"
-          />
+    <div className="min-h-screen bg-surface flex items-center justify-center px-4 py-12">
+      <div className="w-full max-w-lg bg-surface-lowest p-8 md:p-10 rounded-xl warm-shadow">
+        <div className="text-center mb-8">
+          <h1 className="font-[family-name:var(--font-headline)] font-bold text-3xl text-[#451A03] mb-2 tracking-tight">
+            Создать аккаунт
+          </h1>
+          <p className="text-on-surface-variant font-medium">Присоединяйтесь к сообществу профессионалов</p>
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-on-surface-variant mb-1">Телефон *</label>
-          <input
-            type="tel"
-            required
-            value={phone}
-            onChange={(e) => handlePhoneChange(e.target.value)}
-            placeholder="+996 555 123 456"
-            className={`w-full border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 ${
-              phoneError
-                ? "border-red-400 focus:ring-red-400"
-                : "border-outline-variant focus:ring-primary-container/40"
-            }`}
-          />
-          {phoneError && (
-            <p className="text-red-500 text-xs mt-1">{phoneError}</p>
+        <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {error && (
+            <div className="md:col-span-2 bg-error-container text-on-error-container text-sm px-4 py-3 rounded-lg">
+              {error}
+            </div>
           )}
-          <p className="text-outline text-xs mt-1">Формат: +996 или +7</p>
-        </div>
 
-        <div>
-          <label className="block text-sm font-medium text-on-surface-variant mb-1">Пароль *</label>
-          <input
-            type="password"
-            required
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Минимум 4 символа"
-            className="w-full border border-outline-variant rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-container/40"
-          />
-        </div>
+          <div className="md:col-span-2 space-y-2">
+            <label className="text-sm font-semibold text-on-surface-variant uppercase tracking-wider ml-1">
+              ФИО
+            </label>
+            <input
+              type="text"
+              required
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Иванов Иван Иванович"
+              className="w-full px-4 py-4 bg-surface-mid rounded-lg border-none focus:ring-2 focus:ring-primary/20 text-on-surface placeholder:text-outline/50 transition-all"
+            />
+          </div>
 
-        <div>
-          <label className="block text-sm font-medium text-on-surface-variant mb-1">Повторите пароль *</label>
-          <input
-            type="password"
-            required
-            value={passwordConfirm}
-            onChange={(e) => setPasswordConfirm(e.target.value)}
-            placeholder="Повторите пароль"
-            className="w-full border border-outline-variant rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-container/40"
-          />
-        </div>
+          <div className="space-y-2">
+            <label className="text-sm font-semibold text-on-surface-variant uppercase tracking-wider ml-1">
+              Телефон
+            </label>
+            <input
+              type="tel"
+              required
+              value={phone}
+              onChange={(e) => handlePhoneChange(e.target.value)}
+              placeholder="770 000 000"
+              className={`w-full px-4 py-4 bg-surface-mid rounded-lg border-none focus:ring-2 text-on-surface placeholder:text-outline/50 transition-all ${
+                phoneError
+                  ? "ring-2 ring-error/40"
+                  : "focus:ring-primary/20"
+              }`}
+            />
+            {phoneError && (
+              <p className="text-error text-xs mt-1 ml-1">{phoneError}</p>
+            )}
+          </div>
 
-        <button
-          type="submit"
-          className="w-full bg-primary-container text-on-surface font-semibold py-3 rounded-lg hover:bg-primary-container/80 transition-colors"
-        >
-          Зарегистрироваться
-        </button>
+          <div className="space-y-2">
+            <label className="text-sm font-semibold text-on-surface-variant uppercase tracking-wider ml-1">
+              Email
+            </label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="example@mail.ru"
+              className="w-full px-4 py-4 bg-surface-mid rounded-lg border-none focus:ring-2 focus:ring-primary/20 text-on-surface placeholder:text-outline/50 transition-all"
+            />
+          </div>
 
-        <p className="text-center text-sm text-on-surface-variant">
-          Уже есть аккаунт?{" "}
-          <Link href="/login" className="text-primary hover:text-primary font-medium">
-            Войти
-          </Link>
-        </p>
-      </form>
+          <div className="space-y-2">
+            <label className="text-sm font-semibold text-on-surface-variant uppercase tracking-wider ml-1">
+              Пароль
+            </label>
+            <input
+              type="password"
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+              className="w-full px-4 py-4 bg-surface-mid rounded-lg border-none focus:ring-2 focus:ring-primary/20 text-on-surface placeholder:text-outline/50 transition-all"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-semibold text-on-surface-variant uppercase tracking-wider ml-1">
+              Повторите пароль
+            </label>
+            <input
+              type="password"
+              required
+              value={passwordConfirm}
+              onChange={(e) => setPasswordConfirm(e.target.value)}
+              placeholder="••••••••"
+              className="w-full px-4 py-4 bg-surface-mid rounded-lg border-none focus:ring-2 focus:ring-primary/20 text-on-surface placeholder:text-outline/50 transition-all"
+            />
+          </div>
+
+          <div className="md:col-span-2 pt-4">
+            <button
+              type="submit"
+              className="w-full cta-gradient text-white font-bold py-4 rounded-full shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all text-lg"
+            >
+              Зарегистрироваться
+            </button>
+          </div>
+
+          <div className="md:col-span-2 text-center">
+            <p className="text-on-surface-variant">
+              Уже есть аккаунт?{" "}
+              <Link href="/login" className="text-primary font-bold hover:underline underline-offset-4 ml-1">
+                Войти
+              </Link>
+            </p>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }
