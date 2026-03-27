@@ -6,6 +6,7 @@ import { Providers } from "@/components/Providers";
 import { CartBadge, UserBadge } from "@/components/Header";
 import { MobileMenu } from "@/components/MobileMenu";
 import { ScrollToTop } from "@/components/ScrollToTop";
+import { NavLinks } from "@/components/NavLinks";
 
 const manrope = Manrope({
   subsets: ["latin", "cyrillic"],
@@ -80,20 +81,7 @@ export default function RootLayout({
 
               {/* Навигация десктоп */}
               <div className="hidden md:flex gap-6 items-center">
-                {[
-                  { href: "/catalog", label: "Каталог" },
-                  { href: "/select-car", label: "Бренды" },
-                  { href: "/delivery", label: "Доставка" },
-                  { href: "/contacts", label: "Контакты" },
-                ].map((item) => (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className="font-[family-name:var(--font-headline)] font-semibold text-base tracking-tight text-on-surface-variant hover:text-primary transition-colors"
-                  >
-                    {item.label}
-                  </Link>
-                ))}
+                <NavLinks />
               </div>
 
               {/* Поиск десктоп */}
