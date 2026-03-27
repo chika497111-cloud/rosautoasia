@@ -71,7 +71,7 @@ export default function ContactsPage() {
                   href="https://wa.me/996700123456"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex-1 cta-gradient text-white font-semibold py-3 rounded-full text-center hover:opacity-90 active:scale-95 transition-all"
+                  className="flex-1 bg-[#25D366] text-white font-semibold py-3 rounded-full text-center hover:brightness-110 active:scale-95 transition-all"
                 >
                   WhatsApp
                 </a>
@@ -79,7 +79,7 @@ export default function ContactsPage() {
                   href="https://t.me/rosautoasia"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex-1 bg-[#0088cc] text-white font-semibold py-3 rounded-full text-center hover:opacity-90 active:scale-95 transition-all"
+                  className="flex-1 bg-[#26A5E4] text-white font-semibold py-3 rounded-full text-center hover:brightness-110 active:scale-95 transition-all"
                 >
                   Telegram
                 </a>
