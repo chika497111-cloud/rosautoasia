@@ -1,5 +1,18 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { categories, products } from "@/lib/mock-data";
+
+export const metadata: Metadata = {
+  title: "Каталог запчастей",
+  description:
+    "Каталог автозапчастей ROSAutoAsia. Тормозная система, двигатель, подвеска, фильтры, электрика и другие категории. Оригиналы и аналоги с доставкой по Кыргызстану.",
+  openGraph: {
+    title: "Каталог запчастей — ROSAutoAsia",
+    description:
+      "Полный каталог автозапчастей: оригиналы и аналоги для всех марок авто.",
+    url: "https://raa.kg/catalog",
+  },
+};
 
 const categoryIcons: Record<string, string> = {
   "tormoznaya-sistema": "disc_full",

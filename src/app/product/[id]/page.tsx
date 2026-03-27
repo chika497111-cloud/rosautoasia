@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { products, categories, getProductById, getProductsByCategory } from "@/lib/mock-data";
 import { notFound } from "next/navigation";
@@ -6,6 +7,29 @@ import { FavoriteButton } from "@/components/FavoriteButton";
 import { ProductTabs } from "./ProductTabs";
 import { QuantitySelector } from "./QuantitySelector";
 import { SimilarProductCard } from "./SimilarProductCard";
+
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const { id } = await params;
+  const product = getProductById(id);
+
+  if (!product) {
+    return { title: "Товар не найден" };
+  }
+
+  const fullName = product.car_brand
+    ? `${product.name} ${product.car_brand} ${product.car_model || ""}`
+    : product.name;
+
+  return {
+    title: fullName,
+    description: `Купить ${fullName} в ROSAutoAsia. Цена: ${product.price.toLocaleString("ru-RU")} сом. Бренд: ${product.brand}. Доставка по Кыргызстану.`,
+    openGraph: {
+      title: `${fullName} — ROSAutoAsia`,
+      description: `${fullName} — ${product.price.toLocaleString("ru-RU")} сом. ${product.brand}. Доставка по Бишкеку и Кыргызстану.`,
+      url: `https://raa.kg/product/${id}`,
+    },
+  };
+}
 
 export function generateStaticParams() {
   return products.map((p) => ({ id: p.id }));

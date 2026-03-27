@@ -1,4 +1,17 @@
+import type { Metadata } from "next";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "Доставка и оплата",
+  description:
+    "Способы доставки и оплаты в ROSAutoAsia. Самовывоз в Бишкеке, курьерская доставка, отправка по всему Кыргызстану. Оплата наличными, Элсом, картой.",
+  openGraph: {
+    title: "Доставка и оплата — ROSAutoAsia",
+    description:
+      "Самовывоз, курьер по Бишкеку, доставка по КР. Оплата наличными, Элсом, картой.",
+    url: "https://raa.kg/delivery",
+  },
+};
 
 export default function DeliveryPage() {
   return (

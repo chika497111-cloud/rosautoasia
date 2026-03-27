@@ -1,0 +1,89 @@
+project:
+  name: ROSAutoAsia
+  description: Online auto parts store for Kyrgyzstan (raa.kg)
+  language: TypeScript
+  framework: Next.js 16.2.1 (App Router)
+  ui_library: Tailwind CSS v4
+  runtime: Node.js
+
+tech_stack:
+  frontend:
+    - React 19
+    - Next.js 16 (App Router)
+    - Tailwind CSS v4
+    - TypeScript 5
+  fonts:
+    - Manrope (headlines, Google Fonts)
+    - Inter (body, Google Fonts)
+    - Material Symbols Outlined (icons)
+  state_management:
+    - React Context (auth, cart, favorites)
+    - localStorage persistence
+
+features:
+  - name: Homepage
+    path: /
+    description: Hero section, category grid, product cards, trust section
+  - name: Catalog
+    path: /catalog
+    description: All categories grid with icons and product counts
+  - name: Category Products
+    path: /catalog/[slug]
+    description: Product grid with sidebar filters (brand, price, availability)
+  - name: Product Detail
+    path: /product/[id]
+    description: Image gallery, specs tabs, quantity selector, add to cart, similar products
+  - name: Search
+    path: /search
+    description: Search results with filter chips and "not found" request form
+  - name: Cart
+    path: /cart
+    description: Cart items with quantity controls, order summary, promo code
+  - name: Checkout
+    path: /checkout
+    description: Customer form, delivery methods, payment methods, order confirmation
+  - name: Login
+    path: /login
+    description: Phone + password login form
+  - name: Register
+    path: /register
+    description: Registration with name, phone, email, password
+  - name: Forgot Password
+    path: /forgot-password
+    description: Password recovery via phone
+  - name: Account
+    path: /account
+    description: User profile and order history
+  - name: Admin
+    path: /admin
+    description: Admin panel with order management and stats
+  - name: Favorites
+    path: /favorites
+    description: Saved products grid
+  - name: Select Car
+    path: /select-car
+    description: Step-by-step vehicle selector (brand, model, year)
+  - name: About
+    path: /about
+    description: Company info, mission, stats, values
+  - name: Delivery
+    path: /delivery
+    description: Delivery methods, payment options, FAQ
+  - name: Contacts
+    path: /contacts
+    description: Contact info, map, feedback form
+
+authentication:
+  type: localStorage
+  default_admin:
+    phone: "+996000000000"
+    password: admin123
+  flow: phone + password
+
+data:
+  source: mock-data (src/lib/mock-data.ts)
+  categories: 8
+  products: 12+
+  car_brands: multiple (src/lib/car-data.ts)
+
+base_url: http://localhost:3000

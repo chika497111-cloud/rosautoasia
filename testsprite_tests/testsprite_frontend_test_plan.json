@@ -1,0 +1,1941 @@
+[
+  {
+    "id": "TC001",
+    "title": "Homepage loads primary sections",
+    "description": "Verifies the landing page renders its core content blocks so users can start browsing.",
+    "category": "Homepage",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the homepage hero section is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify featured product cards are displayed"
+      }
+    ]
+  },
+  {
+    "id": "TC002",
+    "title": "Homepage category grid supports navigating into browsing",
+    "description": "Verifies users can start browsing by selecting a category from the homepage.",
+    "category": "Homepage",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Click a category card from the category grid"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a product listing view is displayed for the selected category"
+      }
+    ]
+  },
+  {
+    "id": "TC003",
+    "title": "Homepage featured product card opens product details",
+    "description": "Verifies users can open a product detail page from a featured product on the homepage.",
+    "category": "Homepage",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Click a featured product card"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the product details view is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify product purchase actions are available"
+      }
+    ]
+  },
+  {
+    "id": "TC004",
+    "title": "Homepage trust signals section is visible",
+    "description": "Verifies the homepage includes trust signals to support purchasing confidence.",
+    "category": "Homepage",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Scroll to the lower part of the page"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a trust signals section is displayed"
+      }
+    ]
+  },
+  {
+    "id": "TC005",
+    "title": "Homepage handles empty featured products state gracefully",
+    "description": "Verifies the homepage shows an appropriate empty state when featured products are unavailable.",
+    "category": "Homepage",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Wait for the homepage content to finish loading"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify an empty state message is visible where featured products would appear"
+      }
+    ]
+  },
+  {
+    "id": "TC006",
+    "title": "Catalog page loads and displays categories grid",
+    "description": "Verifies the catalog page renders categories so users can pick where to browse.",
+    "category": "Catalog",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /catalog"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the categories grid is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify category product counts are displayed"
+      }
+    ]
+  },
+  {
+    "id": "TC007",
+    "title": "Catalog category selection navigates to category products listing",
+    "description": "Verifies a user can enter a category from the catalog page.",
+    "category": "Catalog",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /catalog"
+      },
+      {
+        "type": "action",
+        "description": "Click a category card"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a product listing view is displayed for the selected category"
+      }
+    ]
+  },
+  {
+    "id": "TC008",
+    "title": "Catalog shows fallback UI when categories cannot be loaded",
+    "description": "Verifies the catalog page displays a user-friendly fallback when category data is unavailable.",
+    "category": "Catalog",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /catalog"
+      },
+      {
+        "type": "action",
+        "description": "Wait for the catalog content to finish loading"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify an unable-to-load fallback message is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC009",
+    "title": "Category products page loads product grid and filters",
+    "description": "Verifies a category listing page shows products and the sidebar filters needed to refine results.",
+    "category": "Category Products",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /catalog"
+      },
+      {
+        "type": "action",
+        "description": "Click a category card"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a product grid is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify sidebar filters for refining products are displayed"
+      }
+    ]
+  },
+  {
+    "id": "TC010",
+    "title": "Category products filters update displayed products",
+    "description": "Verifies applying filters (brand/price/availability) changes the product list accordingly.",
+    "category": "Category Products",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /catalog"
+      },
+      {
+        "type": "action",
+        "description": "Click a category card"
+      },
+      {
+        "type": "action",
+        "description": "Select a brand filter option"
+      },
+      {
+        "type": "action",
+        "description": "Apply the selected filters"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the product grid updates to reflect the applied filters"
+      }
+    ]
+  },
+  {
+    "id": "TC011",
+    "title": "View product details page primary content",
+    "description": "Verifies a product detail page can be opened and displays core product information and purchasing controls.",
+    "category": "Product Detail",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to the home page"
+      },
+      {
+        "type": "action",
+        "description": "Use site search to search for brake pad"
+      },
+      {
+        "type": "action",
+        "description": "Open a product from the search results"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify product images and key product details are displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify quantity selector and add-to-cart control are available"
+      }
+    ]
+  },
+  {
+    "id": "TC012",
+    "title": "Add product to cart from product detail with increased quantity",
+    "description": "Verifies a shopper can select a quantity on product detail and add the item to the cart.",
+    "category": "Product Detail",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to the home page"
+      },
+      {
+        "type": "action",
+        "description": "Use site search to search for brake pad"
+      },
+      {
+        "type": "action",
+        "description": "Open a product from the search results"
+      },
+      {
+        "type": "action",
+        "description": "Increase the product quantity selector to 2"
+      },
+      {
+        "type": "action",
+        "description": "Add the product to the cart"
+      },
+      {
+        "type": "action",
+        "description": "Open the cart"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the cart contains 1 line item with quantity 2"
+      }
+    ]
+  },
+  {
+    "id": "TC013",
+    "title": "Browse product specifications tabs/sections",
+    "description": "Verifies product specifications can be viewed by switching spec tabs/sections.",
+    "category": "Product Detail",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to the home page"
+      },
+      {
+        "type": "action",
+        "description": "Use site search to search for brake pad"
+      },
+      {
+        "type": "action",
+        "description": "Open a product from the search results"
+      },
+      {
+        "type": "action",
+        "description": "Switch to a specifications tab or section"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify product specifications are displayed"
+      }
+    ]
+  },
+  {
+    "id": "TC014",
+    "title": "View similar products from product detail",
+    "description": "Verifies similar products are shown on the product detail page and can be opened.",
+    "category": "Product Detail",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to the home page"
+      },
+      {
+        "type": "action",
+        "description": "Use site search to search for brake pad"
+      },
+      {
+        "type": "action",
+        "description": "Open a product from the search results"
+      },
+      {
+        "type": "action",
+        "description": "Scroll to the similar products section"
+      },
+      {
+        "type": "action",
+        "description": "Open a product from the similar products list"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the newly opened product detail page displays product images and key details"
+      }
+    ]
+  },
+  {
+    "id": "TC015",
+    "title": "Handle non-existent product ID gracefully",
+    "description": "Verifies navigating to an invalid product route shows a not-found UI state.",
+    "category": "Product Detail",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to the home page"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /product/99999"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a not-found empty state is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC016",
+    "title": "Search displays results for a common query",
+    "description": "Verifies that searching for a common part shows a populated results list.",
+    "category": "Search",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to the home page"
+      },
+      {
+        "type": "action",
+        "description": "Use site search to search for brake pad"
+      },
+      {
+        "type": "action",
+        "description": "Submit the search"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify search results are displayed"
+      }
+    ]
+  },
+  {
+    "id": "TC017",
+    "title": "Search suggestions appear while typing",
+    "description": "Verifies typeahead suggestions appear for a partial query and can be selected.",
+    "category": "Search",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to the home page"
+      },
+      {
+        "type": "action",
+        "description": "Focus the site search input"
+      },
+      {
+        "type": "action",
+        "description": "Fill bra into the search field"
+      },
+      {
+        "type": "action",
+        "description": "Select a suggestion from the suggestions list"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify search results are displayed for the selected suggestion"
+      }
+    ]
+  },
+  {
+    "id": "TC018",
+    "title": "Apply and clear filter chips on search results",
+    "description": "Verifies filters can be applied via chips and then removed to restore broader results.",
+    "category": "Search",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /search"
+      },
+      {
+        "type": "action",
+        "description": "Fill brake pad into the search field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the search"
+      },
+      {
+        "type": "action",
+        "description": "Select a filter chip"
+      },
+      {
+        "type": "action",
+        "description": "Remove the selected filter chip"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify search results are displayed"
+      }
+    ]
+  },
+  {
+    "id": "TC019",
+    "title": "Empty search results allow submitting not-found request",
+    "description": "Verifies that when no results are found, the user can submit the not-found request form.",
+    "category": "Search",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /search"
+      },
+      {
+        "type": "action",
+        "description": "Fill unobtanium into the search field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the search"
+      },
+      {
+        "type": "action",
+        "description": "Scroll to the not-found request form"
+      },
+      {
+        "type": "action",
+        "description": "Fill unobtanium into the requested item name field"
+      },
+      {
+        "type": "action",
+        "description": "Fill a valid phone number into the phone field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the not-found request form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a request-submitted confirmation is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC020",
+    "title": "Not-found request form validates required fields",
+    "description": "Verifies the not-found request form shows validation when submitted with missing data.",
+    "category": "Search",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /search"
+      },
+      {
+        "type": "action",
+        "description": "Fill unobtanium into the search field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the search"
+      },
+      {
+        "type": "action",
+        "description": "Scroll to the not-found request form"
+      },
+      {
+        "type": "action",
+        "description": "Submit the not-found request form without filling required fields"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify form validation errors are visible"
+      }
+    ]
+  },
+  {
+    "id": "TC021",
+    "title": "Cart page loads and shows empty state initially",
+    "description": "Verifies the cart page opens and shows an empty state when no items are present.",
+    "category": "Cart",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /cart"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify an empty cart state is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC022",
+    "title": "Add item to cart and verify it appears in cart",
+    "description": "Verifies an item can be added to the cart and is listed with correct quantity.",
+    "category": "Cart",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to the home page"
+      },
+      {
+        "type": "action",
+        "description": "Use site search to search for brake pad"
+      },
+      {
+        "type": "action",
+        "description": "Open a product from the search results"
+      },
+      {
+        "type": "action",
+        "description": "Increase the product quantity selector to 2"
+      },
+      {
+        "type": "action",
+        "description": "Add the product to the cart"
+      },
+      {
+        "type": "action",
+        "description": "Open the cart"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the cart contains 1 line item with quantity 2"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify an order summary with totals is displayed"
+      }
+    ]
+  },
+  {
+    "id": "TC023",
+    "title": "Update cart item quantity using cart controls",
+    "description": "Verifies quantity controls on the cart page update the line item quantity.",
+    "category": "Cart",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to the home page"
+      },
+      {
+        "type": "action",
+        "description": "Use site search to search for brake pad"
+      },
+      {
+        "type": "action",
+        "description": "Open a product from the search results"
+      },
+      {
+        "type": "action",
+        "description": "Add the product to the cart"
+      },
+      {
+        "type": "action",
+        "description": "Open the cart"
+      },
+      {
+        "type": "action",
+        "description": "Increase the quantity for the cart line item by 1 using cart controls"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the cart line item quantity increased"
+      }
+    ]
+  },
+  {
+    "id": "TC024",
+    "title": "Remove item from cart",
+    "description": "Verifies a cart item can be removed and the cart updates accordingly.",
+    "category": "Cart",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to the home page"
+      },
+      {
+        "type": "action",
+        "description": "Use site search to search for brake pad"
+      },
+      {
+        "type": "action",
+        "description": "Open a product from the search results"
+      },
+      {
+        "type": "action",
+        "description": "Add the product to the cart"
+      },
+      {
+        "type": "action",
+        "description": "Open the cart"
+      },
+      {
+        "type": "action",
+        "description": "Remove the cart line item"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the cart is empty or shows an empty cart state"
+      }
+    ]
+  },
+  {
+    "id": "TC025",
+    "title": "Apply promo code from cart",
+    "description": "Verifies a promo code can be entered and the cart reflects the application outcome in the UI.",
+    "category": "Cart",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to the home page"
+      },
+      {
+        "type": "action",
+        "description": "Use site search to search for brake pad"
+      },
+      {
+        "type": "action",
+        "description": "Open a product from the search results"
+      },
+      {
+        "type": "action",
+        "description": "Add the product to the cart"
+      },
+      {
+        "type": "action",
+        "description": "Open the cart"
+      },
+      {
+        "type": "action",
+        "description": "Fill a promo code into the promo code field"
+      },
+      {
+        "type": "action",
+        "description": "Apply the promo code"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the promo code application result is displayed"
+      }
+    ]
+  },
+  {
+    "id": "TC026",
+    "title": "Checkout page loads and shows the checkout form",
+    "description": "Verifies the checkout page loads and primary checkout inputs are available.",
+    "category": "Checkout",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /checkout"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify customer contact fields are displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify delivery method options and payment method options are displayed"
+      }
+    ]
+  },
+  {
+    "id": "TC027",
+    "title": "Place an order successfully from checkout",
+    "description": "Completes checkout with valid customer, delivery, and payment selections and confirms order creation.",
+    "category": "Checkout",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /checkout"
+      },
+      {
+        "type": "action",
+        "description": "Fill a realistic full name into the name field"
+      },
+      {
+        "type": "action",
+        "description": "Fill a valid Kyrgyzstan phone number into the phone field"
+      },
+      {
+        "type": "action",
+        "description": "Fill a valid email into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Select a delivery method"
+      },
+      {
+        "type": "action",
+        "description": "Select a payment method"
+      },
+      {
+        "type": "action",
+        "description": "Submit the checkout order"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify an order confirmation is displayed"
+      }
+    ]
+  },
+  {
+    "id": "TC028",
+    "title": "Checkout requires customer phone number",
+    "description": "Verifies validation prevents placing an order when phone is missing.",
+    "category": "Checkout",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /checkout"
+      },
+      {
+        "type": "action",
+        "description": "Fill a realistic full name into the name field"
+      },
+      {
+        "type": "action",
+        "description": "Clear the phone field if it has any value"
+      },
+      {
+        "type": "action",
+        "description": "Fill a valid email into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Select a delivery method"
+      },
+      {
+        "type": "action",
+        "description": "Select a payment method"
+      },
+      {
+        "type": "action",
+        "description": "Submit the checkout order"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a phone validation error is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC029",
+    "title": "Checkout requires selecting a delivery method",
+    "description": "Verifies the user cannot submit checkout without choosing a delivery method.",
+    "category": "Checkout",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /checkout"
+      },
+      {
+        "type": "action",
+        "description": "Fill a realistic full name into the name field"
+      },
+      {
+        "type": "action",
+        "description": "Fill a valid Kyrgyzstan phone number into the phone field"
+      },
+      {
+        "type": "action",
+        "description": "Fill a valid email into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Ensure no delivery method is selected"
+      },
+      {
+        "type": "action",
+        "description": "Select a payment method"
+      },
+      {
+        "type": "action",
+        "description": "Submit the checkout order"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a delivery method validation error is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC030",
+    "title": "Checkout requires selecting a payment method",
+    "description": "Verifies the user cannot submit checkout without choosing a payment method.",
+    "category": "Checkout",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /checkout"
+      },
+      {
+        "type": "action",
+        "description": "Fill a realistic full name into the name field"
+      },
+      {
+        "type": "action",
+        "description": "Fill a valid Kyrgyzstan phone number into the phone field"
+      },
+      {
+        "type": "action",
+        "description": "Fill a valid email into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Select a delivery method"
+      },
+      {
+        "type": "action",
+        "description": "Ensure no payment method is selected"
+      },
+      {
+        "type": "action",
+        "description": "Submit the checkout order"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a payment method validation error is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC031",
+    "title": "Order submission is prevented when email format is invalid",
+    "description": "Verifies client-side validation for an invalid email in checkout.",
+    "category": "Checkout",
+    "priority": "Low",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /checkout"
+      },
+      {
+        "type": "action",
+        "description": "Fill a realistic full name into the name field"
+      },
+      {
+        "type": "action",
+        "description": "Fill a valid Kyrgyzstan phone number into the phone field"
+      },
+      {
+        "type": "action",
+        "description": "Fill an invalid email format into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Select a delivery method"
+      },
+      {
+        "type": "action",
+        "description": "Select a payment method"
+      },
+      {
+        "type": "action",
+        "description": "Submit the checkout order"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify an email validation error is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC032",
+    "title": "Login page loads and shows phone and password fields",
+    "description": "Verifies the login screen primary inputs are present.",
+    "category": "Login",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the phone field is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the password field is displayed"
+      }
+    ]
+  },
+  {
+    "id": "TC033",
+    "title": "Login with valid credentials",
+    "description": "Logs in using valid phone and password and confirms the user is authenticated via UI behavior.",
+    "category": "Login",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the phone field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the user is logged in"
+      }
+    ]
+  },
+  {
+    "id": "TC034",
+    "title": "Login shows error for invalid credentials",
+    "description": "Attempts login with invalid password and verifies an error is shown and the user remains unauthenticated.",
+    "category": "Login",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the phone field with +996700000000"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with wrong"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a login error message is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC035",
+    "title": "Login requires phone number",
+    "description": "Verifies login cannot be submitted with an empty phone field.",
+    "category": "Login",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Clear the phone field if it has any value"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a phone validation error is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC036",
+    "title": "Login requires password",
+    "description": "Verifies login cannot be submitted with an empty password field.",
+    "category": "Login",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the phone field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Clear the password field if it has any value"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a password validation error is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC037",
+    "title": "Register page loads and shows required registration fields",
+    "description": "Verifies the registration screen primary inputs are present.",
+    "category": "Register",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /register"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify name, phone, email, and password fields are displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a control to submit registration is displayed"
+      }
+    ]
+  },
+  {
+    "id": "TC038",
+    "title": "Register a new user successfully",
+    "description": "Creates a new account with valid data and confirms the user becomes authenticated via UI behavior.",
+    "category": "Register",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /register"
+      },
+      {
+        "type": "action",
+        "description": "Fill Ivan Test into the name field"
+      },
+      {
+        "type": "action",
+        "description": "Fill a unique valid Kyrgyzstan phone number into the phone field"
+      },
+      {
+        "type": "action",
+        "description": "Fill ivan.test@example.kg into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Fill a valid password into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the registration form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the user is logged in"
+      }
+    ]
+  },
+  {
+    "id": "TC039",
+    "title": "Register shows error when phone is already registered",
+    "description": "Attempts registration with a known existing phone and verifies a conflict error is shown.",
+    "category": "Register",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /register"
+      },
+      {
+        "type": "action",
+        "description": "Fill Ivan Existing into the name field"
+      },
+      {
+        "type": "action",
+        "description": "Fill +996000000000 into the phone field"
+      },
+      {
+        "type": "action",
+        "description": "Fill ivan.existing@example.kg into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Fill a valid password into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the registration form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a registration error message is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC040",
+    "title": "Register requires phone number",
+    "description": "Verifies registration cannot be submitted when phone is missing.",
+    "category": "Register",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /register"
+      },
+      {
+        "type": "action",
+        "description": "Fill Ivan NoPhone into the name field"
+      },
+      {
+        "type": "action",
+        "description": "Clear the phone field if it has any value"
+      },
+      {
+        "type": "action",
+        "description": "Fill ivan.nophone@example.kg into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Fill a valid password into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the registration form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a phone validation error is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC041",
+    "title": "Register validates email format",
+    "description": "Verifies registration shows validation error for an invalid email format.",
+    "category": "Register",
+    "priority": "Low",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /register"
+      },
+      {
+        "type": "action",
+        "description": "Fill Ivan BadEmail into the name field"
+      },
+      {
+        "type": "action",
+        "description": "Fill a unique valid Kyrgyzstan phone number into the phone field"
+      },
+      {
+        "type": "action",
+        "description": "Fill an invalid email format into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Fill a valid password into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the registration form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify an email validation error is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC042",
+    "title": "Forgot Password page loads and allows requesting a reset code with a valid phone number",
+    "description": "Verifies that a user can initiate password recovery by submitting a valid phone number.",
+    "category": "Forgot Password",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /forgot-password"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the phone number field with a valid phone number"
+      },
+      {
+        "type": "action",
+        "description": "Submit the forgot password request"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a reset code sent confirmation is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC043",
+    "title": "Forgot Password shows validation for invalid phone number format",
+    "description": "Verifies that the phone input is validated before sending a forgot password request.",
+    "category": "Forgot Password",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /forgot-password"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the phone number field with an invalid phone number"
+      },
+      {
+        "type": "action",
+        "description": "Submit the forgot password request"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a phone number validation error is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC044",
+    "title": "Forgot Password requires phone number to be provided",
+    "description": "Verifies that submitting the forgot password form without a phone number shows a required-field error.",
+    "category": "Forgot Password",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /forgot-password"
+      },
+      {
+        "type": "action",
+        "description": "Submit the forgot password request"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a required field validation error is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC045",
+    "title": "Forgot Password supports completing a password reset after requesting a code",
+    "description": "Verifies the end-to-end reset flow in the UI: request code then set a new password using the code input form.",
+    "category": "Forgot Password",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /forgot-password"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the phone number field with a valid phone number"
+      },
+      {
+        "type": "action",
+        "description": "Submit the forgot password request"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the reset code field with a valid code"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the new password field with a valid password"
+      },
+      {
+        "type": "action",
+        "description": "Submit the password reset form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a password updated confirmation is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC046",
+    "title": "Forgot Password validates mismatch between new password and confirmation (if present)",
+    "description": "Verifies that the reset form prevents submission when confirmation does not match the new password.",
+    "category": "Forgot Password",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /forgot-password"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the phone number field with a valid phone number"
+      },
+      {
+        "type": "action",
+        "description": "Submit the forgot password request"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the reset code field with a valid code"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the new password field with a valid password"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the confirm password field with a different valid password"
+      },
+      {
+        "type": "action",
+        "description": "Submit the password reset form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a password confirmation validation error is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC047",
+    "title": "Forgot Password shows an error for an unregistered phone number",
+    "description": "Verifies that the UI displays an error when the phone number is not found during password recovery.",
+    "category": "Forgot Password",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /forgot-password"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the phone number field with +996999999999"
+      },
+      {
+        "type": "action",
+        "description": "Submit the forgot password request"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a phone not found error is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC048",
+    "title": "Forgot Password prevents reset submission when required fields are missing",
+    "description": "Verifies that the reset form enforces required fields (code and new password) before submission.",
+    "category": "Forgot Password",
+    "priority": "Low",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /forgot-password"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the phone number field with a valid phone number"
+      },
+      {
+        "type": "action",
+        "description": "Submit the forgot password request"
+      },
+      {
+        "type": "action",
+        "description": "Submit the password reset form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify required field validation errors are visible"
+      }
+    ]
+  },
+  {
+    "id": "TC049",
+    "title": "Forgot Password keeps user on the flow when reset code is invalid",
+    "description": "Verifies that an invalid reset code does not complete the reset and shows an error.",
+    "category": "Forgot Password",
+    "priority": "Low",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /forgot-password"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the phone number field with a valid phone number"
+      },
+      {
+        "type": "action",
+        "description": "Submit the forgot password request"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the reset code field with an invalid code"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the new password field with a valid password"
+      },
+      {
+        "type": "action",
+        "description": "Submit the password reset form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a reset code validation error is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC050",
+    "title": "Favorites page loads and shows saved products grid or empty state",
+    "description": "Verifies the Favorites page renders its primary content and shows either a grid of products or an empty state.",
+    "category": "Favorites",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /favorites"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the favorites page primary content is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify either a favorites product grid is displayed or an empty state message is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC051",
+    "title": "Favorites unauthenticated access prompts user to authenticate",
+    "description": "Verifies that opening Favorites without being logged in leads to an authentication prompt or redirect.",
+    "category": "Favorites",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /favorites"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the user is prompted to log in or is redirected to an authentication entry point"
+      }
+    ]
+  },
+  {
+    "id": "TC052",
+    "title": "Add a product to favorites and verify it appears in Favorites",
+    "description": "Verifies end-to-end adding an item to favorites from a product listing and confirming it shows up in Favorites.",
+    "category": "Favorites",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Click a product to open its details page"
+      },
+      {
+        "type": "action",
+        "description": "Click the control to add the product to favorites"
+      },
+      {
+        "type": "action",
+        "description": "Click the navigation link to open favorites"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the favorites list displays at least one saved product item"
+      }
+    ]
+  },
+  {
+    "id": "TC053",
+    "title": "Remove an item from favorites and verify it is removed",
+    "description": "Verifies removing a saved product from Favorites updates the UI accordingly.",
+    "category": "Favorites",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /favorites"
+      },
+      {
+        "type": "action",
+        "description": "If the favorites list is empty, navigate to /, open any product details, and add it to favorites"
+      },
+      {
+        "type": "action",
+        "description": "Return to the favorites page via in-app navigation"
+      },
+      {
+        "type": "action",
+        "description": "Remove a product from favorites"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the removed product no longer appears in the favorites list or an empty state is shown"
+      }
+    ]
+  },
+  {
+    "id": "TC054",
+    "title": "Favorites persist after page reload",
+    "description": "Verifies favorites state is persisted and still visible after a browser reload.",
+    "category": "Favorites",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /favorites"
+      },
+      {
+        "type": "action",
+        "description": "If the favorites list is empty, navigate to /, open any product details, and add it to favorites"
+      },
+      {
+        "type": "action",
+        "description": "Return to the favorites page via in-app navigation"
+      },
+      {
+        "type": "action",
+        "description": "Reload the page"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the favorites list still displays the previously saved product item(s)"
+      }
+    ]
+  },
+  {
+    "id": "TC055",
+    "title": "Select Car page loads and shows step-by-step selector",
+    "description": "Verifies the Select Car page renders the selector UI for choosing brand, model, and year.",
+    "category": "Select Car",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /select-car"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the vehicle selection primary content is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a brand selection step is available"
+      }
+    ]
+  },
+  {
+    "id": "TC056",
+    "title": "Select Car flow: choose brand, then model, then year",
+    "description": "Verifies the core step-by-step vehicle selection flow works across brand, model, and year steps.",
+    "category": "Select Car",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /select-car"
+      },
+      {
+        "type": "action",
+        "description": "Select a car brand from the brand step"
+      },
+      {
+        "type": "action",
+        "description": "Select a car model from the model step"
+      },
+      {
+        "type": "action",
+        "description": "Select a year from the year step"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the selected brand, model, and year are reflected in the UI as the current vehicle selection"
+      }
+    ]
+  },
+  {
+    "id": "TC057",
+    "title": "Select Car prevents progressing without completing required step",
+    "description": "Verifies the user cannot proceed to the next step without selecting the required option.",
+    "category": "Select Car",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /select-car"
+      },
+      {
+        "type": "action",
+        "description": "Attempt to proceed to the next step without selecting a brand"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the flow does not advance to the model step and a validation prompt is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC058",
+    "title": "Select Car allows changing brand and resets dependent selections",
+    "description": "Verifies changing a previously selected brand clears the selected model/year and updates available options.",
+    "category": "Select Car",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /select-car"
+      },
+      {
+        "type": "action",
+        "description": "Select a car brand from the brand step"
+      },
+      {
+        "type": "action",
+        "description": "Select a car model from the model step"
+      },
+      {
+        "type": "action",
+        "description": "Select a year from the year step"
+      },
+      {
+        "type": "action",
+        "description": "Change the selected brand to a different brand"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify model and year selections are cleared and the model step shows options for the newly selected brand"
+      }
+    ]
+  },
+  {
+    "id": "TC059",
+    "title": "About page loads and shows company information and statistics",
+    "description": "Verifies the About page displays its primary content including company info and stats/values sections.",
+    "category": "About",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /about"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the about page primary content is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify company information and at least one statistics or values section is displayed"
+      }
+    ]
+  },
+  {
+    "id": "TC060",
+    "title": "Delivery page loads delivery and payment options",
+    "description": "Verifies the Delivery page displays delivery methods and payment options.",
+    "category": "Delivery",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to the Delivery page"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify delivery methods are displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify payment options are displayed"
+      }
+    ]
+  },
+  {
+    "id": "TC061",
+    "title": "Delivery page FAQ is accessible",
+    "description": "Verifies the Delivery page shows FAQ content for delivery/payment guidance.",
+    "category": "Delivery",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to the Delivery page"
+      },
+      {
+        "type": "action",
+        "description": "Scroll to the FAQ section"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify FAQ items are displayed"
+      }
+    ]
+  },
+  {
+    "id": "TC062",
+    "title": "Delivery page allows selecting a delivery method during checkout flow entry (where available)",
+    "description": "Verifies a user can choose a delivery method from the delivery options UI when the selection UI is present.",
+    "category": "Delivery",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to the Delivery page"
+      },
+      {
+        "type": "action",
+        "description": "Select a delivery method option"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the selected delivery method is reflected in the UI"
+      }
+    ]
+  },
+  {
+    "id": "TC063",
+    "title": "Delivery page allows selecting a payment method (where available)",
+    "description": "Verifies a user can choose a payment method from the payment options UI when the selection UI is present.",
+    "category": "Delivery",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to the Delivery page"
+      },
+      {
+        "type": "action",
+        "description": "Select a payment method option"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the selected payment method is reflected in the UI"
+      }
+    ]
+  },
+  {
+    "id": "TC064",
+    "title": "Contacts page loads contact information and map",
+    "description": "Verifies the Contacts page displays a contact card and an embedded map area.",
+    "category": "Contacts",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to the Contacts page"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify contact information is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a map is displayed"
+      }
+    ]
+  },
+  {
+    "id": "TC065",
+    "title": "Submit feedback form successfully",
+    "description": "Verifies a user can submit the feedback form with valid inputs and see a success confirmation.",
+    "category": "Contacts",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to the Contacts page"
+      },
+      {
+        "type": "action",
+        "description": "Fill Aida into the name field"
+      },
+      {
+        "type": "action",
+        "description": "Fill a valid phone number into the phone field"
+      },
+      {
+        "type": "action",
+        "description": "Fill Question about delivery into the message field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the feedback form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a success confirmation is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC066",
+    "title": "Feedback form validation for empty message",
+    "description": "Verifies the feedback form blocks submission and shows a validation error when message is empty.",
+    "category": "Contacts",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to the Contacts page"
+      },
+      {
+        "type": "action",
+        "description": "Fill Aida into the name field"
+      },
+      {
+        "type": "action",
+        "description": "Fill a valid phone number into the phone field"
+      },
+      {
+        "type": "action",
+        "description": "Fill whitespace into the message field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the feedback form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a message validation error is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC067",
+    "title": "Feedback form preserves entered data after validation error",
+    "description": "Verifies entered name and phone remain populated after a validation error to avoid losing user input.",
+    "category": "Contacts",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to the Contacts page"
+      },
+      {
+        "type": "action",
+        "description": "Fill Aida into the name field"
+      },
+      {
+        "type": "action",
+        "description": "Fill a valid phone number into the phone field"
+      },
+      {
+        "type": "action",
+        "description": "Leave the message field empty"
+      },
+      {
+        "type": "action",
+        "description": "Submit the feedback form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the name field value is Aida"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the phone field still contains the entered phone number"
+      }
+    ]
+  }
+]

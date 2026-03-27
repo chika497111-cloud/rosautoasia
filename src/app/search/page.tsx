@@ -1,6 +1,25 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { searchProducts } from "@/lib/mock-data";
 import { AddToCartButton } from "@/components/AddToCartButton";
+
+export async function generateMetadata({ searchParams }: { searchParams: Promise<{ q?: string }> }): Promise<Metadata> {
+  const { q } = await searchParams;
+  const query = q || "";
+
+  if (!query) {
+    return {
+      title: "Поиск запчастей",
+      description: "Поиск автозапчастей в каталоге ROSAutoAsia. Введите название детали или артикул.",
+    };
+  }
+
+  return {
+    title: `Поиск: ${query}`,
+    description: `Результаты поиска «${query}» в каталоге автозапчастей ROSAutoAsia. Оригиналы и аналоги с доставкой по Кыргызстану.`,
+    robots: { index: false, follow: true },
+  };
+}
 
 export default async function SearchPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
   const { q } = await searchParams;

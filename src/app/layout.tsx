@@ -20,8 +20,41 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "ROSAutoAsia — Автозапчасти в Бишкеке",
-  description: "Интернет-магазин автозапчастей ROSAutoAsia. Оригиналы и аналоги для всех марок с доставкой по Кыргызстану.",
+  title: {
+    default: "ROSAutoAsia — Автозапчасти в Бишкеке",
+    template: "%s | ROSAutoAsia",
+  },
+  description:
+    "Интернет-магазин автозапчастей ROSAutoAsia. Оригиналы и аналоги из Японии, Кореи и Китая с доставкой по Кыргызстану. Более 100,000 наименований.",
+  keywords: [
+    "автозапчасти",
+    "Бишкек",
+    "Кыргызстан",
+    "запчасти",
+    "Toyota",
+    "Hyundai",
+    "Kia",
+    "оригинал",
+    "аналоги",
+    "ROSAutoAsia",
+  ],
+  authors: [{ name: "ROSAutoAsia" }],
+  openGraph: {
+    type: "website",
+    locale: "ru_RU",
+    url: "https://raa.kg",
+    siteName: "ROSAutoAsia",
+    title: "ROSAutoAsia — Автозапчасти в Бишкеке",
+    description:
+      "Оригинальные автозапчасти из Японии, Кореи и Китая с доставкой по Кыргызстану",
+  },
+  twitter: {
+    card: "summary_large_image",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function RootLayout({

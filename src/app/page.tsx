@@ -1,5 +1,18 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { categories, products } from "@/lib/mock-data";
+
+export const metadata: Metadata = {
+  title: "ROSAutoAsia — Автозапчасти в Бишкеке | Оригиналы и аналоги",
+  description:
+    "Интернет-магазин автозапчастей ROSAutoAsia. Оригиналы и аналоги из Японии, Кореи и Китая с доставкой по Кыргызстану. Более 100,000 наименований в наличии.",
+  openGraph: {
+    title: "ROSAutoAsia — Автозапчасти в Бишкеке",
+    description:
+      "Оригинальные автозапчасти из Японии, Кореи и Китая с доставкой по Кыргызстану. Более 100,000 наименований.",
+    url: "https://raa.kg",
+  },
+};
 
 /* SVG icons for each category (keyed by category id) */
 const categoryIcons: Record<string, React.ReactNode> = {

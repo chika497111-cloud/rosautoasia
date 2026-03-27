@@ -1,4 +1,17 @@
+import type { Metadata } from "next";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "Контакты",
+  description:
+    "Контакты ROSAutoAsia. Адрес: Бишкек, ул. Льва Толстого, 126. Телефон: +996 700 123 456. WhatsApp, Telegram. Режим работы: Пн-Сб 09:00-19:00.",
+  openGraph: {
+    title: "Контакты — ROSAutoAsia",
+    description:
+      "Свяжитесь с ROSAutoAsia: телефон, WhatsApp, Telegram. Бишкек, ул. Льва Толстого, 126.",
+    url: "https://raa.kg/contacts",
+  },
+};
 
 export default function ContactsPage() {
   return (

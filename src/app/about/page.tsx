@@ -1,4 +1,17 @@
+import type { Metadata } from "next";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "О компании",
+  description:
+    "ROSAutoAsia — надёжный поставщик автозапчастей в Кыргызстане с 2015 года. Более 100,000 наименований, 50+ прямых контрактов с брендами, 10,000+ клиентов.",
+  openGraph: {
+    title: "О компании ROSAutoAsia",
+    description:
+      "Надёжный поставщик автозапчастей в Кыргызстане. Оригиналы из Японии, Кореи и Китая.",
+    url: "https://raa.kg/about",
+  },
+};
 
 export default function AboutPage() {
   return (
