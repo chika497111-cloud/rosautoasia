@@ -31,7 +31,9 @@ export default function LoginPage() {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [submitting, setSubmitting] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
@@ -41,11 +43,16 @@ export default function LoginPage() {
       return;
     }
 
-    const result = login(phone.trim(), password);
-    if (result.success) {
-      router.push("/account");
-    } else {
-      setError(result.error || "Ошибка входа");
+    setSubmitting(true);
+    try {
+      const result = await login(phone.trim(), password);
+      if (result.success) {
+        router.push("/account");
+      } else {
+        setError(result.error || "Ошибка входа");
+      }
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -111,9 +118,10 @@ export default function LoginPage() {
 
           <button
             type="submit"
-            className="w-full cta-gradient text-white font-bold py-4 rounded-full shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all text-lg"
+            disabled={submitting}
+            className="w-full cta-gradient text-white font-bold py-4 rounded-full shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all text-lg disabled:opacity-50"
           >
-            Войти
+            {submitting ? "Вход..." : "Войти"}
           </button>
 
           <div className="relative flex items-center py-4">

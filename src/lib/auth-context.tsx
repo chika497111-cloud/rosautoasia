@@ -1,6 +1,29 @@
 "use client";
 
 import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from "react";
+import { auth, db } from "@/lib/firebase";
+import { initializeApp, deleteApp } from "firebase/app";
+import { getAuth } from "firebase/auth";
+import {
+  onAuthStateChanged,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
+  type User as FirebaseUser,
+} from "firebase/auth";
+import {
+  doc,
+  getDoc,
+  setDoc,
+  collection,
+  query,
+  where,
+  getDocs,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  orderBy,
+} from "firebase/firestore";
 
 export type UserRole = "client" | "admin" | "manager";
 
@@ -29,71 +52,74 @@ export interface Order {
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
-  login: (phone: string, password: string) => { success: boolean; error?: string };
-  register: (name: string, phone: string, password: string) => { success: boolean; error?: string };
+  login: (phone: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  register: (name: string, phone: string, password: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
   orders: Order[];
-  addOrder: (order: Omit<Order, "id" | "number" | "userId" | "userName" | "userPhone" | "status" | "createdAt">) => Order;
+  addOrder: (order: Omit<Order, "id" | "number" | "userId" | "userName" | "userPhone" | "status" | "createdAt">) => Promise<Order>;
   // Админ-функции
-  getAllOrders: () => Order[];
-  getAllClients: () => User[];
-  updateOrderStatus: (orderId: string, status: Order["status"]) => boolean;
-  createStaffAccount: (name: string, phone: string, password: string, role: "admin" | "manager") => { success: boolean; error?: string };
-  getStaffAccounts: () => User[];
-  deleteStaffAccount: (userId: string) => boolean;
+  getAllOrders: () => Promise<Order[]>;
+  getAllClients: () => Promise<User[]>;
+  updateOrderStatus: (orderId: string, status: Order["status"]) => Promise<boolean>;
+  createStaffAccount: (name: string, phone: string, password: string, role: "admin" | "manager") => Promise<{ success: boolean; error?: string }>;
+  getStaffAccounts: () => Promise<User[]>;
+  deleteStaffAccount: (userId: string) => Promise<boolean>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
-const ADMIN_DEFAULT_ID = "admin_root";
-const ADMIN_DEFAULT_PHONE = "+996000000000";
-const ADMIN_DEFAULT_PASSWORD = "admin123";
-const ADMIN_DEFAULT_NAME = "Администратор";
+/** Convert phone to fake email for Firebase Auth: +996555000000 -> 996555000000@raa.kg */
+function phoneToEmail(phone: string): string {
+  const digits = phone.replace(/\D/g, "");
+  return `${digits}@raa.kg`;
+}
 
-function getUsers(): User[] {
-  if (typeof window === "undefined") return [];
-  const data = localStorage.getItem("roa_users");
-  const users: User[] = data ? JSON.parse(data) : [];
-
-  // Обеспечить наличие главного админа
-  if (!users.find((u) => u.id === ADMIN_DEFAULT_ID)) {
-    const admin: User = {
-      id: ADMIN_DEFAULT_ID,
-      name: ADMIN_DEFAULT_NAME,
-      phone: ADMIN_DEFAULT_PHONE,
-      password: ADMIN_DEFAULT_PASSWORD,
-      role: "admin",
-      createdAt: new Date().toISOString(),
+/** Read a user profile doc from Firestore */
+async function getUserProfile(uid: string): Promise<User | null> {
+  try {
+    const snap = await getDoc(doc(db, "users", uid));
+    if (!snap.exists()) return null;
+    const data = snap.data();
+    return {
+      id: uid,
+      name: data.name ?? "",
+      phone: data.phone ?? "",
+      password: "", // never stored / returned
+      role: data.role ?? "client",
+      createdAt: data.createdAt ?? new Date().toISOString(),
     };
-    users.push(admin);
-    saveUsers(users);
+  } catch {
+    return null;
   }
+}
 
-  // Миграция: если у пользователя нет роли — назначить client
-  let needsSave = false;
-  for (const u of users) {
-    if (!u.role) {
-      u.role = "client";
-      needsSave = true;
-    }
+/** Fetch orders for a specific user or all orders (admin) */
+async function fetchOrders(uid?: string): Promise<Order[]> {
+  try {
+    // All orders are stored in a top-level "orders" collection for admin access
+    const ordersRef = collection(db, "orders");
+    const q = uid
+      ? query(ordersRef, where("userId", "==", uid), orderBy("createdAt", "desc"))
+      : query(ordersRef, orderBy("createdAt", "desc"));
+    const snap = await getDocs(q);
+    return snap.docs.map((d) => {
+      const data = d.data();
+      return {
+        id: d.id,
+        number: data.number ?? "",
+        userId: data.userId ?? "",
+        userName: data.userName ?? "",
+        userPhone: data.userPhone ?? "",
+        items: data.items ?? [],
+        total: data.total ?? 0,
+        status: data.status ?? "new",
+        comment: data.comment ?? "",
+        createdAt: data.createdAt ?? "",
+      } as Order;
+    });
+  } catch {
+    return [];
   }
-  if (needsSave) saveUsers(users);
-
-  return users;
-}
-
-function saveUsers(users: User[]) {
-  localStorage.setItem("roa_users", JSON.stringify(users));
-}
-
-function getOrdersFromStorage(): Order[] {
-  if (typeof window === "undefined") return [];
-  const data = localStorage.getItem("roa_orders");
-  return data ? JSON.parse(data) : [];
-}
-
-function saveOrdersToStorage(orders: Order[]) {
-  localStorage.setItem("roa_orders", JSON.stringify(orders));
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -101,168 +127,254 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Listen for Firebase Auth state
   useEffect(() => {
-    const savedUserId = localStorage.getItem("roa_current_user");
-    if (savedUserId) {
-      const users = getUsers();
-      const found = users.find((u) => u.id === savedUserId);
-      if (found) {
-        setUser(found);
-        if (found.role === "admin" || found.role === "manager") {
-          setOrders(getOrdersFromStorage());
+    const unsub = onAuthStateChanged(auth, async (fbUser: FirebaseUser | null) => {
+      if (fbUser) {
+        const profile = await getUserProfile(fbUser.uid);
+        if (profile) {
+          setUser(profile);
+          // Load orders
+          if (profile.role === "admin" || profile.role === "manager") {
+            setOrders(await fetchOrders());
+          } else {
+            setOrders(await fetchOrders(fbUser.uid));
+          }
         } else {
-          setOrders(getOrdersFromStorage().filter((o) => o.userId === found.id));
+          // Auth exists but no profile doc — sign out
+          await signOut(auth);
+          setUser(null);
+          setOrders([]);
         }
+      } else {
+        setUser(null);
+        setOrders([]);
       }
-    } else {
-      // Всё равно вызываем getUsers чтобы создать админа
-      getUsers();
-    }
-    setIsLoading(false);
+      setIsLoading(false);
+    });
+    return () => unsub();
   }, []);
 
-  const register = useCallback((name: string, phone: string, password: string) => {
-    const users = getUsers();
-    const normalizedPhone = phone.replace(/\D/g, "");
+  const register = useCallback(async (name: string, phone: string, password: string): Promise<{ success: boolean; error?: string }> => {
+    try {
+      if (password.length < 6) {
+        return { success: false, error: "Пароль должен быть не менее 6 символов" };
+      }
 
-    if (users.find((u) => u.phone.replace(/\D/g, "") === normalizedPhone)) {
-      return { success: false, error: "Пользователь с таким телефоном уже зарегистрирован" };
-    }
+      const email = phoneToEmail(phone);
+      const cred = await createUserWithEmailAndPassword(auth, email, password);
 
-    if (password.length < 4) {
-      return { success: false, error: "Пароль должен быть не менее 4 символов" };
-    }
+      // Create Firestore profile
+      await setDoc(doc(db, "users", cred.user.uid), {
+        name,
+        phone,
+        role: "client",
+        createdAt: new Date().toISOString(),
+      });
 
-    const newUser: User = {
-      id: "user_" + Date.now(),
-      name,
-      phone,
-      password,
-      role: "client",
-      createdAt: new Date().toISOString(),
-    };
-
-    users.push(newUser);
-    saveUsers(users);
-    setUser(newUser);
-    localStorage.setItem("roa_current_user", newUser.id);
-    setOrders([]);
-
-    return { success: true };
-  }, []);
-
-  const login = useCallback((phone: string, password: string) => {
-    const users = getUsers();
-    const normalizedPhone = phone.replace(/\D/g, "");
-    const found = users.find((u) => u.phone.replace(/\D/g, "") === normalizedPhone);
-
-    if (!found) {
-      return { success: false, error: "Пользователь не найден" };
-    }
-
-    if (found.password !== password) {
-      return { success: false, error: "Неверный пароль" };
-    }
-
-    setUser(found);
-    localStorage.setItem("roa_current_user", found.id);
-
-    if (found.role === "admin" || found.role === "manager") {
-      setOrders(getOrdersFromStorage());
-    } else {
-      setOrders(getOrdersFromStorage().filter((o) => o.userId === found.id));
-    }
-
-    return { success: true };
-  }, []);
-
-  const logout = useCallback(() => {
-    setUser(null);
-    setOrders([]);
-    localStorage.removeItem("roa_current_user");
-  }, []);
-
-  const addOrder = useCallback(
-    (orderData: Omit<Order, "id" | "number" | "userId" | "userName" | "userPhone" | "status" | "createdAt">) => {
-      if (!user) throw new Error("Нужно войти в аккаунт");
-
-      const allOrders = getOrdersFromStorage();
-      const newOrder: Order = {
-        ...orderData,
-        id: "order_" + Date.now(),
-        number: "ROA-" + String(allOrders.length + 1).padStart(6, "0"),
-        userId: user.id,
-        userName: user.name,
-        userPhone: user.phone,
-        status: "new",
+      const profile: User = {
+        id: cred.user.uid,
+        name,
+        phone,
+        password: "",
+        role: "client",
         createdAt: new Date().toISOString(),
       };
 
-      allOrders.push(newOrder);
-      saveOrdersToStorage(allOrders);
-      setOrders((prev) => [...prev, newOrder]);
+      setUser(profile);
+      setOrders([]);
+      return { success: true };
+    } catch (err: unknown) {
+      const code = (err as { code?: string }).code;
+      if (code === "auth/email-already-in-use") {
+        return { success: false, error: "Пользователь с таким телефоном уже зарегистрирован" };
+      }
+      if (code === "auth/weak-password") {
+        return { success: false, error: "Пароль слишком слабый (минимум 6 символов)" };
+      }
+      return { success: false, error: "Ошибка регистрации. Попробуйте позже." };
+    }
+  }, []);
 
-      return newOrder;
+  const login = useCallback(async (phone: string, password: string): Promise<{ success: boolean; error?: string }> => {
+    try {
+      const email = phoneToEmail(phone);
+      const cred = await signInWithEmailAndPassword(auth, email, password);
+      const profile = await getUserProfile(cred.user.uid);
+
+      if (!profile) {
+        return { success: false, error: "Профиль не найден" };
+      }
+
+      setUser(profile);
+
+      if (profile.role === "admin" || profile.role === "manager") {
+        setOrders(await fetchOrders());
+      } else {
+        setOrders(await fetchOrders(cred.user.uid));
+      }
+
+      return { success: true };
+    } catch (err: unknown) {
+      const code = (err as { code?: string }).code;
+      if (code === "auth/user-not-found" || code === "auth/invalid-credential") {
+        return { success: false, error: "Неверный телефон или пароль" };
+      }
+      if (code === "auth/wrong-password") {
+        return { success: false, error: "Неверный пароль" };
+      }
+      return { success: false, error: "Ошибка входа. Попробуйте позже." };
+    }
+  }, []);
+
+  const logout = useCallback(() => {
+    signOut(auth);
+    setUser(null);
+    setOrders([]);
+  }, []);
+
+  const addOrder = useCallback(
+    async (orderData: Omit<Order, "id" | "number" | "userId" | "userName" | "userPhone" | "status" | "createdAt">): Promise<Order> => {
+      if (!user) throw new Error("Нужно войти в аккаунт");
+
+      try {
+        // Get next order number
+        const allOrders = await fetchOrders();
+        const orderNumber = "ROA-" + String(allOrders.length + 1).padStart(6, "0");
+        const now = new Date().toISOString();
+
+        const orderDoc = {
+          ...orderData,
+          number: orderNumber,
+          userId: user.id,
+          userName: user.name,
+          userPhone: user.phone,
+          status: "new" as const,
+          createdAt: now,
+        };
+
+        const ref = await addDoc(collection(db, "orders"), orderDoc);
+
+        const newOrder: Order = {
+          ...orderDoc,
+          id: ref.id,
+        };
+
+        setOrders((prev) => [newOrder, ...prev]);
+        return newOrder;
+      } catch {
+        throw new Error("Не удалось создать заказ. Попробуйте позже.");
+      }
     },
     [user]
   );
 
-  const getAllOrders = useCallback(() => {
-    return getOrdersFromStorage().sort(
-      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    );
+  const getAllOrders = useCallback(async (): Promise<Order[]> => {
+    const all = await fetchOrders();
+    setOrders(all);
+    return all;
   }, []);
 
-  const getAllClients = useCallback(() => {
-    return getUsers().filter((u) => u.role === "client");
-  }, []);
-
-  const updateOrderStatus = useCallback((orderId: string, status: Order["status"]) => {
-    const allOrders = getOrdersFromStorage();
-    const idx = allOrders.findIndex((o) => o.id === orderId);
-    if (idx === -1) return false;
-
-    allOrders[idx].status = status;
-    saveOrdersToStorage(allOrders);
-    setOrders(allOrders);
-    return true;
-  }, []);
-
-  const createStaffAccount = useCallback((name: string, phone: string, password: string, role: "admin" | "manager") => {
-    const users = getUsers();
-    const normalizedPhone = phone.replace(/\D/g, "");
-
-    if (users.find((u) => u.phone.replace(/\D/g, "") === normalizedPhone)) {
-      return { success: false, error: "Пользователь с таким телефоном уже существует" };
+  const getAllClients = useCallback(async (): Promise<User[]> => {
+    try {
+      const q = query(collection(db, "users"), where("role", "==", "client"));
+      const snap = await getDocs(q);
+      return snap.docs.map((d) => {
+        const data = d.data();
+        return {
+          id: d.id,
+          name: data.name ?? "",
+          phone: data.phone ?? "",
+          password: "",
+          role: data.role ?? "client",
+          createdAt: data.createdAt ?? "",
+        } as User;
+      });
+    } catch {
+      return [];
     }
+  }, []);
 
-    if (password.length < 4) {
-      return { success: false, error: "Пароль должен быть не менее 4 символов" };
+  const updateOrderStatus = useCallback(async (orderId: string, status: Order["status"]): Promise<boolean> => {
+    try {
+      await updateDoc(doc(db, "orders", orderId), { status });
+      setOrders((prev) => prev.map((o) => (o.id === orderId ? { ...o, status } : o)));
+      return true;
+    } catch {
+      return false;
     }
-
-    const newUser: User = {
-      id: "staff_" + Date.now(),
-      name,
-      phone,
-      password,
-      role,
-      createdAt: new Date().toISOString(),
-    };
-
-    users.push(newUser);
-    saveUsers(users);
-    return { success: true };
   }, []);
 
-  const getStaffAccounts = useCallback(() => {
-    return getUsers().filter((u) => u.role === "admin" || u.role === "manager");
+  const createStaffAccount = useCallback(async (name: string, phone: string, password: string, role: "admin" | "manager"): Promise<{ success: boolean; error?: string }> => {
+    // Use a secondary Firebase app so the current admin session is not disrupted
+    let secondaryApp;
+    try {
+      if (password.length < 6) {
+        return { success: false, error: "Пароль должен быть не менее 6 символов" };
+      }
+
+      const email = phoneToEmail(phone);
+
+      // Create a temporary secondary app to register the new user
+      secondaryApp = initializeApp(auth.app.options, "staffCreator_" + Date.now());
+      const secondaryAuth = getAuth(secondaryApp);
+      const cred = await createUserWithEmailAndPassword(secondaryAuth, email, password);
+
+      await setDoc(doc(db, "users", cred.user.uid), {
+        name,
+        phone,
+        role,
+        createdAt: new Date().toISOString(),
+      });
+
+      // Sign out and clean up secondary app
+      await signOut(secondaryAuth);
+      await deleteApp(secondaryApp);
+
+      return { success: true };
+    } catch (err: unknown) {
+      // Clean up secondary app on error
+      if (secondaryApp) {
+        try { await deleteApp(secondaryApp); } catch {}
+      }
+      const code = (err as { code?: string }).code;
+      if (code === "auth/email-already-in-use") {
+        return { success: false, error: "Пользователь с таким телефоном уже существует" };
+      }
+      return { success: false, error: "Ошибка создания аккаунта" };
+    }
   }, []);
 
-  const deleteStaffAccount = useCallback((userId: string) => {
-    if (userId === ADMIN_DEFAULT_ID) return false; // нельзя удалить главного
-    const users = getUsers().filter((u) => u.id !== userId);
-    saveUsers(users);
-    return true;
+  const getStaffAccounts = useCallback(async (): Promise<User[]> => {
+    try {
+      const q = query(collection(db, "users"), where("role", "in", ["admin", "manager"]));
+      const snap = await getDocs(q);
+      return snap.docs.map((d) => {
+        const data = d.data();
+        return {
+          id: d.id,
+          name: data.name ?? "",
+          phone: data.phone ?? "",
+          password: "",
+          role: data.role ?? "manager",
+          createdAt: data.createdAt ?? "",
+        } as User;
+      });
+    } catch {
+      return [];
+    }
+  }, []);
+
+  const deleteStaffAccount = useCallback(async (userId: string): Promise<boolean> => {
+    try {
+      // We can only delete the Firestore doc from client side.
+      // Deleting the Firebase Auth user requires Admin SDK (server-side).
+      // For now, we remove the profile doc which effectively blocks access.
+      await deleteDoc(doc(db, "users", userId));
+      return true;
+    } catch {
+      return false;
+    }
   }, []);
 
   return (

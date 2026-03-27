@@ -50,9 +50,9 @@ export default function AdminPage() {
 
   useEffect(() => {
     if (!isLoading && user && (user.role === "admin" || user.role === "manager")) {
-      setAllOrders(getAllOrders());
-      setClients(getAllClients());
-      setStaff(getStaffAccounts());
+      getAllOrders().then(setAllOrders);
+      getAllClients().then(setClients);
+      getStaffAccounts().then(setStaff);
     }
   }, [isLoading, user, getAllOrders, getAllClients, getStaffAccounts]);
 
@@ -75,12 +75,12 @@ export default function AdminPage() {
     ? allOrders
     : allOrders.filter((o) => o.status === orderFilter);
 
-  const handleStatusChange = (orderId: string, newStatus: Order["status"]) => {
-    updateOrderStatus(orderId, newStatus);
-    setAllOrders(getAllOrders());
+  const handleStatusChange = async (orderId: string, newStatus: Order["status"]) => {
+    await updateOrderStatus(orderId, newStatus);
+    setAllOrders(await getAllOrders());
   };
 
-  const handleCreateStaff = (e: React.FormEvent) => {
+  const handleCreateStaff = async (e: React.FormEvent) => {
     e.preventDefault();
     setStaffError("");
 
@@ -90,9 +90,9 @@ export default function AdminPage() {
       return;
     }
 
-    const result = createStaffAccount(staffName.trim(), staffPhone.trim(), staffPassword, staffRole);
+    const result = await createStaffAccount(staffName.trim(), staffPhone.trim(), staffPassword, staffRole);
     if (result.success) {
-      setStaff(getStaffAccounts());
+      setStaff(await getStaffAccounts());
       setShowStaffForm(false);
       setStaffName("");
       setStaffPhone("+996");
@@ -103,9 +103,9 @@ export default function AdminPage() {
     }
   };
 
-  const handleDeleteStaff = (userId: string) => {
-    if (deleteStaffAccount(userId)) {
-      setStaff(getStaffAccounts());
+  const handleDeleteStaff = async (userId: string) => {
+    if (await deleteStaffAccount(userId)) {
+      setStaff(await getStaffAccounts());
     }
   };
 

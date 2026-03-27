@@ -34,7 +34,9 @@ export default function RegisterPage() {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [submitting, setSubmitting] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
@@ -49,8 +51,8 @@ export default function RegisterPage() {
       return;
     }
 
-    if (password.length < 4) {
-      setError("Пароль должен быть не менее 4 символов");
+    if (password.length < 6) {
+      setError("Пароль должен быть не менее 6 символов");
       return;
     }
 
@@ -59,11 +61,16 @@ export default function RegisterPage() {
       return;
     }
 
-    const result = register(name.trim(), phone.trim(), password);
-    if (result.success) {
-      router.push("/account");
-    } else {
-      setError(result.error || "Ошибка регистрации");
+    setSubmitting(true);
+    try {
+      const result = await register(name.trim(), phone.trim(), password);
+      if (result.success) {
+        router.push("/account");
+      } else {
+        setError(result.error || "Ошибка регистрации");
+      }
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -163,9 +170,10 @@ export default function RegisterPage() {
           <div className="md:col-span-2 pt-4">
             <button
               type="submit"
-              className="w-full cta-gradient text-white font-bold py-4 rounded-full shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all text-lg"
+              disabled={submitting}
+              className="w-full cta-gradient text-white font-bold py-4 rounded-full shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all text-lg disabled:opacity-50"
             >
-              Зарегистрироваться
+              {submitting ? "Регистрация..." : "Зарегистрироваться"}
             </button>
           </div>
 

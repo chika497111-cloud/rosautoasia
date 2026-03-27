@@ -1,8 +1,11 @@
 "use client";
 
-import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from "react";
+import { createContext, useContext, useState, useCallback, useEffect, useRef, type ReactNode } from "react";
+import { auth, db } from "@/lib/firebase";
+import { onAuthStateChanged } from "firebase/auth";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 
-const STORAGE_KEY = "roa_favorites";
+const LS_KEY = "roa_favorites";
 
 interface FavoritesContextType {
   favorites: string[];
@@ -13,10 +16,10 @@ interface FavoritesContextType {
 
 const FavoritesContext = createContext<FavoritesContextType | null>(null);
 
-function loadFavorites(): string[] {
+function loadLocalFavorites(): string[] {
   if (typeof window === "undefined") return [];
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = localStorage.getItem(LS_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed)) return parsed;
@@ -25,22 +28,72 @@ function loadFavorites(): string[] {
   return [];
 }
 
-function saveFavorites(favorites: string[]) {
+function saveLocalFavorites(favorites: string[]) {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(favorites));
+    localStorage.setItem(LS_KEY, JSON.stringify(favorites));
   } catch {}
+}
+
+async function loadFirestoreFavorites(uid: string): Promise<string[]> {
+  try {
+    const snap = await getDoc(doc(db, "users", uid, "meta", "favorites"));
+    if (snap.exists()) {
+      const data = snap.data();
+      if (Array.isArray(data.items)) return data.items;
+    }
+  } catch {}
+  return [];
+}
+
+async function saveFirestoreFavorites(uid: string, favorites: string[]) {
+  try {
+    await setDoc(doc(db, "users", uid, "meta", "favorites"), { items: favorites });
+  } catch {}
+}
+
+/** Merge local + Firestore favorites (union, no duplicates) */
+function mergeFavorites(firestoreFavs: string[], localFavs: string[]): string[] {
+  return [...new Set([...firestoreFavs, ...localFavs])];
 }
 
 export function FavoritesProvider({ children }: { children: ReactNode }) {
   const [favorites, setFavorites] = useState<string[]>([]);
+  const uidRef = useRef<string | null>(null);
+  const initializedRef = useRef(false);
 
+  // Persist whenever favorites change (after init)
   useEffect(() => {
-    setFavorites(loadFavorites());
-  }, []);
-
-  useEffect(() => {
-    saveFavorites(favorites);
+    if (!initializedRef.current) return;
+    if (uidRef.current) {
+      saveFirestoreFavorites(uidRef.current, favorites);
+    } else {
+      saveLocalFavorites(favorites);
+    }
   }, [favorites]);
+
+  // Auth state listener
+  useEffect(() => {
+    const unsub = onAuthStateChanged(auth, async (fbUser) => {
+      if (fbUser) {
+        uidRef.current = fbUser.uid;
+        const localFavs = loadLocalFavorites();
+        const firestoreFavs = await loadFirestoreFavorites(fbUser.uid);
+        const merged = mergeFavorites(firestoreFavs, localFavs);
+        setFavorites(merged);
+        // Clear localStorage after merge
+        try { localStorage.removeItem(LS_KEY); } catch {}
+        // Save merged to Firestore if local had items
+        if (localFavs.length > 0) {
+          await saveFirestoreFavorites(fbUser.uid, merged);
+        }
+      } else {
+        uidRef.current = null;
+        setFavorites(loadLocalFavorites());
+      }
+      initializedRef.current = true;
+    });
+    return () => unsub();
+  }, []);
 
   const toggleFavorite = useCallback((productId: string) => {
     setFavorites((prev) => {

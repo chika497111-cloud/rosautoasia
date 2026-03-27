@@ -116,23 +116,32 @@ export default function CheckoutPage() {
     );
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [submitting, setSubmitting] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSubmitting(true);
 
-    const order = addOrder({
-      items: items.map((item) => ({
-        name: item.product.name,
-        article: item.product.article,
-        price: item.product.price,
-        quantity: item.quantity,
-      })),
-      total: grandTotal,
-      comment,
-    });
+    try {
+      const order = await addOrder({
+        items: items.map((item) => ({
+          name: item.product.name,
+          article: item.product.article,
+          price: item.product.price,
+          quantity: item.quantity,
+        })),
+        total: grandTotal,
+        comment,
+      });
 
-    setOrderNumber(order.number);
-    setSubmitted(true);
-    clearCart();
+      setOrderNumber(order.number);
+      setSubmitted(true);
+      clearCart();
+    } catch {
+      // Could show error to user
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const deliveryOptions: {
