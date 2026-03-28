@@ -127,7 +127,7 @@ export function MobileMenu() {
         </nav>
       </div>
     </div>
-  ) : null;
+  );
 
   return (
     <>
