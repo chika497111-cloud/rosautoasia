@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useMemo, use } from "react";
+import { useState, useMemo, use, useEffect } from "react";
 import { categories, products, getCategoryBySlug } from "@/lib/mock-data";
 import { notFound } from "next/navigation";
 import { useCart } from "@/lib/cart-context";
@@ -27,6 +27,15 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
   const [sortBy, setSortBy] = useState("default");
   const [priceMax, setPriceMax] = useState(50000);
   const [showMobileFilters, setShowMobileFilters] = useState(false);
+
+  useEffect(() => {
+    if (showMobileFilters) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => { document.body.style.overflow = ""; };
+  }, [showMobileFilters]);
 
   const maxPrice = Math.max(...categoryProducts.map((p) => p.price), 50000);
 
@@ -117,9 +126,9 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
 
       {/* Mobile filters modal */}
       {showMobileFilters && (
-        <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, zIndex: 99999, display: "flex", alignItems: "center", justifyContent: "center" }} className="md:hidden">
+        <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, zIndex: 99999, display: "flex", alignItems: "flex-start", justifyContent: "center", paddingTop: "10vh", overflow: "hidden" }} className="md:hidden">
           <div style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(0,0,0,0.6)" }} onClick={() => setShowMobileFilters(false)} />
-          <div style={{ position: "relative", width: "90%", maxWidth: "400px", maxHeight: "85vh" }} className="bg-surface-lowest rounded-2xl overflow-y-auto p-6 space-y-6 warm-shadow-lg">
+          <div style={{ position: "relative", width: "90%", maxWidth: "400px", maxHeight: "80vh" }} className="bg-surface-lowest rounded-2xl overflow-y-auto p-6 space-y-6 warm-shadow-lg">
             <div className="flex justify-between items-center mb-2">
               <h3 className="font-[family-name:var(--font-headline)] font-bold text-on-surface text-lg">Фильтры</h3>
               <button onClick={() => setShowMobileFilters(false)} className="p-2 rounded-full hover:bg-surface-mid">
