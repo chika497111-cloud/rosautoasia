@@ -115,14 +115,14 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
         Фильтры
       </button>
 
-      {/* Mobile filters overlay */}
+      {/* Mobile filters modal */}
       {showMobileFilters && (
-        <div className="fixed inset-0 z-[100] md:hidden">
-          <div className="absolute inset-0 bg-black/60" onClick={() => setShowMobileFilters(false)} />
-          <div className="absolute bottom-0 left-0 right-0 bg-surface-mid rounded-t-3xl max-h-[80vh] overflow-y-auto p-6 space-y-6">
+        <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, zIndex: 99999, display: "flex", alignItems: "center", justifyContent: "center" }} className="md:hidden">
+          <div style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(0,0,0,0.6)" }} onClick={() => setShowMobileFilters(false)} />
+          <div style={{ position: "relative", width: "90%", maxWidth: "400px", maxHeight: "85vh" }} className="bg-surface-lowest rounded-2xl overflow-y-auto p-6 space-y-6 warm-shadow-lg">
             <div className="flex justify-between items-center mb-2">
               <h3 className="font-[family-name:var(--font-headline)] font-bold text-on-surface text-lg">Фильтры</h3>
-              <button onClick={() => setShowMobileFilters(false)} className="p-2">
+              <button onClick={() => setShowMobileFilters(false)} className="p-2 rounded-full hover:bg-surface-mid">
                 <span className="material-symbols-outlined">close</span>
               </button>
             </div>
