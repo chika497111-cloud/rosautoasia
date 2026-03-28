@@ -78,48 +78,48 @@ export function MobileMenu() {
         </div>
 
         {/* Navigation */}
-        <nav className="flex flex-col px-6 gap-1">
+        <nav className="flex flex-col px-5 gap-2">
           {menuLinks.map(({ href, label, badge }) => (
             <Link
               key={href}
               href={href}
               onClick={close}
-              className="flex items-center justify-between py-3 text-lg hover:text-orange-400 transition-colors"
+              className="flex items-center justify-between px-5 py-3.5 rounded-2xl bg-white/10 hover:bg-white/20 transition-all active:scale-[0.98] text-base font-medium"
             >
               <span>{label}</span>
               {badge != null && badge > 0 && (
-                <span className="bg-orange-500 text-white text-xs font-bold rounded-full px-2 py-0.5 min-w-[1.25rem] text-center">
+                <span className="bg-orange-500 text-white text-xs font-bold rounded-full px-2.5 py-1 min-w-[1.5rem] text-center">
                   {badge}
                 </span>
               )}
             </Link>
           ))}
 
-          <hr className="border-white/10 my-3" />
+          <hr className="border-white/10 my-2" />
 
           {user ? (
             <>
-              <Link href="/account" onClick={close} className="py-3 text-lg hover:text-orange-400 transition-colors">
+              <Link href="/account" onClick={close} className="px-5 py-3.5 rounded-2xl bg-white/10 hover:bg-white/20 transition-all active:scale-[0.98] text-base font-medium">
                 Личный кабинет
               </Link>
               {(user.role === "admin" || user.role === "manager") && (
-                <Link href="/admin" onClick={close} className="py-3 text-lg hover:text-orange-400 transition-colors">
+                <Link href="/admin" onClick={close} className="px-5 py-3.5 rounded-2xl bg-white/10 hover:bg-white/20 transition-all active:scale-[0.98] text-base font-medium">
                   Админ-панель
                 </Link>
               )}
               <button
                 onClick={() => { logout(); close(); }}
-                className="py-3 text-lg text-left text-red-400 hover:text-red-300 transition-colors"
+                className="px-5 py-3.5 rounded-2xl bg-red-900/30 hover:bg-red-900/50 transition-all active:scale-[0.98] text-base font-medium text-red-300 text-left"
               >
                 Выйти
               </button>
             </>
           ) : (
             <>
-              <Link href="/login" onClick={close} className="py-3 text-lg hover:text-orange-400 transition-colors">
+              <Link href="/login" onClick={close} className="px-5 py-3.5 rounded-2xl bg-orange-500/20 hover:bg-orange-500/30 transition-all active:scale-[0.98] text-base font-medium text-orange-300">
                 Войти
               </Link>
-              <Link href="/register" onClick={close} className="py-3 text-lg hover:text-orange-400 transition-colors">
+              <Link href="/register" onClick={close} className="px-5 py-3.5 rounded-2xl bg-orange-500/20 hover:bg-orange-500/30 transition-all active:scale-[0.98] text-base font-medium text-orange-300">
                 Регистрация
               </Link>
             </>
