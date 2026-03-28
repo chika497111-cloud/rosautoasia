@@ -38,11 +38,16 @@ export function MobileMenu() {
     { href: "/about", label: "О компании" },
   ];
 
-  const menuContent = isOpen ? (
-    <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, zIndex: 99999 }}>
+  const menuContent = (
+    <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, zIndex: 99999, pointerEvents: isOpen ? "auto" : "none" }}>
       {/* Overlay */}
       <div
-        style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(0,0,0,0.75)" }}
+        style={{
+          position: "absolute", top: 0, left: 0, right: 0, bottom: 0,
+          backgroundColor: "rgba(0,0,0,0.75)",
+          opacity: isOpen ? 1 : 0,
+          transition: "opacity 0.3s ease",
+        }}
         onClick={close}
       />
 
@@ -59,6 +64,8 @@ export function MobileMenu() {
           color: "white",
           overflowY: "auto",
           boxShadow: "-10px 0 30px rgba(0,0,0,0.3)",
+          transform: isOpen ? "translateX(0)" : "translateX(100%)",
+          transition: "transform 0.3s ease",
         }}
       >
         {/* Close button */}
@@ -134,7 +141,7 @@ export function MobileMenu() {
         <span className="block w-6 h-0.5 bg-[#584237] transition-all" />
       </button>
 
-      {mounted && menuContent && createPortal(menuContent, document.body)}
+      {mounted && createPortal(menuContent, document.body)}
     </>
   );
 }
