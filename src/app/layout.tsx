@@ -123,7 +123,7 @@ export default function RootLayout({
           </nav>
 
           {/* Контент */}
-          <main className="flex-1 pt-32 lg:pt-20">
+          <main className="flex-1 pt-28 lg:pt-20">
             {children}
           </main>
 
