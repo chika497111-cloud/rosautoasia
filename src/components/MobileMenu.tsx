@@ -34,20 +34,18 @@ export function MobileMenu() {
         <span className="block w-6 h-0.5 bg-[#584237] transition-all" />
       </button>
 
-      {/* Overlay */}
-      <div
-        className={`fixed inset-0 z-[60] bg-black/70 transition-opacity duration-300 ${
-          isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
-        }`}
-        onClick={close}
-      />
+      {/* Full-screen menu container */}
+      {isOpen && (
+        <div className="fixed inset-0 z-[100]">
+          {/* Overlay */}
+          <div
+            className="absolute inset-0 bg-black/70"
+            onClick={close}
+          />
 
-      {/* Slide-in panel */}
-      <div
-        className={`fixed top-0 right-0 z-[70] h-full w-80 max-w-[85vw] bg-[#451A03] text-white shadow-2xl transition-transform duration-300 ease-in-out overflow-y-auto ${
-          isOpen ? "translate-x-0" : "translate-x-full"
-        }`}
-      >
+          {/* Slide-in panel */}
+          <div className="absolute top-0 right-0 h-full w-80 max-w-[85vw] bg-[#451A03] text-white shadow-2xl overflow-y-auto">
+
         {/* Close button */}
         <div className="flex justify-end p-4">
           <button onClick={close} className="p-2 hover:text-orange-400 transition-colors" aria-label="Закрыть меню">
@@ -127,7 +125,9 @@ export function MobileMenu() {
             </>
           )}
         </nav>
-      </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

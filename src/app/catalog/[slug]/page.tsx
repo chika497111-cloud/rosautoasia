@@ -26,6 +26,7 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
   const [inStockOnly, setInStockOnly] = useState(false);
   const [sortBy, setSortBy] = useState("default");
   const [priceMax, setPriceMax] = useState(50000);
+  const [showMobileFilters, setShowMobileFilters] = useState(false);
 
   const maxPrice = Math.max(...categoryProducts.map((p) => p.price), 50000);
 
@@ -105,8 +106,75 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
         </p>
       </header>
 
+      {/* Mobile filter button */}
+      <button
+        onClick={() => setShowMobileFilters(true)}
+        className="md:hidden flex items-center gap-2 cta-gradient text-white px-6 py-3 rounded-full font-semibold mb-4 active:scale-95 transition-transform"
+      >
+        <span className="material-symbols-outlined text-lg">tune</span>
+        Фильтры
+      </button>
+
+      {/* Mobile filters overlay */}
+      {showMobileFilters && (
+        <div className="fixed inset-0 z-[100] md:hidden">
+          <div className="absolute inset-0 bg-black/60" onClick={() => setShowMobileFilters(false)} />
+          <div className="absolute bottom-0 left-0 right-0 bg-surface-mid rounded-t-3xl max-h-[80vh] overflow-y-auto p-6 space-y-6">
+            <div className="flex justify-between items-center mb-2">
+              <h3 className="font-[family-name:var(--font-headline)] font-bold text-on-surface text-lg">Фильтры</h3>
+              <button onClick={() => setShowMobileFilters(false)} className="p-2">
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+
+            {carBrands.length > 0 && (
+              <div>
+                <h4 className="font-semibold text-on-surface-variant text-sm uppercase tracking-wider mb-3">Марка авто</h4>
+                {carBrands.map((brand) => (
+                  <label key={brand} className="flex items-center gap-2 py-1.5 cursor-pointer">
+                    <input type="checkbox" checked={selectedCarBrands.includes(brand)} onChange={() => setSelectedCarBrands((prev) => prev.includes(brand) ? prev.filter((b) => b !== brand) : [...prev, brand])} className="rounded" />
+                    <span className="text-sm">{brand}</span>
+                  </label>
+                ))}
+              </div>
+            )}
+
+            {brands.length > 0 && (
+              <div>
+                <h4 className="font-semibold text-on-surface-variant text-sm uppercase tracking-wider mb-3">Бренды</h4>
+                {brands.map((brand) => (
+                  <label key={brand} className="flex items-center gap-2 py-1.5 cursor-pointer">
+                    <input type="checkbox" checked={selectedBrands.includes(brand)} onChange={() => setSelectedBrands((prev) => prev.includes(brand) ? prev.filter((b) => b !== brand) : [...prev, brand])} className="rounded" />
+                    <span className="text-sm">{brand}</span>
+                  </label>
+                ))}
+              </div>
+            )}
+
+            <div>
+              <h4 className="font-semibold text-on-surface-variant text-sm uppercase tracking-wider mb-3">Наличие</h4>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input type="radio" name="stock-mobile" checked={!inStockOnly} onChange={() => setInStockOnly(false)} />
+                <span className="text-sm">Все товары</span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer mt-1.5">
+                <input type="radio" name="stock-mobile" checked={inStockOnly} onChange={() => setInStockOnly(true)} />
+                <span className="text-sm">В наличии</span>
+              </label>
+            </div>
+
+            <button
+              onClick={() => setShowMobileFilters(false)}
+              className="w-full cta-gradient text-white py-3 rounded-full font-bold active:scale-95 transition-transform"
+            >
+              Показать {filteredProducts.length} товаров
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="flex flex-col md:flex-row gap-8 items-start">
-        {/* Sidebar Filters */}
+        {/* Desktop Sidebar Filters */}
         <aside className="hidden md:flex w-64 sticky top-24 rounded-xl overflow-hidden bg-surface-mid py-8 px-6 warm-shadow flex-col gap-6 shrink-0">
           <div>
             <h3 className="font-[family-name:var(--font-headline)] font-bold text-on-surface mb-1">
