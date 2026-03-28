@@ -107,7 +107,7 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
 
       <div className="flex flex-col md:flex-row gap-8 items-start">
         {/* Sidebar Filters */}
-        <aside className="w-full md:w-64 sticky top-24 rounded-xl overflow-hidden bg-surface-mid py-8 px-6 warm-shadow flex flex-col gap-6 shrink-0">
+        <aside className="hidden md:flex w-64 sticky top-24 rounded-xl overflow-hidden bg-surface-mid py-8 px-6 warm-shadow flex-col gap-6 shrink-0">
           <div>
             <h3 className="font-[family-name:var(--font-headline)] font-bold text-on-surface mb-1">
               Фильтры
