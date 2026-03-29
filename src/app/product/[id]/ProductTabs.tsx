@@ -30,10 +30,19 @@ type Tab = "description" | "specs" | "reviews";
 
 export function ProductTabs({ product, category }: { product: Product; category?: Category }) {
   const [activeTab, setActiveTab] = useState<Tab>("specs");
-  const [reviewCount, setReviewCount] = useState(0);
+  const [reviewCount, setReviewCount] = useState(() => {
+    if (typeof window === "undefined") return 0;
+    try {
+      const cached = localStorage.getItem(`roa_reviews_${product.id}`);
+      return cached ? parseInt(cached, 10) : 0;
+    } catch { return 0; }
+  });
 
   useEffect(() => {
-    getProductReviews(product.id).then((r) => setReviewCount(r.length)).catch(() => {});
+    getProductReviews(product.id).then((r) => {
+      setReviewCount(r.length);
+      try { localStorage.setItem(`roa_reviews_${product.id}`, String(r.length)); } catch {}
+    }).catch(() => {});
   }, [product.id]);
 
   const tabs: { key: Tab; label: string }[] = [
