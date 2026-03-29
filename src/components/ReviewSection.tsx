@@ -78,7 +78,7 @@ function ReviewCard({ review }: { review: Review }) {
 }
 
 export function ReviewSection({ productId }: { productId: string }) {
-  const { user } = useAuth();
+  const { user, orders } = useAuth();
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -86,6 +86,15 @@ export function ReviewSection({ productId }: { productId: string }) {
   const [formText, setFormText] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+
+  // Check if user has purchased this product
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const hasPurchased = user && orders.some((order) =>
+    order.items?.some((item: any) => item.id === productId || item.productId === productId)
+  );
+
+  // Check if user already reviewed this product
+  const alreadyReviewed = user && reviews.some((r) => r.userId === user.id);
 
   const loadReviews = useCallback(async () => {
     try {
@@ -168,8 +177,8 @@ export function ReviewSection({ productId }: { productId: string }) {
         </div>
       )}
 
-      {/* Write review button */}
-      {user && !showForm && (
+      {/* Write review button — only for buyers who haven't reviewed yet */}
+      {user && hasPurchased && !alreadyReviewed && !showForm && (
         <button
           onClick={() => setShowForm(true)}
           className="cta-gradient text-on-primary font-bold px-6 py-3 rounded-full mb-6 transition-all hover:scale-105 active:scale-95 flex items-center gap-2"
@@ -177,6 +186,19 @@ export function ReviewSection({ productId }: { productId: string }) {
           <span className="material-symbols-outlined text-lg">edit</span>
           Написать отзыв
         </button>
+      )}
+
+      {user && alreadyReviewed && (
+        <p className="text-on-surface-variant text-sm mb-6 flex items-center gap-2">
+          <span className="material-symbols-outlined text-green-600 text-lg">check_circle</span>
+          Вы уже оставили отзыв на этот товар
+        </p>
+      )}
+
+      {user && !hasPurchased && (
+        <p className="text-on-surface-variant text-sm mb-6">
+          Отзыв можно оставить только после покупки этого товара
+        </p>
       )}
 
       {!user && (

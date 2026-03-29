@@ -131,7 +131,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (fbUser: FirebaseUser | null) => {
       if (fbUser) {
-        const profile = await getUserProfile(fbUser.uid);
+        // Profile might not exist yet if registration just happened (race condition)
+        // Retry once after a short delay
+        let profile = await getUserProfile(fbUser.uid);
+        if (!profile) {
+          await new Promise((r) => setTimeout(r, 1500));
+          profile = await getUserProfile(fbUser.uid);
+        }
         if (profile) {
           setUser(profile);
           // Load orders
@@ -141,8 +147,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             setOrders(await fetchOrders(fbUser.uid));
           }
         } else {
-          // Auth exists but no profile doc — sign out
-          await signOut(auth);
           setUser(null);
           setOrders([]);
         }

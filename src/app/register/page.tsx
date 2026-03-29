@@ -18,8 +18,14 @@ export default function RegisterPage() {
   const [phoneError, setPhoneError] = useState("");
 
   if (user) {
-    router.push("/account");
-    return null;
+    if (typeof window !== "undefined") {
+      router.push("/account");
+    }
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <div className="animate-pulse text-on-surface-variant">Перенаправление...</div>
+      </div>
+    );
   }
 
   const handlePhoneChange = (value: string) => {
