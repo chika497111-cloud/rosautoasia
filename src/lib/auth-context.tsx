@@ -147,23 +147,51 @@ function generateOrderNumber(): string {
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  // Instant load from localStorage cache (optimistic)
+  const [user, setUser] = useState<User | null>(() => {
+    if (typeof window === "undefined") return null;
+    try {
+      const cached = localStorage.getItem("roa_user_cache");
+      return cached ? JSON.parse(cached) : null;
+    } catch { return null; }
+  });
+  const [orders, setOrders] = useState<Order[]>(() => {
+    if (typeof window === "undefined") return [];
+    try {
+      const cached = localStorage.getItem("roa_orders_cache");
+      return cached ? JSON.parse(cached) : [];
+    } catch { return []; }
+  });
+  const [isLoading, setIsLoading] = useState(() => {
+    if (typeof window === "undefined") return true;
+    return !localStorage.getItem("roa_user_cache");
+  });
+
+  // Sync cache when user/orders change
+  useEffect(() => {
+    if (user) {
+      localStorage.setItem("roa_user_cache", JSON.stringify(user));
+    } else {
+      localStorage.removeItem("roa_user_cache");
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (orders.length > 0) {
+      localStorage.setItem("roa_orders_cache", JSON.stringify(orders));
+    } else {
+      localStorage.removeItem("roa_orders_cache");
+    }
+  }, [orders]);
 
   // onAuthStateChanged is the SINGLE source of truth for auth state.
-  // login() and register() do NOT set user/orders directly — they only
-  // interact with Firebase Auth and return success/error. After they complete,
-  // onAuthStateChanged fires automatically and loads everything.
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (fbUser: FirebaseUser | null) => {
       try {
         if (fbUser) {
-          // Load profile — with retry to handle race after registration
           const profile = await getUserProfileWithRetry(fbUser.uid);
           if (profile) {
             setUser(profile);
-            // Load orders
             try {
               if (profile.role === "admin" || profile.role === "manager") {
                 setOrders(await fetchOrders());
@@ -174,7 +202,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               setOrders([]);
             }
           } else {
-            // Profile doesn't exist — auth user without profile. Show as not logged in.
             setUser(null);
             setOrders([]);
           }

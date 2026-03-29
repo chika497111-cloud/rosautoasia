@@ -1,9 +1,30 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Component, type ReactNode } from "react";
 import type { Product, Category } from "@/lib/mock-data";
 import { ReviewSection } from "@/components/ReviewSection";
 import { getProductReviews } from "@/lib/reviews";
+
+// Error boundary to prevent ReviewSection crashes from breaking the whole page
+class ReviewErrorBoundary extends Component<{ children: ReactNode }, { hasError: boolean }> {
+  constructor(props: { children: ReactNode }) {
+    super(props);
+    this.state = { hasError: false };
+  }
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="p-8 text-center text-on-surface-variant">
+          <p>Не удалось загрузить отзывы. Попробуйте обновить страницу.</p>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 type Tab = "description" | "specs" | "reviews";
 
@@ -84,7 +105,9 @@ export function ProductTabs({ product, category }: { product: Product; category?
         )}
 
         {activeTab === "reviews" && (
-          <ReviewSection productId={product.id} productArticle={product.article} />
+          <ReviewErrorBoundary>
+            <ReviewSection productId={product.id} productArticle={product.article} />
+          </ReviewErrorBoundary>
         )}
       </div>
     </div>
