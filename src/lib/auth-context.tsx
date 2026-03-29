@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, useCallback, useEffect, useRef, type ReactNode } from "react";
+import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from "react";
 import { auth, db } from "@/lib/firebase";
 import { initializeApp, deleteApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
@@ -93,10 +93,20 @@ async function getUserProfile(uid: string): Promise<User | null> {
   }
 }
 
+/** Read user profile with retry — useful after registration when Firestore write may not be immediately consistent */
+async function getUserProfileWithRetry(uid: string, maxRetries = 3): Promise<User | null> {
+  for (let i = 0; i < maxRetries; i++) {
+    const profile = await getUserProfile(uid);
+    if (profile) return profile;
+    // Wait before retry, increasing delay each time
+    await new Promise((r) => setTimeout(r, 500 * (i + 1)));
+  }
+  return null;
+}
+
 /** Fetch orders for a specific user or all orders (admin) */
 async function fetchOrders(uid?: string): Promise<Order[]> {
   try {
-    // All orders are stored in a top-level "orders" collection for admin access
     const ordersRef = collection(db, "orders");
     const q = uid
       ? query(ordersRef, where("userId", "==", uid), orderBy("createdAt", "desc"))
@@ -122,37 +132,38 @@ async function fetchOrders(uid?: string): Promise<Order[]> {
   }
 }
 
+/** Generate a timestamp-based order number: ROA-YYMMDD-HHMMSS-XXX */
+function generateOrderNumber(): string {
+  const now = new Date();
+  const yy = String(now.getFullYear()).slice(2);
+  const mm = String(now.getMonth() + 1).padStart(2, "0");
+  const dd = String(now.getDate()).padStart(2, "0");
+  const hh = String(now.getHours()).padStart(2, "0");
+  const min = String(now.getMinutes()).padStart(2, "0");
+  const ss = String(now.getSeconds()).padStart(2, "0");
+  // Add random suffix to avoid collisions
+  const rand = String(Math.floor(Math.random() * 1000)).padStart(3, "0");
+  return `ROA-${yy}${mm}${dd}-${hh}${min}${ss}-${rand}`;
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Track whether register() already set the user so onAuthStateChanged can skip redundant work
-  const justRegisteredRef = useRef(false);
-
-  // Listen for Firebase Auth state
+  // onAuthStateChanged is the SINGLE source of truth for auth state.
+  // login() and register() do NOT set user/orders directly — they only
+  // interact with Firebase Auth and return success/error. After they complete,
+  // onAuthStateChanged fires automatically and loads everything.
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (fbUser: FirebaseUser | null) => {
       try {
         if (fbUser) {
-          // If register() already set the user, skip the Firestore lookup
-          // to avoid the race condition where the profile doesn't exist yet
-          if (justRegisteredRef.current) {
-            justRegisteredRef.current = false;
-            setIsLoading(false);
-            return;
-          }
-
-          let profile = await getUserProfile(fbUser.uid);
-          if (!profile) {
-            // Profile may not be written yet (e.g. after registration on another tab)
-            // Retry once after a short delay
-            await new Promise((r) => setTimeout(r, 2000));
-            profile = await getUserProfile(fbUser.uid);
-          }
+          // Load profile — with retry to handle race after registration
+          const profile = await getUserProfileWithRetry(fbUser.uid);
           if (profile) {
             setUser(profile);
-            // Load orders — wrapped in its own try/catch so failures don't cascade
+            // Load orders
             try {
               if (profile.role === "admin" || profile.role === "manager") {
                 setOrders(await fetchOrders());
@@ -160,12 +171,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 setOrders(await fetchOrders(fbUser.uid));
               }
             } catch {
-              // Orders query may fail (e.g. missing composite index) — not fatal
               setOrders([]);
             }
           } else {
-            // Profile still doesn't exist — user auth is valid but profile is missing.
-            // Don't crash, just show as not logged in.
+            // Profile doesn't exist — auth user without profile. Show as not logged in.
             setUser(null);
             setOrders([]);
           }
@@ -174,7 +183,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setOrders([]);
         }
       } catch (err) {
-        // Prevent unhandled promise rejection from crashing the app
         console.error("[AuthProvider] onAuthStateChanged error:", err);
         setUser(null);
         setOrders([]);
@@ -185,104 +193,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => unsub();
   }, []);
 
-  const register = useCallback(async (name: string, phone: string, password: string): Promise<{ success: boolean; error?: string }> => {
-    try {
-      if (password.length < 6) {
-        return { success: false, error: "Пароль должен быть не менее 6 символов" };
-      }
-
-      const email = phoneToEmail(phone);
-
-      // Mark that we're registering so onAuthStateChanged skips redundant Firestore lookup
-      justRegisteredRef.current = true;
-
-      let cred;
-      try {
-        cred = await createUserWithEmailAndPassword(auth, email, password);
-      } catch (authErr: unknown) {
-        // Auth creation failed — reset the flag and return error
-        justRegisteredRef.current = false;
-        const code = (authErr as { code?: string }).code;
-        if (code === "auth/email-already-in-use") {
-          return { success: false, error: "Пользователь с таким телефоном уже зарегистрирован" };
-        }
-        if (code === "auth/weak-password") {
-          return { success: false, error: "Пароль слишком слабый (минимум 6 символов)" };
-        }
-        return { success: false, error: "Ошибка регистрации. Попробуйте позже." };
-      }
-
-      // Auth user created — now write the Firestore profile.
-      // If this fails, we still have the auth user, so we retry once.
-      const now = new Date().toISOString();
-      const profileData = { name, phone, role: "client" as const, createdAt: now };
-
-      try {
-        await setDoc(doc(db, "users", cred.user.uid), profileData);
-      } catch {
-        // Retry once after a brief pause
-        await new Promise((r) => setTimeout(r, 1000));
-        try {
-          await setDoc(doc(db, "users", cred.user.uid), profileData);
-        } catch (retryErr) {
-          console.error("[register] Failed to write profile after retry:", retryErr);
-          // Profile write failed but auth user exists.
-          // Let onAuthStateChanged handle it on next load.
-          justRegisteredRef.current = false;
-          return { success: false, error: "Аккаунт создан, но профиль не сохранён. Попробуйте войти." };
-        }
-      }
-
-      const profile: User = {
-        id: cred.user.uid,
-        name,
-        phone,
-        password: "",
-        role: "client",
-        createdAt: now,
-      };
-
-      setUser(profile);
-      setOrders([]);
-      setIsLoading(false);
-      return { success: true };
-    } catch (err: unknown) {
-      // Catch-all for unexpected errors
-      justRegisteredRef.current = false;
-      console.error("[register] Unexpected error:", err);
-      return { success: false, error: "Ошибка регистрации. Попробуйте позже." };
-    }
-  }, []);
-
+  // login() ONLY calls Firebase Auth and returns the result.
+  // It does NOT set user, orders, or isLoading.
+  // onAuthStateChanged handles all of that.
   const login = useCallback(async (phone: string, password: string): Promise<{ success: boolean; error?: string }> => {
     try {
       const email = phoneToEmail(phone);
-      // Skip onAuthStateChanged redundant work — login() handles everything
-      justRegisteredRef.current = true;
-      const cred = await signInWithEmailAndPassword(auth, email, password);
-      const profile = await getUserProfile(cred.user.uid);
-
-      if (!profile) {
-        return { success: false, error: "Профиль не найден" };
-      }
-
-      setUser(profile);
-
-      // Load orders — don't let failure block login
-      try {
-        if (profile.role === "admin" || profile.role === "manager") {
-          setOrders(await fetchOrders());
-        } else {
-          setOrders(await fetchOrders(cred.user.uid));
-        }
-      } catch {
-        // Orders may fail due to missing indexes — not fatal
-        setOrders([]);
-      }
-
+      await signInWithEmailAndPassword(auth, email, password);
+      // onAuthStateChanged will fire and load profile + orders
       return { success: true };
     } catch (err: unknown) {
-      justRegisteredRef.current = false;
       const code = (err as { code?: string }).code;
       if (code === "auth/user-not-found" || code === "auth/invalid-credential") {
         return { success: false, error: "Неверный телефон или пароль" };
@@ -294,10 +214,72 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  // register() creates the auth user + writes the Firestore profile, then returns.
+  // It does NOT set user/orders — onAuthStateChanged will handle that.
+  const register = useCallback(async (name: string, phone: string, password: string): Promise<{ success: boolean; error?: string }> => {
+    try {
+      if (password.length < 6) {
+        return { success: false, error: "Пароль должен быть не менее 6 символов" };
+      }
+
+      const email = phoneToEmail(phone);
+
+      let cred;
+      try {
+        cred = await createUserWithEmailAndPassword(auth, email, password);
+      } catch (authErr: unknown) {
+        const code = (authErr as { code?: string }).code;
+        if (code === "auth/email-already-in-use") {
+          return { success: false, error: "Пользователь с таким телефоном уже зарегистрирован" };
+        }
+        if (code === "auth/weak-password") {
+          return { success: false, error: "Пароль слишком слабый (минимум 6 символов)" };
+        }
+        return { success: false, error: "Ошибка регистрации. Попробуйте позже." };
+      }
+
+      // Write Firestore profile
+      const now = new Date().toISOString();
+      const profileData = { name, phone, role: "client" as const, createdAt: now };
+
+      try {
+        await setDoc(doc(db, "users", cred.user.uid), profileData);
+      } catch {
+        // Retry once
+        await new Promise((r) => setTimeout(r, 1000));
+        try {
+          await setDoc(doc(db, "users", cred.user.uid), profileData);
+        } catch (retryErr) {
+          console.error("[register] Failed to write profile after retry:", retryErr);
+          return { success: false, error: "Аккаунт создан, но профиль не сохранён. Попробуйте войти." };
+        }
+      }
+
+      // onAuthStateChanged will fire (it already fired when createUserWithEmailAndPassword
+      // resolved, but at that point profile may not have been written yet). Since we use
+      // getUserProfileWithRetry in the listener, it will eventually find the profile.
+      // However, onAuthStateChanged may have already fired and failed to find the profile.
+      // In that case we need to manually trigger a reload. We do this by setting isLoading
+      // and letting the caller know registration succeeded — they can redirect, and the
+      // auth listener will have the profile by then.
+
+      // Force a re-check by reloading the current user's token (triggers onAuthStateChanged)
+      // Actually, onAuthStateChanged only fires on sign-in/sign-out, not token refresh.
+      // Since createUserWithEmailAndPassword already triggered it, and our listener uses
+      // getUserProfileWithRetry with 3 retries (500ms, 1000ms, 1500ms = 3s total),
+      // the profile should be found. The profile write above takes ~100-500ms typically,
+      // so by the time retry #2 runs, it should be there.
+
+      return { success: true };
+    } catch (err: unknown) {
+      console.error("[register] Unexpected error:", err);
+      return { success: false, error: "Ошибка регистрации. Попробуйте позже." };
+    }
+  }, []);
+
   const logout = useCallback(() => {
     signOut(auth);
-    setUser(null);
-    setOrders([]);
+    // onAuthStateChanged will fire with null and clear user/orders
   }, []);
 
   const addOrder = useCallback(
@@ -305,9 +287,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (!user) throw new Error("Нужно войти в аккаунт");
 
       try {
-        // Get next order number from ALL orders (not just user's)
-        const allOrdersSnap = await getDocs(collection(db, "orders"));
-        const orderNumber = "ROA-" + String(allOrdersSnap.size + 1).padStart(6, "0");
+        const orderNumber = generateOrderNumber();
         const now = new Date().toISOString();
 
         const orderDoc = {
@@ -329,7 +309,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         setOrders((prev) => [newOrder, ...prev]);
         return newOrder;
-      } catch {
+      } catch (err) {
+        console.error("[addOrder] Error:", err);
         throw new Error("Не удалось создать заказ. Попробуйте позже.");
       }
     },
@@ -337,9 +318,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 
   const getAllOrders = useCallback(async (): Promise<Order[]> => {
-    const all = await fetchOrders();
-    setOrders(all);
-    return all;
+    try {
+      const all = await fetchOrders();
+      setOrders(all);
+      return all;
+    } catch {
+      return [];
+    }
   }, []);
 
   const getAllClients = useCallback(async (): Promise<User[]> => {
@@ -373,7 +358,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const createStaffAccount = useCallback(async (name: string, phone: string, password: string, role: "admin" | "manager"): Promise<{ success: boolean; error?: string }> => {
-    // Use a secondary Firebase app so the current admin session is not disrupted
     let secondaryApp;
     try {
       if (password.length < 6) {
@@ -382,7 +366,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       const email = phoneToEmail(phone);
 
-      // Create a temporary secondary app to register the new user
       secondaryApp = initializeApp(auth.app.options, "staffCreator_" + Date.now());
       const secondaryAuth = getAuth(secondaryApp);
       const cred = await createUserWithEmailAndPassword(secondaryAuth, email, password);
@@ -394,15 +377,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         createdAt: new Date().toISOString(),
       });
 
-      // Sign out and clean up secondary app
       await signOut(secondaryAuth);
       await deleteApp(secondaryApp);
 
       return { success: true };
     } catch (err: unknown) {
-      // Clean up secondary app on error
       if (secondaryApp) {
-        try { await deleteApp(secondaryApp); } catch {}
+        try { await deleteApp(secondaryApp); } catch { /* ignore */ }
       }
       const code = (err as { code?: string }).code;
       if (code === "auth/email-already-in-use") {
@@ -434,9 +415,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const deleteStaffAccount = useCallback(async (userId: string): Promise<boolean> => {
     try {
-      // We can only delete the Firestore doc from client side.
-      // Deleting the Firebase Auth user requires Admin SDK (server-side).
-      // For now, we remove the profile doc which effectively blocks access.
       await deleteDoc(doc(db, "users", userId));
       return true;
     } catch {

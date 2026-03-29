@@ -13,6 +13,8 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [phoneError, setPhoneError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [loginSuccess, setLoginSuccess] = useState(false);
 
   // Redirect already-authenticated users who navigate directly to /login
   useEffect(() => {
@@ -21,7 +23,7 @@ export default function LoginPage() {
     }
   }, [user, router]);
 
-  if (user) {
+  if (user || loginSuccess) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center">
         <div className="animate-pulse text-on-surface-variant">Перенаправление...</div>
@@ -41,8 +43,6 @@ export default function LoginPage() {
     }
   };
 
-  const [submitting, setSubmitting] = useState(false);
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -57,7 +57,10 @@ export default function LoginPage() {
     try {
       const result = await login(phone.trim(), password);
       if (result.success) {
-        router.replace("/account");
+        // Don't redirect here — set a flag to show "Перенаправление..." UI.
+        // The useEffect watching `user` will handle the actual redirect
+        // once onAuthStateChanged loads the profile.
+        setLoginSuccess(true);
       } else {
         setError(result.error || "Ошибка входа");
       }

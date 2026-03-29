@@ -22,6 +22,7 @@ export default function CheckoutPage() {
   const [submitted, setSubmitted] = useState(false);
   const [orderNumber, setOrderNumber] = useState("");
   const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
   const deliveryPrice = delivery === "pickup" ? 0 : delivery === "courier" ? 250 : 300;
   const grandTotal = totalPrice + deliveryPrice;
@@ -116,8 +117,6 @@ export default function CheckoutPage() {
       </div>
     );
   }
-
-  const [submitting, setSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
