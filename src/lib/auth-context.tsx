@@ -230,14 +230,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // onAuthStateChanged will fire and load profile + orders
       return { success: true };
     } catch (err: unknown) {
+      console.error("[login] Error:", err);
       const code = (err as { code?: string }).code;
+      const message = (err as { message?: string }).message;
       if (code === "auth/user-not-found" || code === "auth/invalid-credential") {
         return { success: false, error: "Неверный телефон или пароль" };
       }
       if (code === "auth/wrong-password") {
         return { success: false, error: "Неверный пароль" };
       }
-      return { success: false, error: "Ошибка входа. Попробуйте позже." };
+      if (code === "auth/network-request-failed") {
+        return { success: false, error: "Нет подключения к интернету. Проверьте соединение." };
+      }
+      if (code === "auth/too-many-requests") {
+        return { success: false, error: "Слишком много попыток. Подождите несколько минут." };
+      }
+      return { success: false, error: `Ошибка входа: ${code || message || "неизвестная ошибка"}` };
     }
   }, []);
 
