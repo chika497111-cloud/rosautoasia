@@ -8,6 +8,7 @@ import { MobileMenu } from "@/components/MobileMenu";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import { NavLinks } from "@/components/NavLinks";
 import { CompareBar } from "@/components/CompareBar";
+import { SearchBar } from "@/components/SearchBar";
 
 const manrope = Manrope({
   subsets: ["latin", "cyrillic"],
@@ -86,19 +87,9 @@ export default function RootLayout({
               </div>
 
               {/* Поиск десктоп */}
-              <form action="/search" className="hidden lg:flex items-center flex-1 max-w-md mx-6">
-                <div className="relative w-full">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-outline" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                  </svg>
-                  <input
-                    type="text"
-                    name="q"
-                    placeholder="Поиск запчастей..."
-                    className="w-full bg-surface-mid/60 border border-outline-variant/20 rounded-xl pl-10 pr-4 py-2.5 text-sm focus:ring-2 focus:ring-primary-container/40 focus:outline-none focus:bg-white transition-all placeholder:text-outline"
-                  />
-                </div>
-              </form>
+              <div className="hidden lg:flex items-center flex-1 max-w-md mx-6">
+                <SearchBar />
+              </div>
 
               {/* Правая часть */}
               <div className="flex items-center gap-4 sm:gap-5">
@@ -112,14 +103,7 @@ export default function RootLayout({
 
             {/* Мобильный поиск */}
             <div className="lg:hidden px-4 pb-3">
-              <form action="/search">
-                <input
-                  type="text"
-                  name="q"
-                  placeholder="Поиск по названию или артикулу..."
-                  className="w-full bg-surface-mid border-none rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary-container/40 focus:outline-none transition-all"
-                />
-              </form>
+              <SearchBar />
             </div>
           </nav>
 
