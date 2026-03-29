@@ -84,7 +84,7 @@ export function ProductTabs({ product, category }: { product: Product; category?
         )}
 
         {activeTab === "reviews" && (
-          <ReviewSection productId={product.id} />
+          <ReviewSection productId={product.id} productArticle={product.article} />
         )}
       </div>
     </div>

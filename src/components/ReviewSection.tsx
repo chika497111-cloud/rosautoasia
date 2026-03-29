@@ -77,7 +77,7 @@ function ReviewCard({ review }: { review: Review }) {
   );
 }
 
-export function ReviewSection({ productId }: { productId: string }) {
+export function ReviewSection({ productId, productArticle }: { productId: string; productArticle?: string }) {
   const { user, orders } = useAuth();
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
@@ -87,10 +87,14 @@ export function ReviewSection({ productId }: { productId: string }) {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
-  // Check if user has purchased this product
+  // Check if user has a completed order containing this product
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const hasPurchased = user && orders.some((order) =>
-    order.items?.some((item: any) => item.id === productId || item.productId === productId)
+    order.status === "completed" &&
+    order.items?.some((item: any) =>
+      item.id === productId || item.productId === productId ||
+      (productArticle && item.article === productArticle)
+    )
   );
 
   // Check if user already reviewed this product
