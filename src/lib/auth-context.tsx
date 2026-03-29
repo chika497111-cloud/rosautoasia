@@ -257,6 +257,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = useCallback(async (phone: string, password: string): Promise<{ success: boolean; error?: string }> => {
     try {
       const email = phoneToEmail(phone);
+      // Skip onAuthStateChanged redundant work — login() handles everything
+      justRegisteredRef.current = true;
       const cred = await signInWithEmailAndPassword(auth, email, password);
       const profile = await getUserProfile(cred.user.uid);
 
@@ -280,6 +282,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       return { success: true };
     } catch (err: unknown) {
+      justRegisteredRef.current = false;
       const code = (err as { code?: string }).code;
       if (code === "auth/user-not-found" || code === "auth/invalid-credential") {
         return { success: false, error: "Неверный телефон или пароль" };
