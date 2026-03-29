@@ -76,6 +76,21 @@ const productBadges: Record<string, string> = {
   p8: "Оригинал",
 };
 
+/** Russian pluralization for "товар" */
+function pluralizeProducts(count: number): string {
+  const mod10 = count % 10;
+  const mod100 = count % 100;
+  if (mod10 === 1 && mod100 !== 11) return `${count} товар`;
+  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return `${count} товара`;
+  return `${count} товаров`;
+}
+
+/** Count products per category */
+const productCountByCategory: Record<string, number> = {};
+for (const product of products) {
+  productCountByCategory[product.category_id] = (productCountByCategory[product.category_id] || 0) + 1;
+}
+
 export default function Home() {
   const featuredProducts = products.slice(0, 4);
 
@@ -158,6 +173,9 @@ export default function Home() {
                 <h3 className="font-bold text-on-surface group-hover:text-on-primary-container text-sm sm:text-base">
                   {category.name}
                 </h3>
+                <p className="text-xs text-on-surface-variant group-hover:text-on-primary-container/70 mt-1">
+                  {pluralizeProducts(productCountByCategory[category.id] || 0)}
+                </p>
               </Link>
             ))}
           </div>

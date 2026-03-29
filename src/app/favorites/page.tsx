@@ -3,11 +3,34 @@
 import Link from "next/link";
 import { useFavorites } from "@/lib/favorites-context";
 import { products } from "@/lib/mock-data";
+import { FavoriteCardSkeleton } from "@/components/Skeleton";
 
 export default function FavoritesPage() {
-  const { isFavorite, toggleFavorite } = useFavorites();
+  const { isFavorite, toggleFavorite, isLoading } = useFavorites();
 
   const favoriteProducts = products.filter((p) => isFavorite(p.id));
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-surface">
+        <section className="bg-gradient-to-r from-[#451A03] to-[#5d260a] text-white">
+          <div className="max-w-7xl mx-auto px-4 py-10">
+            <div className="h-4 w-32 bg-white/20 animate-pulse rounded-full mb-4" />
+            <div className="h-9 w-48 bg-white/20 animate-pulse rounded-full mb-2" />
+            <div className="h-4 w-40 bg-white/20 animate-pulse rounded-full" />
+          </div>
+        </section>
+        <div className="max-w-7xl mx-auto px-4 py-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            <FavoriteCardSkeleton />
+            <FavoriteCardSkeleton />
+            <FavoriteCardSkeleton />
+            <FavoriteCardSkeleton />
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-surface">

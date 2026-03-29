@@ -11,6 +11,20 @@ service cloud.firestore {
       }
     }
 
+    // Reviews — anyone can read, authenticated users can create their own
+    match /reviews/{reviewId} {
+      allow read: if true;
+      allow create: if request.auth != null
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.rating is int
+        && request.resource.data.rating >= 1
+        && request.resource.data.rating <= 5
+        && request.resource.data.text is string
+        && request.resource.data.text.size() > 0;
+      allow update, delete: if request.auth != null
+        && resource.data.userId == request.auth.uid;
+    }
+
     // Orders — users can read own, admins can read all
     match /orders/{orderId} {
       allow create: if request.auth != null;

@@ -7,6 +7,7 @@ import { CartBadge, UserBadge } from "@/components/Header";
 import { MobileMenu } from "@/components/MobileMenu";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import { NavLinks } from "@/components/NavLinks";
+import { CompareBar } from "@/components/CompareBar";
 
 const manrope = Manrope({
   subsets: ["latin", "cyrillic"],
@@ -126,6 +127,9 @@ export default function RootLayout({
           <main className="flex-1 pt-28 lg:pt-20">
             {children}
           </main>
+
+          {/* Панель сравнения */}
+          <CompareBar />
 
           {/* Подвал */}
           <footer className="rounded-t-[2rem] mt-20 bg-[#451A03] pt-16 pb-8">

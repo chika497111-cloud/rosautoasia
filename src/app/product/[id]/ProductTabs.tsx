@@ -1,17 +1,24 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { Product, Category } from "@/lib/mock-data";
+import { ReviewSection } from "@/components/ReviewSection";
+import { getProductReviews } from "@/lib/reviews";
 
 type Tab = "description" | "specs" | "reviews";
 
 export function ProductTabs({ product, category }: { product: Product; category?: Category }) {
   const [activeTab, setActiveTab] = useState<Tab>("specs");
+  const [reviewCount, setReviewCount] = useState(0);
+
+  useEffect(() => {
+    getProductReviews(product.id).then((r) => setReviewCount(r.length)).catch(() => {});
+  }, [product.id]);
 
   const tabs: { key: Tab; label: string }[] = [
     { key: "description", label: "Описание" },
     { key: "specs", label: "Характеристики" },
-    { key: "reviews", label: "Отзывы (0)" },
+    { key: "reviews", label: `Отзывы (${reviewCount})` },
   ];
 
   const specs: { label: string; value: string }[] = [
@@ -77,11 +84,7 @@ export function ProductTabs({ product, category }: { product: Product; category?
         )}
 
         {activeTab === "reviews" && (
-          <div className="text-on-surface-variant text-center py-12">
-            <span className="material-symbols-outlined text-4xl mb-4 block text-outline-variant">rate_review</span>
-            <p className="text-lg font-medium">Отзывов пока нет</p>
-            <p className="text-sm mt-1">Будьте первым, кто оставит отзыв!</p>
-          </div>
+          <ReviewSection productId={product.id} />
         )}
       </div>
     </div>

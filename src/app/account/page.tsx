@@ -3,6 +3,7 @@
 import { useAuth } from "@/lib/auth-context";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { AccountSkeleton } from "@/components/Skeleton";
 
 const statusLabels: Record<string, { text: string; color: string }> = {
   new: { text: "Новый", color: "bg-primary-fixed text-on-primary-fixed-variant" },
@@ -17,11 +18,7 @@ export default function AccountPage() {
   const router = useRouter();
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen bg-surface flex items-center justify-center">
-        <p className="text-on-surface-variant">Загрузка...</p>
-      </div>
-    );
+    return <AccountSkeleton />;
   }
 
   if (!user) {

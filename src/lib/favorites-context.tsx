@@ -12,6 +12,7 @@ interface FavoritesContextType {
   toggleFavorite: (productId: string) => void;
   isFavorite: (productId: string) => boolean;
   favoritesCount: number;
+  isLoading: boolean;
 }
 
 const FavoritesContext = createContext<FavoritesContextType | null>(null);
@@ -58,6 +59,7 @@ function mergeFavorites(firestoreFavs: string[], localFavs: string[]): string[] 
 
 export function FavoritesProvider({ children }: { children: ReactNode }) {
   const [favorites, setFavorites] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const uidRef = useRef<string | null>(null);
   const initializedRef = useRef(false);
 
@@ -91,6 +93,7 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
         setFavorites(loadLocalFavorites());
       }
       initializedRef.current = true;
+      setIsLoading(false);
     });
     return () => unsub();
   }, []);
@@ -112,7 +115,7 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
   const favoritesCount = favorites.length;
 
   return (
-    <FavoritesContext.Provider value={{ favorites, toggleFavorite, isFavorite, favoritesCount }}>
+    <FavoritesContext.Provider value={{ favorites, toggleFavorite, isFavorite, favoritesCount, isLoading }}>
       {children}
     </FavoritesContext.Provider>
   );

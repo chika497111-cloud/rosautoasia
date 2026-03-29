@@ -19,6 +19,7 @@ interface CartContextType {
   clearCart: () => void;
   totalItems: number;
   totalPrice: number;
+  isLoading: boolean;
 }
 
 const CartContext = createContext<CartContextType | null>(null);
@@ -76,6 +77,7 @@ async function saveFirestoreCart(uid: string, items: CartItem[]) {
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const uidRef = useRef<string | null>(null);
   const initializedRef = useRef(false);
 
@@ -109,6 +111,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         setItems(loadLocalCart());
       }
       initializedRef.current = true;
+      setIsLoading(false);
     });
     return () => unsub();
   }, []);
@@ -149,7 +152,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const totalPrice = items.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
 
   return (
-    <CartContext.Provider value={{ items, addItem, removeItem, updateQuantity, clearCart, totalItems, totalPrice }}>
+    <CartContext.Provider value={{ items, addItem, removeItem, updateQuantity, clearCart, totalItems, totalPrice, isLoading }}>
       {children}
     </CartContext.Provider>
   );

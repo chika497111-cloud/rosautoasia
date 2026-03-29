@@ -5,10 +5,12 @@ import { useState, useMemo, use, useEffect } from "react";
 import { categories, products, getCategoryBySlug } from "@/lib/mock-data";
 import { notFound } from "next/navigation";
 import { useCart } from "@/lib/cart-context";
+import { useComparison } from "@/lib/comparison-context";
 
 export default function CategoryPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = use(params);
   const { addItem } = useCart();
+  const { addToCompare, isInCompare, removeFromCompare } = useComparison();
   const category = getCategoryBySlug(slug);
 
   if (!category) {
@@ -394,20 +396,44 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
                         <small className="text-sm">сом</small>
                       </span>
                     </div>
-                    <button
-                      onClick={(e) => {
-                        e.preventDefault();
-                        addItem(product);
-                      }}
-                      className="signature-glow w-12 h-12 rounded-full flex items-center justify-center text-white shadow-lg active:scale-90 transition-transform"
-                    >
-                      <span
-                        className="material-symbols-outlined"
-                        style={{ fontVariationSettings: "'FILL' 1" }}
+                    <div className="flex items-center gap-2">
+                      {/* Compare button */}
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          if (isInCompare(product.id)) {
+                            removeFromCompare(product.id);
+                          } else {
+                            addToCompare(product);
+                          }
+                        }}
+                        title={isInCompare(product.id) ? "Убрать из сравнения" : "Сравнить"}
+                        className={`w-10 h-10 rounded-full flex items-center justify-center transition-all active:scale-90 ${
+                          isInCompare(product.id)
+                            ? "bg-primary-container text-white shadow-md"
+                            : "bg-surface-mid text-on-surface-variant hover:bg-primary-container/20 hover:text-primary"
+                        }`}
                       >
-                        add_shopping_cart
-                      </span>
-                    </button>
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                        </svg>
+                      </button>
+                      {/* Cart button */}
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          addItem(product);
+                        }}
+                        className="signature-glow w-12 h-12 rounded-full flex items-center justify-center text-white shadow-lg active:scale-90 transition-transform"
+                      >
+                        <span
+                          className="material-symbols-outlined"
+                          style={{ fontVariationSettings: "'FILL' 1" }}
+                        >
+                          add_shopping_cart
+                        </span>
+                      </button>
+                    </div>
                   </div>
                 </article>
               ))}

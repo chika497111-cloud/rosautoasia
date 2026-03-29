@@ -3,10 +3,37 @@
 import Link from "next/link";
 import { useCart } from "@/lib/cart-context";
 import { useState } from "react";
+import { CartItemSkeleton } from "@/components/Skeleton";
 
 export default function CartPage() {
-  const { items, removeItem, updateQuantity, clearCart, totalPrice, totalItems } = useCart();
+  const { items, removeItem, updateQuantity, clearCart, totalPrice, totalItems, isLoading } = useCart();
   const [promoCode, setPromoCode] = useState("");
+
+  if (isLoading) {
+    return (
+      <div className="max-w-screen-2xl mx-auto px-8 py-12">
+        <div className="flex items-center gap-4 mb-10">
+          <div className="h-10 w-40 bg-surface-mid animate-pulse rounded-full" />
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+          <div className="lg:col-span-8 space-y-4">
+            <CartItemSkeleton />
+            <CartItemSkeleton />
+            <CartItemSkeleton />
+          </div>
+          <div className="lg:col-span-4">
+            <div className="bg-surface-lowest p-8 rounded-xl shadow-[0_20px_40px_rgba(69,26,3,0.08)] space-y-4">
+              <div className="h-8 w-40 bg-surface-mid animate-pulse rounded-full" />
+              <div className="h-4 w-full bg-surface-mid animate-pulse rounded-full" />
+              <div className="h-4 w-full bg-surface-mid animate-pulse rounded-full" />
+              <div className="h-12 w-full bg-surface-mid animate-pulse rounded-full mt-6" />
+              <div className="h-14 w-full bg-surface-mid animate-pulse rounded-full" />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (items.length === 0) {
     return (
