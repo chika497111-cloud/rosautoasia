@@ -39,7 +39,7 @@ async def run_test():
         elem = frame.locator('xpath=/html/body/nav/div/div/a[3]').nth(0)
         await page.wait_for_timeout(3000); await elem.click(timeout=5000)
         
-        # -> Click the collapsed FAQ item summary (index 1309) to expand it and reveal the answer.
+        # -> Click the second FAQ summary (index 1438) to expand it and reveal the answer.
         frame = context.pages[-1]
         # Click element
         elem = frame.locator('xpath=/html/body/main/div/section[3]/div/div/details[2]/summary').nth(0)

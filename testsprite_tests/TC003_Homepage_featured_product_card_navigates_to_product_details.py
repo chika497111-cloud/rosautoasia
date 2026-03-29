@@ -33,16 +33,16 @@ async def run_test():
         # -> Navigate to http://localhost:3000
         await page.goto("http://localhost:3000", wait_until="commit", timeout=10000)
         
-        # -> Click a featured product card (index 240) to open the product details view.
+        # -> Click a featured product card (attempt clicking element index 232).
         frame = context.pages[-1]
         # Click element
         elem = frame.locator('xpath=/html/body/main/div/section[3]/div/div[2]/a[2]').nth(0)
         await page.wait_for_timeout(3000); await elem.click(timeout=5000)
         
-        # -> Click a recommended/featured product card (index 628) to open its product detail view and verify the product information is displayed.
+        # -> Click a featured product card (use one of the recommended product links) to open the product detail page and then verify product information is shown.
         frame = context.pages[-1]
         # Click element
-        elem = frame.locator('xpath=/html/body/main/div/section[3]/div/div[2]/a[2]').nth(0)
+        elem = frame.locator('xpath=/html/body/main/div/section[3]/div/div[2]/a[3]').nth(0)
         await page.wait_for_timeout(3000); await elem.click(timeout=5000)
         
         # --> Test passed — verified by AI agent

@@ -33,7 +33,7 @@ async def run_test():
         # -> Navigate to http://localhost:3000
         await page.goto("http://localhost:3000", wait_until="commit", timeout=10000)
         
-        # -> Navigate to /checkout (http://localhost:3000/checkout) using the explicit navigation step.
+        # -> Navigate directly to /checkout as requested in the test steps and verify checkout page is present.
         await page.goto("http://localhost:3000/checkout", wait_until="commit", timeout=10000)
         
         # --> Assertions to verify final state

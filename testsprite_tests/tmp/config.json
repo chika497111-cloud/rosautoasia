@@ -9,16 +9,16 @@
     "projectName": "rosautoasia",
     "projectPath": "C:\\Users\\chika\\Desktop\\1C\\rosautoasia",
     "testIds": [
-      "TC020",
-      "TC028",
-      "TC045"
+      "TC011",
+      "TC014",
+      "TC015"
     ],
-    "additionalInstruction": "Re-run only 3 fixed tests. TC020: registration now redirects properly after success. TC028: favorites now require login, shows tooltip. TC045: contact form validates phone format. Site Russian at http://localhost:3000.",
+    "additionalInstruction": "IMPORTANT: Before testing checkout, you must first LOGIN and ADD items to cart.\n\nLogin flow:\n1. Go to /login\n2. Enter phone: +996777123456\n3. Enter password: 1862939Trs\n4. Click login button\n5. Wait for redirect\n\nThen add items to cart:\n1. Go to /catalog\n2. Click any category\n3. Click the orange cart button on any product\n4. Go to /cart\n5. Click \"Оформить заказ\"\n\nNow test checkout:\n- TC011: Fill form (ФИО, телефон, email, город, адрес), select delivery method, select payment, click \"Подтвердить заказ\"\n- TC014: Switch between delivery methods (Самовывоз, Курьер, Доставка по КР)\n- TC015: Switch between payment methods (Наличные, Элсом, Карта)\n\nSite is Russian at http://localhost:3000. Firebase Auth login with phone format +996XXXXXXXXX.",
     "serverMode": "production",
     "envs": {
       "API_KEY": "sk-user-rmYlFrGQtQV5x0rM77mt6Sp23DSDLOe5WpKv7CH8KoIB-U48VNSvgzNH_FwWV3T6rsTlJHC5PLMQJgYZMVoKsgkIha7v-NsowQsOmDuLUPQ5KPUBiflCFdiqO2C1qd2HEJs"
     }
   },
-  "serverPort": 57455,
-  "proxy": "http://2882ccda-ff63-4a9f-bd51-a0a283c5d8d3:6MslNMjLfAZAjuXAmmspvSCskJiGhsE6@tun.testsprite.com:8080"
+  "serverPort": 49603,
+  "proxy": "http://eda8f60f-e114-439b-b32c-5cf92e81b94d:8DPL729K3qDMvaTkX6r2CuCPjHQNUc4c@tun.testsprite.com:8080"
 }

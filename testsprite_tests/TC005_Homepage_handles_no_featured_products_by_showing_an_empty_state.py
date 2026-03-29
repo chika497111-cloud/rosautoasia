@@ -33,9 +33,15 @@ async def run_test():
         # -> Navigate to http://localhost:3000
         await page.goto("http://localhost:3000", wait_until="commit", timeout=10000)
         
+        # -> Open/inspect the Recommended/Featured products region to check whether an empty-state message exists or whether the layout handles zero products gracefully.
+        frame = context.pages[-1]
+        # Click element
+        elem = frame.locator('xpath=/html/body/main/div/section[3]/div/div[2]/a').nth(0)
+        await page.wait_for_timeout(3000); await elem.click(timeout=5000)
+        
         # --> Assertions to verify final state
         frame = context.pages[-1]
-        await expect(frame.locator('text=Рекомендуемые товары отсутствуют').first).to_be_visible(timeout=3000)
+        await expect(frame.locator('text=Нет рекомендованных товаров').first).to_be_visible(timeout=3000)
         await asyncio.sleep(5)
 
     finally:

@@ -33,16 +33,22 @@ async def run_test():
         # -> Navigate to http://localhost:3000
         await page.goto("http://localhost:3000", wait_until="commit", timeout=10000)
         
-        # -> Open the catalog page by clicking the 'Каталог' link in the header.
+        # -> Click the 'Каталог' link to open the catalog page.
         frame = context.pages[-1]
         # Click element
         elem = frame.locator('xpath=/html/body/nav/div/div/a').nth(0)
         await page.wait_for_timeout(3000); await elem.click(timeout=5000)
         
-        # -> Click the category card 'Тормозная система' to open its product list.
+        # -> Click the 'Фильтры' category card (interactive element index 1529) to open its product list and filters.
         frame = context.pages[-1]
         # Click element
-        elem = frame.locator('xpath=/html/body/main/main/div/a').nth(0)
+        elem = frame.locator('xpath=/html/body/main/main/div/a[4]').nth(0)
+        await page.wait_for_timeout(3000); await elem.click(timeout=5000)
+        
+        # -> Click the 'Sakura' brand checkbox (input index 2224), wait for the product list to update, then extract product titles and brands to verify the filter effect.
+        frame = context.pages[-1]
+        # Click element
+        elem = frame.locator('xpath=/html/body/main/main/div/aside/div[3]/div[2]/label/input').nth(0)
         await page.wait_for_timeout(3000); await elem.click(timeout=5000)
         
         # --> Test passed — verified by AI agent

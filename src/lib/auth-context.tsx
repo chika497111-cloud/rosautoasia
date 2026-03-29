@@ -302,9 +302,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (!user) throw new Error("Нужно войти в аккаунт");
 
       try {
-        // Get next order number
-        const allOrders = await fetchOrders();
-        const orderNumber = "ROA-" + String(allOrders.length + 1).padStart(6, "0");
+        // Get next order number from ALL orders (not just user's)
+        const allOrdersSnap = await getDocs(collection(db, "orders"));
+        const orderNumber = "ROA-" + String(allOrdersSnap.size + 1).padStart(6, "0");
         const now = new Date().toISOString();
 
         const orderDoc = {

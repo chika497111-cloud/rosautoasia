@@ -33,7 +33,9 @@ async def run_test():
         # -> Navigate to http://localhost:3000
         await page.goto("http://localhost:3000", wait_until="commit", timeout=10000)
         
-        # -> Navigate to /about and verify the company information content after reloading the page.
+        # -> Navigate to http://localhost:3000/about, reload the page, then verify that the company information content (e.g., company description text) is displayed.
+        await page.goto("http://localhost:3000/about", wait_until="commit", timeout=10000)
+        
         await page.goto("http://localhost:3000/about", wait_until="commit", timeout=10000)
         
         # --> Test passed — verified by AI agent

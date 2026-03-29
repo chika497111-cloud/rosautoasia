@@ -33,19 +33,13 @@ async def run_test():
         # -> Navigate to http://localhost:3000
         await page.goto("http://localhost:3000", wait_until="commit", timeout=10000)
         
-        # -> Navigate to /select-car and open the car selection page to test validation preventing progression without selecting a brand.
+        # -> Navigate to http://localhost:3000/select-car and attempt to proceed to the model selection step without selecting a brand to verify the UI prevents advancing.
         await page.goto("http://localhost:3000/select-car", wait_until="commit", timeout=10000)
         
-        # -> Attempt to proceed to the model selection step without selecting a brand by clicking the 'Модель' step in the stepper.
+        # -> Click the 'Модель' step (model step) to attempt to advance without selecting a brand and observe whether the UI prevents progression and shows a validation message.
         frame = context.pages[-1]
         # Click element
         elem = frame.locator('xpath=/html/body/main/div/div/div/div[3]/span').nth(0)
-        await page.wait_for_timeout(3000); await elem.click(timeout=5000)
-        
-        # -> Click the stepper 'Модель' element again to confirm the UI remains on the brand selection step and to look for any explicit validation message indicating a brand must be selected.
-        frame = context.pages[-1]
-        # Click element
-        elem = frame.locator('xpath=/html/body/main/div/div/div/div/span').nth(0)
         await page.wait_for_timeout(3000); await elem.click(timeout=5000)
         
         # --> Test passed — verified by AI agent

@@ -33,13 +33,30 @@ async def run_test():
         # -> Navigate to http://localhost:3000
         await page.goto("http://localhost:3000", wait_until="commit", timeout=10000)
         
-        # -> Click the 'Каталог' link in the header to open the catalog page and then continue to a category.
+        # -> Click the 'Перейти в каталог' button (index 126) to open the catalog page, then open a category card (e.g., 'Тормозная система' index 142).
+        frame = context.pages[-1]
+        # Click element
+        elem = frame.locator('xpath=/html/body/main/div/section/div/div/div/a').nth(0)
+        await page.wait_for_timeout(3000); await elem.click(timeout=5000)
+        
+        frame = context.pages[-1]
+        # Click element
+        elem = frame.locator('xpath=/html/body/main/div/section[2]/div/div[2]/a[1]').nth(0)
+        await page.wait_for_timeout(3000); await elem.click(timeout=5000)
+        
+        # -> Click the 'Перейти в каталог' button (index 529) to open the catalog page.
+        frame = context.pages[-1]
+        # Click element
+        elem = frame.locator('xpath=/html/body/main/div/section/div/div/div/a').nth(0)
+        await page.wait_for_timeout(3000); await elem.click(timeout=5000)
+        
+        # -> Click the 'Каталог' link (nav item) to open the catalog page and then (after navigation) open a category card.
         frame = context.pages[-1]
         # Click element
         elem = frame.locator('xpath=/html/body/nav/div/div/a').nth(0)
         await page.wait_for_timeout(3000); await elem.click(timeout=5000)
         
-        # -> Click a category card (open a category listing page to check for filters and product grid).
+        # -> Click the category card 'Тормозная система' to open the category listing page and then verify the filter sidebar and product grid are displayed.
         frame = context.pages[-1]
         # Click element
         elem = frame.locator('xpath=/html/body/main/main/div/a').nth(0)

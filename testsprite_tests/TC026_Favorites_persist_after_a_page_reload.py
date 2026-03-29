@@ -33,143 +33,150 @@ async def run_test():
         # -> Navigate to http://localhost:3000
         await page.goto("http://localhost:3000", wait_until="commit", timeout=10000)
         
-        # -> Navigate to http://localhost:3000/favorites
+        # -> Navigate to http://localhost:3000/favorites and inspect the favorites list.
         await page.goto("http://localhost:3000/favorites", wait_until="commit", timeout=10000)
         
-        # -> Open the catalog page so a product can be added to favorites (click the 'Перейти в каталог' link).
+        # -> Click 'Перейти в каталог' on the favorites page to open the catalog and add a product to favorites (click element index 604).
         frame = context.pages[-1]
         # Click element
         elem = frame.locator('xpath=/html/body/main/div/div/div/a').nth(0)
         await page.wait_for_timeout(3000); await elem.click(timeout=5000)
         
-        # -> Open the catalog page by clicking the 'Каталог' link in the header so a product can be added to favorites.
+        # -> Open the catalog page and add a product to favorites by clicking heart on a product card.
         frame = context.pages[-1]
         # Click element
         elem = frame.locator('xpath=/html/body/nav/div/div/a').nth(0)
         await page.wait_for_timeout(3000); await elem.click(timeout=5000)
         
-        # -> Open a category (e.g., 'Тормозная система') to reach product cards so a product can be added to favorites.
-        frame = context.pages[-1]
-        # Click element
-        elem = frame.locator('xpath=/html/body/main/main/div/a').nth(0)
-        await page.wait_for_timeout(3000); await elem.click(timeout=5000)
-        
-        # -> Open the favorites page by clicking the 'Избранное' link in the header (index 3010) to check whether the favorites list is empty.
+        # -> Navigate to the Favorites page (/favorites) to check current saved favorites state (and proceed to add a product if the list is empty).
         frame = context.pages[-1]
         # Click element
         elem = frame.locator('xpath=/html/body/footer/div/div[2]/div/a[3]').nth(0)
         await page.wait_for_timeout(3000); await elem.click(timeout=5000)
         
-        # -> Click the 'Избранное' header link (index 3010) to open the favorites page and check if it shows saved items (or empty state).
-        frame = context.pages[-1]
-        # Click element
-        elem = frame.locator('xpath=/html/body/footer/div/div[2]/div/a[3]').nth(0)
-        await page.wait_for_timeout(3000); await elem.click(timeout=5000)
-        
-        # -> Open the catalog so a product can be added to favorites (click the header 'Каталог').
-        frame = context.pages[-1]
-        # Click element
-        elem = frame.locator('xpath=/html/body/nav/div/div/a').nth(0)
-        await page.wait_for_timeout(3000); await elem.click(timeout=5000)
-        
-        # -> Click the header 'Каталог' link to open the catalog page and find a product card to add to favorites (use element index 3006).
-        frame = context.pages[-1]
-        # Click element
-        elem = frame.locator('xpath=/html/body/footer/div/div[2]/div/a').nth(0)
-        await page.wait_for_timeout(3000); await elem.click(timeout=5000)
-        
-        # -> Open the favorites page by clicking the header 'Избранное' link (element index 3010).
-        frame = context.pages[-1]
-        # Click element
-        elem = frame.locator('xpath=/html/body/footer/div/div[2]/div/a[3]').nth(0)
-        await page.wait_for_timeout(3000); await elem.click(timeout=5000)
-        
-        # -> Click the 'Перейти в каталог' button on the empty favorites page (index 4028) to open the catalog, then add a product to favorites.
-        frame = context.pages[-1]
-        # Click element
-        elem = frame.locator('xpath=/html/body/main/div/div/div/a').nth(0)
-        await page.wait_for_timeout(3000); await elem.click(timeout=5000)
-        
-        # -> Navigate to /favorites and check if the favorites list is empty. If empty, open the catalog and add a product to favorites. (Immediate action: navigate to /favorites.)
+        # -> Navigate to /favorites to inspect current favorites. If the list is empty, add a product to favorites from the catalog, reload the favorites page, and verify at least one saved product remains visible. Then finish.
         await page.goto("http://localhost:3000/favorites", wait_until="commit", timeout=10000)
         
-        # -> Click the 'Перейти в каталог' button on the empty favorites page to open the catalog so a product can be added to favorites.
+        # -> Open the catalog by clicking 'Перейти в каталог' and then locate a product card to add to favorites.
         frame = context.pages[-1]
         # Click element
         elem = frame.locator('xpath=/html/body/main/div/div/div/a').nth(0)
         await page.wait_for_timeout(3000); await elem.click(timeout=5000)
         
-        # -> Click the header 'Каталог' link to open the catalog page so a product can be added to favorites, then wait for the page to load.
+        # -> Open the catalog page and add a product to favorites by clicking the heart on any product card.
         frame = context.pages[-1]
         # Click element
         elem = frame.locator('xpath=/html/body/nav/div/div/a').nth(0)
         await page.wait_for_timeout(3000); await elem.click(timeout=5000)
         
-        # -> Click the header 'Избранное' link to open the /favorites page and check whether it is empty. If empty, navigate to the catalog, open a category with products, add one product to favorites (click the heart), then reload /favorites and verify the saved product appears.
+        # -> Navigate to the Favorites page by clicking the 'Избранное' link so the favorites list can be inspected (and then add a product if empty).
         frame = context.pages[-1]
         # Click element
         elem = frame.locator('xpath=/html/body/footer/div/div[2]/div/a[3]').nth(0)
         await page.wait_for_timeout(3000); await elem.click(timeout=5000)
         
-        # -> Open the catalog page so a product card can be selected and added to favorites (click the header 'Каталог').
-        frame = context.pages[-1]
-        # Click element
-        elem = frame.locator('xpath=/html/body/nav/div/div/a').nth(0)
-        await page.wait_for_timeout(3000); await elem.click(timeout=5000)
-        
-        # -> Open the catalog page by clicking the header 'Каталог' so a product can be added to favorites.
-        frame = context.pages[-1]
-        # Click element
-        elem = frame.locator('xpath=/html/body/footer/div/div[2]/div/a').nth(0)
-        await page.wait_for_timeout(3000); await elem.click(timeout=5000)
-        
-        # -> Open a category with products (click 'Двигатель') so product cards become visible and a product can be added to favorites.
-        frame = context.pages[-1]
-        # Click element
-        elem = frame.locator('xpath=/html/body/main/main/div/a[2]').nth(0)
-        await page.wait_for_timeout(3000); await elem.click(timeout=5000)
-        
-        # -> Open the product details page by clicking the product link so the favorite (heart) control can be used.
-        frame = context.pages[-1]
-        # Click element
-        elem = frame.locator('xpath=/html/body/main/main/div/section/div[2]/article/div/a').nth(0)
-        await page.wait_for_timeout(3000); await elem.click(timeout=5000)
-        
-        # -> Click the product 'Добавить в избранное' (heart) button to save the product, then open the favorites page to verify it appears.
-        frame = context.pages[-1]
-        # Click element
-        elem = frame.locator('xpath=/html/body/main/div/div/div[2]/div/div[6]/button').nth(0)
-        await page.wait_for_timeout(3000); await elem.click(timeout=5000)
-        
+        # -> Open the Favorites page (/favorites) and inspect whether it is empty or contains saved products. If empty, return to the catalog and add one product to favorites, then reload /favorites and verify persistence.
         frame = context.pages[-1]
         # Click element
         elem = frame.locator('xpath=/html/body/footer/div/div[2]/div/a[3]').nth(0)
         await page.wait_for_timeout(3000); await elem.click(timeout=5000)
         
-        # -> Open the catalog from the empty favorites page by clicking the 'Перейти в каталог' link (index 11925) so a product can be added to favorites.
+        # -> Open the catalog from the favorites page by clicking the 'Перейти в каталог' button so a product can be added to favorites.
         frame = context.pages[-1]
         # Click element
         elem = frame.locator('xpath=/html/body/main/div/div/div/a').nth(0)
         await page.wait_for_timeout(3000); await elem.click(timeout=5000)
         
-        # -> Open the 'Двигатель' category so a product card can be selected and added to favorites (click category link).
+        # -> Navigate to /favorites and inspect the favorites list (check for saved products). If empty, open catalog and add one product to favorites, then reload /favorites and verify at least one product remains.
+        await page.goto("http://localhost:3000/favorites", wait_until="commit", timeout=10000)
+        
+        # -> Open the catalog from the favorites page by clicking the 'Перейти в каталог' button (index 3900) so a product can be added to favorites.
         frame = context.pages[-1]
         # Click element
-        elem = frame.locator('xpath=/html/body/main/main/div/a[2]').nth(0)
+        elem = frame.locator('xpath=/html/body/main/div/div/div/a').nth(0)
         await page.wait_for_timeout(3000); await elem.click(timeout=5000)
         
-        # -> Open the product details page for 'Ремень ГРМ комплект' so the 'Добавить в избранное' control can be clicked.
+        # -> Open the catalog page by clicking the 'Каталог' link in the navigation so a product can be added to favorites (click element index 3979).
         frame = context.pages[-1]
         # Click element
-        elem = frame.locator('xpath=/html/body/main/main/div/section/div[2]/article/div/a').nth(0)
+        elem = frame.locator('xpath=/html/body/nav/div/div/a').nth(0)
         await page.wait_for_timeout(3000); await elem.click(timeout=5000)
         
-        # -> Click the product 'Добавить в избранное' (heart) to save the product, then open /favorites and reload the page to verify persistence.
+        # -> Click the 'Избранное' link to open the /favorites page and check for saved favorites (if empty, add a product from the catalog).
         frame = context.pages[-1]
         # Click element
-        elem = frame.locator('xpath=/html/body/main/div/div/div[2]/div/div[6]/button').nth(0)
+        elem = frame.locator('xpath=/html/body/footer/div/div[2]/div/a[3]').nth(0)
         await page.wait_for_timeout(3000); await elem.click(timeout=5000)
         
+        # -> Click the 'Избранное' link to open the /favorites page and inspect whether any saved favorites exist.
+        frame = context.pages[-1]
+        # Click element
+        elem = frame.locator('xpath=/html/body/footer/div/div[2]/div/a[3]').nth(0)
+        await page.wait_for_timeout(3000); await elem.click(timeout=5000)
+        
+        # -> Navigate to /favorites and check whether it contains saved items. If empty, go to catalog, add one product to favorites, then reload /favorites to verify the saved product persists.
+        await page.goto("http://localhost:3000/favorites", wait_until="commit", timeout=10000)
+        
+        # -> Open the catalog page from the favorites screen so a product can be added to favorites (click the 'Перейти в каталог' button).
+        frame = context.pages[-1]
+        # Click element
+        elem = frame.locator('xpath=/html/body/main/div/div/div/a').nth(0)
+        await page.wait_for_timeout(3000); await elem.click(timeout=5000)
+        
+        # -> Open the catalog page so a product card can be located and a favorite (heart) can be added (click the top navigation 'Каталог' link).
+        frame = context.pages[-1]
+        # Click element
+        elem = frame.locator('xpath=/html/body/nav/div/div/a').nth(0)
+        await page.wait_for_timeout(3000); await elem.click(timeout=5000)
+        
+        # -> Open the Favorites page, then return to catalog and open a product category to find a product card to add to favorites (click heart). After adding, reload /favorites and verify at least one saved product remains visible.
+        frame = context.pages[-1]
+        # Click element
+        elem = frame.locator('xpath=/html/body/footer/div/div[2]/div/a[3]').nth(0)
+        await page.wait_for_timeout(3000); await elem.click(timeout=5000)
+        
+        frame = context.pages[-1]
+        # Click element
+        elem = frame.locator('xpath=/html/body/nav/div/div/a').nth(0)
+        await page.wait_for_timeout(3000); await elem.click(timeout=5000)
+        
+        # -> Open the Favorites page by clicking the 'Избранное' link (element index 5004).
+        frame = context.pages[-1]
+        # Click element
+        elem = frame.locator('xpath=/html/body/footer/div/div[2]/div/a[3]').nth(0)
+        await page.wait_for_timeout(3000); await elem.click(timeout=5000)
+        
+        # -> Click the 'Избранное' link to open /favorites, inspect whether it contains a saved product or the empty-state text 'В избранном пусто'. If empty, return to catalog and add a product to favorites.
+        frame = context.pages[-1]
+        # Click element
+        elem = frame.locator('xpath=/html/body/footer/div/div[2]/div/a[3]').nth(0)
+        await page.wait_for_timeout(3000); await elem.click(timeout=5000)
+        
+        # -> Open the catalog page and add one product to favorites by clicking the heart on a product card.
+        frame = context.pages[-1]
+        # Click element
+        elem = frame.locator('xpath=/html/body/nav/div/div/a').nth(0)
+        await page.wait_for_timeout(3000); await elem.click(timeout=5000)
+        
+        # -> Open the Favorites page, confirm whether it shows 'В избранном пусто' or saved items. If empty, go to the catalog, open a category, list product titles, and attempt to add one product to favorites (click heart). Then reload /favorites and verify persistence.
+        frame = context.pages[-1]
+        # Click element
+        elem = frame.locator('xpath=/html/body/footer/div/div[2]/div/a[3]').nth(0)
+        await page.wait_for_timeout(3000); await elem.click(timeout=5000)
+        
+        # -> Open the catalog from Favorites (click 'Перейти в каталог'), then locate a product card and add it to favorites (click its heart). After adding, reload /favorites and verify at least one saved product is displayed.
+        frame = context.pages[-1]
+        # Click element
+        elem = frame.locator('xpath=/html/body/main/div/div/div/a').nth(0)
+        await page.wait_for_timeout(3000); await elem.click(timeout=5000)
+        
+        # -> Click the 'Избранное' link to open /favorites and inspect whether saved favorites exist. If empty, plan to open catalog and add one product, then reload /favorites to verify persistence.
+        frame = context.pages[-1]
+        # Click element
+        elem = frame.locator('xpath=/html/body/footer/div/div[2]/div/a[3]').nth(0)
+        await page.wait_for_timeout(3000); await elem.click(timeout=5000)
+        
+        # -> Click the 'Избранное' link to open /favorites and check whether it contains saved items (if empty, then go to catalog and add a product).
         frame = context.pages[-1]
         # Click element
         elem = frame.locator('xpath=/html/body/footer/div/div[2]/div/a[3]').nth(0)

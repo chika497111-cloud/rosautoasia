@@ -33,18 +33,18 @@ async def run_test():
         # -> Navigate to http://localhost:3000
         await page.goto("http://localhost:3000", wait_until="commit", timeout=10000)
         
-        # -> Click the cart/checkout icon to go to the checkout page (click element index 95).
+        # -> Open the cart / proceed to the checkout page (try clicking the cart icon).
         frame = context.pages[-1]
         # Click element
         elem = frame.locator('xpath=/html/body/nav/div/div[3]/a').nth(0)
         await page.wait_for_timeout(3000); await elem.click(timeout=5000)
         
-        # -> Navigate to the checkout page (http://localhost:3000/checkout) to look for payment method selection controls.
+        # -> Navigate to /checkout (explicit step provided).
         await page.goto("http://localhost:3000/checkout", wait_until="commit", timeout=10000)
         
         # --> Assertions to verify final state
         frame = context.pages[-1]
-        await expect(frame.locator('text=Выбрано').first).to_be_visible(timeout=3000)
+        await expect(frame.locator('text=Payment method selected').first).to_be_visible(timeout=3000)
         await asyncio.sleep(5)
 
     finally:

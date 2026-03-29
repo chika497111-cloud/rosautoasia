@@ -33,8 +33,17 @@ async def run_test():
         # -> Navigate to http://localhost:3000
         await page.goto("http://localhost:3000", wait_until="commit", timeout=10000)
         
-        # -> Navigate to /register and then check for the registration form fields (name, phone, email, password) and a registration submit control.
-        await page.goto("http://localhost:3000/register", wait_until="commit", timeout=10000)
+        # -> Click the 'Войти' (login) link to open the authentication/registration page.
+        frame = context.pages[-1]
+        # Click element
+        elem = frame.locator('xpath=/html/body/nav/div/div[3]/div/a').nth(0)
+        await page.wait_for_timeout(3000); await elem.click(timeout=5000)
+        
+        # -> Click the 'Создать аккаунт' link to open the registration page and then verify the required fields are present.
+        frame = context.pages[-1]
+        # Click element
+        elem = frame.locator('xpath=/html/body/main/div/div/form/a').nth(0)
+        await page.wait_for_timeout(3000); await elem.click(timeout=5000)
         
         # --> Test passed — verified by AI agent
         frame = context.pages[-1]

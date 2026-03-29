@@ -33,7 +33,7 @@ async def run_test():
         # -> Navigate to http://localhost:3000
         await page.goto("http://localhost:3000", wait_until="commit", timeout=10000)
         
-        # -> Click the 'Каталог' link to open the catalog page and then verify the categories grid and that each category shows an icon and product count.
+        # -> Click the 'Каталог' link in the header to open the catalog page and verify the category overview grid (icons + product counts) is rendered.
         frame = context.pages[-1]
         # Click element
         elem = frame.locator('xpath=/html/body/nav/div/div/a').nth(0)

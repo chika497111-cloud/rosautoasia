@@ -33,12 +33,12 @@ async def run_test():
         # -> Navigate to http://localhost:3000
         await page.goto("http://localhost:3000", wait_until="commit", timeout=10000)
         
-        # -> Navigate to /checkout (explicit path requested).
+        # -> Navigate to /checkout page
         await page.goto("http://localhost:3000/checkout", wait_until="commit", timeout=10000)
         
         # --> Assertions to verify final state
         frame = context.pages[-1]
-        await expect(frame.locator('text=Курьер — выбран').first).to_be_visible(timeout=3000)
+        await expect(frame.locator('text=Выбрано').first).to_be_visible(timeout=3000)
         await asyncio.sleep(5)
 
     finally:

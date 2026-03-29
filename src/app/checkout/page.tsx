@@ -21,6 +21,7 @@ export default function CheckoutPage() {
   const [payment, setPayment] = useState<PaymentMethod>("elsom");
   const [submitted, setSubmitted] = useState(false);
   const [orderNumber, setOrderNumber] = useState("");
+  const [error, setError] = useState("");
 
   const deliveryPrice = delivery === "pickup" ? 0 : delivery === "courier" ? 250 : 300;
   const grandTotal = totalPrice + deliveryPrice;
@@ -136,9 +137,9 @@ export default function CheckoutPage() {
 
       setOrderNumber(order.number);
       setSubmitted(true);
-      clearCart();
-    } catch {
-      // Could show error to user
+      try { clearCart(); } catch { /* cart clear may fail, not critical */ }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Не удалось оформить заказ. Попробуйте ещё раз.");
     } finally {
       setSubmitting(false);
     }
@@ -335,6 +336,11 @@ export default function CheckoutPage() {
       {/* Final Action */}
       <div className="mt-16 flex flex-col items-center">
         <div className="max-w-xl w-full text-center">
+          {error && (
+            <div className="mb-6 p-4 bg-error-container text-on-error-container rounded-xl text-sm font-medium">
+              {error}
+            </div>
+          )}
           <p className="text-on-surface-variant text-sm mb-6">
             Нажимая кнопку &laquo;Подтвердить заказ&raquo;, вы соглашаетесь с условиями{" "}
             <Link href="#" className="text-primary underline">публичной оферты</Link>{" "}

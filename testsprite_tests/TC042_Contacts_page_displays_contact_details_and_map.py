@@ -33,7 +33,7 @@ async def run_test():
         # -> Navigate to http://localhost:3000
         await page.goto("http://localhost:3000", wait_until="commit", timeout=10000)
         
-        # -> Click the 'Контакты' link to open the Contacts page and wait for it to load.
+        # -> Click the 'Контакты' link in the navigation to open the Contacts page and then verify contact details and a map are present.
         frame = context.pages[-1]
         # Click element
         elem = frame.locator('xpath=/html/body/nav/div/div/a[4]').nth(0)

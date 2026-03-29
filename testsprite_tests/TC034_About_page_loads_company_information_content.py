@@ -33,7 +33,7 @@ async def run_test():
         # -> Navigate to http://localhost:3000
         await page.goto("http://localhost:3000", wait_until="commit", timeout=10000)
         
-        # -> Navigate to /about and verify the page shows company information and statistics/values content; if missing, report the issue and finish.
+        # -> Navigate to /about and verify company information and statistics/values content are displayed.
         await page.goto("http://localhost:3000/about", wait_until="commit", timeout=10000)
         
         # --> Test passed — verified by AI agent

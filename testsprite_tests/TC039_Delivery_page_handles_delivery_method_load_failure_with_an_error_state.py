@@ -33,7 +33,7 @@ async def run_test():
         # -> Navigate to http://localhost:3000
         await page.goto("http://localhost:3000", wait_until="commit", timeout=10000)
         
-        # -> Click the 'Доставка' (Delivery) link (interactive element index 18) to open the delivery page and then wait for the delivery methods section to load.
+        # -> Click the 'Доставка' link in the top navigation to open the Delivery page and wait for the delivery methods section to finish loading.
         frame = context.pages[-1]
         # Click element
         elem = frame.locator('xpath=/html/body/nav/div/div/a[3]').nth(0)
