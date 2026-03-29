@@ -9,19 +9,28 @@
     "projectName": "rosautoasia",
     "projectPath": "C:\\Users\\chika\\Desktop\\1C\\rosautoasia",
     "testIds": [
-      "TC012",
-      "TC016",
-      "TC017",
-      "TC019",
-      "TC022",
-      "TC023"
+      "TC029",
+      "TC030",
+      "TC031",
+      "TC034",
+      "TC035",
+      "TC037",
+      "TC038",
+      "TC042",
+      "TC043",
+      "TC044",
+      "TC046",
+      "TC024",
+      "TC025",
+      "TC027",
+      "TC040"
     ],
-    "additionalInstruction": "Re-run the 6 previously failed tests. Site is in Russian. Base URL http://localhost:3000. Search now supports partial word matching. Autocomplete suggestions appear after 2+ chars. Request form shows confirmation after submit. Quantity selector affects cart.",
-    "serverMode": "development",
+    "additionalInstruction": "Run remaining untested test cases. Site is in Russian at http://localhost:3000. These cover: Select Car (TC029-TC031), About page (TC034-TC035), Delivery page (TC037-TC038,TC040), Contacts page (TC042-TC044,TC046), Favorites (TC024-TC025,TC027). Skip login-dependent tests.",
+    "serverMode": "production",
     "envs": {
       "API_KEY": "sk-user-rmYlFrGQtQV5x0rM77mt6Sp23DSDLOe5WpKv7CH8KoIB-U48VNSvgzNH_FwWV3T6rsTlJHC5PLMQJgYZMVoKsgkIha7v-NsowQsOmDuLUPQ5KPUBiflCFdiqO2C1qd2HEJs"
     }
   },
-  "serverPort": 57773,
-  "proxy": "http://d4a03bd5-d11d-478f-a2b3-873c48b108d6:kyRpDy6h64dUHLGB8oJ4P6JfqpRnxJR4@tun.testsprite.com:8080"
+  "serverPort": 51407,
+  "proxy": "http://f4b6e355-aca8-45b7-a6ee-d3bbe4267f2f:95RROWEYYsLCbZcox2V6AS0h6njIcFGv@tun.testsprite.com:8080"
 }

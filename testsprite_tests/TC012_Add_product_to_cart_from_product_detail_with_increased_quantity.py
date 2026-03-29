@@ -33,19 +33,19 @@ async def run_test():
         # -> Navigate to http://localhost:3000
         await page.goto("http://localhost:3000", wait_until="commit", timeout=10000)
         
-        # -> Use the site search input to search for 'тормоз' (brake) and submit the search
+        # -> Use the site search to search for 'тормозные колодки' (brake pads) from the search input.
         frame = context.pages[-1]
         # Input text
         elem = frame.locator('xpath=/html/body/nav/div/div[2]/div/form/div/input').nth(0)
-        await page.wait_for_timeout(3000); await elem.fill('тормоз')
+        await page.wait_for_timeout(3000); await elem.fill('тормозные колодки')
         
-        # -> Open the product detail page for the first brake product ('Колодки тормозные передние').
+        # -> Open a product detail page from the search results (click the first product title).
         frame = context.pages[-1]
         # Click element
         elem = frame.locator('xpath=/html/body/main/main/div/article/div/a').nth(0)
         await page.wait_for_timeout(3000); await elem.click(timeout=5000)
         
-        # -> Increase the product quantity to 2 by clicking the '+' button, add the product to the cart, open the cart, and extract the cart line items and quantities.
+        # -> Click the + button to increase quantity to 2 (element index 7463). Then add to cart (7476), open the cart (7355), and extract cart items/quantities to verify.
         frame = context.pages[-1]
         # Click element
         elem = frame.locator('xpath=/html/body/main/div/div/div[2]/div/div[4]/div/button[2]').nth(0)
@@ -60,9 +60,6 @@ async def run_test():
         # Click element
         elem = frame.locator('xpath=/html/body/nav/div/div[3]/a').nth(0)
         await page.wait_for_timeout(3000); await elem.click(timeout=5000)
-        
-        # -> Open the cart page and extract the cart line items and quantities to verify there is exactly one line item with quantity 2.
-        await page.goto("http://localhost:3000/cart", wait_until="commit", timeout=10000)
         
         # --> Test passed — verified by AI agent
         frame = context.pages[-1]

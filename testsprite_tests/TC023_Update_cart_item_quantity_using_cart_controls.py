@@ -33,16 +33,49 @@ async def run_test():
         # -> Navigate to http://localhost:3000
         await page.goto("http://localhost:3000", wait_until="commit", timeout=10000)
         
-        # -> Open the 'Тормозная система' (Brake system) category to locate brake pad products by clicking element index 142.
+        # -> Use the site search box to search for brake pads (enter "колодки" and submit)
+        frame = context.pages[-1]
+        # Input text
+        elem = frame.locator('xpath=/html/body/nav/div/div[2]/div/form/div/input').nth(0)
+        await page.wait_for_timeout(3000); await elem.fill('колодки')
+        
+        # -> Open the first product from the search results by clicking its product link/title.
         frame = context.pages[-1]
         # Click element
-        elem = frame.locator('xpath=/html/body/main/div/section[2]/div/div[2]/a').nth(0)
+        elem = frame.locator('xpath=/html/body/main/main/div/article/div/a').nth(0)
         await page.wait_for_timeout(3000); await elem.click(timeout=5000)
         
-        # -> Click the 'В корзину' button (index 1179) to add the product to the cart, then open the cart by clicking the cart icon (index 1055).
+        # -> Add the product to the cart by clicking the product's 'В корзину' button, then open the cart.
         frame = context.pages[-1]
         # Click element
-        elem = frame.locator('xpath=/html/body/main/div/div/div[2]/div/div[5]/div/button').nth(0)
+        elem = frame.locator('xpath=/html/body/nav/div/div[3]/a').nth(0)
+        await page.wait_for_timeout(3000); await elem.click(timeout=5000)
+        
+        # -> Open the cart page so the cart line item and quantity controls can be inspected and the quantity can be increased by 1.
+        await page.goto("http://localhost:3000/cart", wait_until="commit", timeout=10000)
+        
+        # -> Open the catalog (click 'Перейти в каталог') so a product can be added to the cart again.
+        frame = context.pages[-1]
+        # Click element
+        elem = frame.locator('xpath=/html/body/main/div/a').nth(0)
+        await page.wait_for_timeout(3000); await elem.click(timeout=5000)
+        
+        # -> Open the catalog page by clicking the 'Перейти в каталог' button so a product can be added to the cart.
+        frame = context.pages[-1]
+        # Click element
+        elem = frame.locator('xpath=/html/body/footer/div/div/div[2]/a').nth(0)
+        await page.wait_for_timeout(3000); await elem.click(timeout=5000)
+        
+        # -> Enter the search term 'колодки' into the site search and submit to locate brake pad products.
+        frame = context.pages[-1]
+        # Input text
+        elem = frame.locator('xpath=/html/body/nav/div/div[2]/div/form/div/input').nth(0)
+        await page.wait_for_timeout(3000); await elem.fill('колодки')
+        
+        # -> Click the first product's 'В корзину' button to add it to the cart, then open the cart to inspect the line item.
+        frame = context.pages[-1]
+        # Click element
+        elem = frame.locator('xpath=/html/body/main/main/div/article/div[2]/button').nth(0)
         await page.wait_for_timeout(3000); await elem.click(timeout=5000)
         
         frame = context.pages[-1]
@@ -50,10 +83,16 @@ async def run_test():
         elem = frame.locator('xpath=/html/body/nav/div/div[3]/a').nth(0)
         await page.wait_for_timeout(3000); await elem.click(timeout=5000)
         
-        # -> Open the cart page so the cart line item and its quantity controls are visible, then increase the line item quantity by 1 using the cart controls and verify the quantity changed.
+        # -> Open the cart page to inspect the line item and find the quantity increment control.
         await page.goto("http://localhost:3000/cart", wait_until="commit", timeout=10000)
         
-        # -> Click the plus button (index 1864) to increment the cart line item quantity by 1, wait briefly, then read the quantity (index 1862) to verify it changed from '1' to '2'.
+        # -> Click the 'Увеличить количество' button for the cart line item to increment quantity by 1, then read the updated quantity and the order total from the page.
+        frame = context.pages[-1]
+        # Click element
+        elem = frame.locator('xpath=/html/body/main/div/div[2]/div/div/div[3]/button[2]').nth(0)
+        await page.wait_for_timeout(3000); await elem.click(timeout=5000)
+        
+        # -> Click the 'Увеличить количество' (+) button for the cart line item, wait for the UI to update, then read the new quantity and the 'Итого к оплате' total and return them as plain text 'quantity: X; total: Y'.
         frame = context.pages[-1]
         # Click element
         elem = frame.locator('xpath=/html/body/main/div/div[2]/div/div/div[3]/button[2]').nth(0)

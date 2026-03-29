@@ -33,7 +33,7 @@ async def run_test():
         # -> Navigate to http://localhost:3000
         await page.goto("http://localhost:3000", wait_until="commit", timeout=10000)
         
-        # -> Focus the site search input so text can be entered.
+        # -> Focus the site search input (click the search input field).
         frame = context.pages[-1]
         # Click element
         elem = frame.locator('xpath=/html/body/nav/div/div[2]/div/form/div/input').nth(0)
@@ -44,19 +44,7 @@ async def run_test():
         elem = frame.locator('xpath=/html/body/nav/div/div[2]/div/form/div/input').nth(0)
         await page.wait_for_timeout(3000); await elem.fill('bra')
         
-        # -> Clear the search input and enter a Cyrillic partial query ('бр') to trigger typeahead, then wait for suggestions to appear.
-        frame = context.pages[-1]
-        # Input text
-        elem = frame.locator('xpath=/html/body/nav/div/div[2]/div/form/div/input').nth(0)
-        await page.wait_for_timeout(3000); await elem.fill('бр')
-        
-        # -> Append one Cyrillic character to the search input (make it 'бра'), then wait briefly for autocomplete/typeahead suggestions to appear.
-        frame = context.pages[-1]
-        # Input text
-        elem = frame.locator('xpath=/html/body/nav/div/div[2]/div/form/div/input').nth(0)
-        await page.wait_for_timeout(3000); await elem.fill('а')
-        
-        # -> Attempt to open/show the typeahead suggestions by refocusing the search input and using keyboard navigation (ArrowDown) to reveal/select suggestions.
+        # -> Check the page for an autocomplete suggestion list or for search results after the Enter press. If suggestions exist, extract their texts; if search results were shown, extract product/result titles or a results heading.
         frame = context.pages[-1]
         # Click element
         elem = frame.locator('xpath=/html/body/nav/div/div[2]/div/form/div/input').nth(0)

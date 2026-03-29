@@ -33,13 +33,35 @@ async def run_test():
         # -> Navigate to http://localhost:3000
         await page.goto("http://localhost:3000", wait_until="commit", timeout=10000)
         
-        # -> Open the 'Тормозная система' (Brake system) category to view brake-related products by clicking the category link.
+        # -> Open the 'Тормозная система' category to view brake products.
         frame = context.pages[-1]
         # Click element
         elem = frame.locator('xpath=/html/body/main/div/section[2]/div/div[2]/a').nth(0)
         await page.wait_for_timeout(3000); await elem.click(timeout=5000)
         
-        # -> Increase the product quantity to 2 by clicking the add (+) button once, then add the product to the cart, then open the cart to verify contents.
+        # -> Open the product 'Колодки тормозные передние' by clicking its product link (index 1305).
+        frame = context.pages[-1]
+        # Click element
+        elem = frame.locator('xpath=/html/body/main/main/div/section/div[2]/article/div/a').nth(0)
+        await page.wait_for_timeout(3000); await elem.click(timeout=5000)
+        
+        # -> Increase the product quantity to 2 by clicking the '+' button, then add the item to the cart, then open the cart to verify contents.
+        frame = context.pages[-1]
+        # Click element
+        elem = frame.locator('xpath=/html/body/main/div/div/div[2]/div/div[4]/div/button[2]').nth(0)
+        await page.wait_for_timeout(3000); await elem.click(timeout=5000)
+        
+        frame = context.pages[-1]
+        # Click element
+        elem = frame.locator('xpath=/html/body/main/div/div[1]/div[2]/div/div[5]/div/button').nth(0)
+        await page.wait_for_timeout(3000); await elem.click(timeout=5000)
+        
+        frame = context.pages[-1]
+        # Click element
+        elem = frame.locator('xpath=/html/body/nav/div[1]/div[3]/a').nth(0)
+        await page.wait_for_timeout(3000); await elem.click(timeout=5000)
+        
+        # -> Increase the product quantity to 2 by clicking the '+' button (index 2906), then add to cart (index 2910), then open the cart (index 2851) to verify contents.
         frame = context.pages[-1]
         # Click element
         elem = frame.locator('xpath=/html/body/main/div/div/div[2]/div/div[4]/div/button[2]').nth(0)
@@ -55,7 +77,7 @@ async def run_test():
         elem = frame.locator('xpath=/html/body/nav/div/div[3]/a').nth(0)
         await page.wait_for_timeout(3000); await elem.click(timeout=5000)
         
-        # -> Open the cart page to verify it contains one line item with quantity 2 and that an order summary/totals are displayed.
+        # -> Open the cart page to inspect and verify there is exactly 1 line item with quantity 2 and that an order summary with totals is displayed.
         await page.goto("http://localhost:3000/cart", wait_until="commit", timeout=10000)
         
         # --> Test passed — verified by AI agent

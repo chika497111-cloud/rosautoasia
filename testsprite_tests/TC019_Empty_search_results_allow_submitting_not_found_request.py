@@ -33,13 +33,13 @@ async def run_test():
         # -> Navigate to http://localhost:3000
         await page.goto("http://localhost:3000", wait_until="commit", timeout=10000)
         
-        # -> Enter 'unobtanium' into the search field and submit the search (press Enter), then wait for results to load.
+        # -> Type 'unobtanium' into the search field and submit the search (press Enter).
         frame = context.pages[-1]
         # Input text
         elem = frame.locator('xpath=/html/body/nav/div/div[2]/div/form/div/input').nth(0)
         await page.wait_for_timeout(3000); await elem.fill('unobtanium')
         
-        # -> Fill the 'Описание запчасти' field with 'unobtanium', fill the phone field with a valid phone number, and submit the not-found request form.
+        # -> Fill the 'Описание запчасти' with 'unobtanium', fill the phone field with '+996000000000', then click 'Отправить заявку' (submit the not-found request form).
         frame = context.pages[-1]
         # Input text
         elem = frame.locator('xpath=/html/body/main/main/section/div/form/div[3]/textarea').nth(0)
@@ -48,7 +48,7 @@ async def run_test():
         frame = context.pages[-1]
         # Input text
         elem = frame.locator('xpath=/html/body/main/main/section/div/form/div[4]/input').nth(0)
-        await page.wait_for_timeout(3000); await elem.fill('+996555000000')
+        await page.wait_for_timeout(3000); await elem.fill('+996000000000')
         
         frame = context.pages[-1]
         # Click element

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import ContactForm from "./ContactForm";
 
 export const metadata: Metadata = {
   title: "Контакты",
@@ -86,41 +87,7 @@ export default function ContactsPage() {
               </div>
 
               {/* Contact Form */}
-              <div className="bg-surface-lowest p-10 rounded-xl warm-shadow space-y-6">
-                <h3 className="text-2xl font-bold font-[family-name:var(--font-headline)] text-[#451A03]">Оставить заявку</h3>
-                <form className="space-y-4" action="#">
-                  <div>
-                    <label className="block text-sm font-semibold text-on-surface-variant mb-2">Имя</label>
-                    <input
-                      className="w-full bg-surface-low border-none rounded-xl p-4 focus:ring-2 focus:ring-primary focus:bg-surface-lowest transition-all"
-                      placeholder="Ваше имя"
-                      type="text"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-semibold text-on-surface-variant mb-2">Телефон</label>
-                    <input
-                      className="w-full bg-surface-low border-none rounded-xl p-4 focus:ring-2 focus:ring-primary focus:bg-surface-lowest transition-all"
-                      placeholder="+996 (___) __-__-__"
-                      type="tel"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-semibold text-on-surface-variant mb-2">Сообщение</label>
-                    <textarea
-                      className="w-full bg-surface-low border-none rounded-xl p-4 focus:ring-2 focus:ring-primary focus:bg-surface-lowest transition-all"
-                      placeholder="Введите ваш вопрос или список запчастей"
-                      rows={4}
-                    />
-                  </div>
-                  <button
-                    className="w-full cta-gradient text-white font-bold py-4 rounded-full warm-shadow hover:opacity-90 active:scale-95 transition-all"
-                    type="submit"
-                  >
-                    Отправить
-                  </button>
-                </form>
-              </div>
+              <ContactForm />
             </div>
 
             {/* Right column: Map placeholder */}

@@ -4,14 +4,17 @@ import { useState } from "react";
 import Link from "next/link";
 import { carBrands, getModelsByBrand } from "@/lib/car-data";
 import { products } from "@/lib/mock-data";
+import { getYearsForModel } from "@/lib/car-years";
 
 export default function SelectCarPage() {
   const [selectedBrand, setSelectedBrand] = useState<string | null>(null);
   const [selectedBrandName, setSelectedBrandName] = useState<string>("");
   const [selectedModel, setSelectedModel] = useState<string | null>(null);
   const [selectedModelName, setSelectedModelName] = useState<string>("");
+  const [selectedYear, setSelectedYear] = useState<number | null>(null);
 
   const models = selectedBrand ? getModelsByBrand(selectedBrand) : [];
+  const availableYears = selectedModel ? getYearsForModel(selectedModel) : [];
   const matchingProducts = selectedBrandName
     ? products.filter(
         (p) => p.car_brand.toLowerCase() === selectedBrandName.toLowerCase()
@@ -23,11 +26,17 @@ export default function SelectCarPage() {
     setSelectedBrandName(brandName);
     setSelectedModel(null);
     setSelectedModelName("");
+    setSelectedYear(null);
   }
 
   function handleModelSelect(modelId: string, modelName: string) {
     setSelectedModel(modelId);
     setSelectedModelName(modelName);
+    setSelectedYear(null);
+  }
+
+  function handleYearSelect(year: number) {
+    setSelectedYear(year);
   }
 
   function handleReset() {
@@ -35,6 +44,7 @@ export default function SelectCarPage() {
     setSelectedBrandName("");
     setSelectedModel(null);
     setSelectedModelName("");
+    setSelectedYear(null);
   }
 
   return (
@@ -53,7 +63,7 @@ export default function SelectCarPage() {
             Подбор по <span className="text-primary-container">автомобилю</span>
           </h1>
           <p className="text-outline-variant mt-2">
-            Выберите марку и модель, чтобы найти подходящие запчасти
+            Выберите марку, модель и год, чтобы найти подходящие запчасти
           </p>
         </div>
       </section>
@@ -91,13 +101,28 @@ export default function SelectCarPage() {
           <div className="h-px flex-1 bg-outline-variant" />
           <div
             className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 ${
-              selectedModel
+              selectedModel && !selectedYear
                 ? "cta-gradient text-white shadow-lg shadow-primary/20"
+                : selectedYear
+                ? "bg-[#451A03] text-white"
                 : "bg-surface-mid text-on-surface-variant"
             }`}
           >
             <span className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold">
               3
+            </span>
+            Год
+          </div>
+          <div className="h-px flex-1 bg-outline-variant" />
+          <div
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 ${
+              selectedYear
+                ? "cta-gradient text-white shadow-lg shadow-primary/20"
+                : "bg-surface-mid text-on-surface-variant"
+            }`}
+          >
+            <span className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold">
+              4
             </span>
             Запчасти
           </div>
@@ -116,6 +141,7 @@ export default function SelectCarPage() {
             <span className="text-sm font-medium text-on-surface-variant">
               {selectedBrandName}
               {selectedModelName && ` → ${selectedModelName}`}
+              {selectedYear && ` → ${selectedYear}`}
             </span>
           </div>
         )}
@@ -193,13 +219,41 @@ export default function SelectCarPage() {
           </div>
         )}
 
-        {/* Step 3: Matching products */}
-        {selectedModel && (
+        {/* Step 3: Year selection */}
+        {selectedModel && !selectedYear && (
+          <div className="animate-[fadeIn_0.3s_ease-in-out]">
+            <h2 className="font-[family-name:var(--font-headline)] text-xl font-bold text-[#451A03] mb-4">
+              Выберите год выпуска{" "}
+              <span className="text-primary">
+                {selectedBrandName} {selectedModelName}
+              </span>
+            </h2>
+            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-4">
+              {availableYears.map((year) => (
+                <button
+                  key={year}
+                  onClick={() => handleYearSelect(year)}
+                  className="bg-surface-lowest rounded-xl warm-shadow p-5 text-center font-semibold text-on-surface card-hover focus:outline-none focus:ring-2 focus:ring-primary/20"
+                >
+                  {year}
+                </button>
+              ))}
+            </div>
+            {availableYears.length === 0 && (
+              <div className="text-center py-12 text-on-surface-variant">
+                Годы выпуска для этой модели пока не добавлены
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Step 4: Matching products */}
+        {selectedYear && (
           <div className="animate-[fadeIn_0.3s_ease-in-out]">
             <h2 className="font-[family-name:var(--font-headline)] text-xl font-bold text-[#451A03] mb-4">
               Запчасти для{" "}
               <span className="text-primary">
-                {selectedBrandName} {selectedModelName}
+                {selectedBrandName} {selectedModelName} {selectedYear}
               </span>
             </h2>
 
