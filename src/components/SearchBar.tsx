@@ -2,21 +2,11 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { products } from "@/lib/mock-data";
+import { searchProducts } from "@/lib/mock-data";
 import type { Product } from "@/lib/mock-data";
 
 function searchLocal(query: string): Product[] {
-  const words = query.toLowerCase().trim().split(/\s+/).filter(Boolean);
-  if (words.length === 0) return [];
-
-  return products
-    .filter((p) => {
-      const fields = [p.name, p.article, p.brand, p.car_brand, p.car_model].map(
-        (f) => f.toLowerCase()
-      );
-      return words.every((word) => fields.some((field) => field.includes(word)));
-    })
-    .slice(0, 5);
+  return searchProducts(query).slice(0, 5);
 }
 
 function formatPrice(price: number): string {

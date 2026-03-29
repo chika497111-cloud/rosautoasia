@@ -33,21 +33,33 @@ async def run_test():
         # -> Navigate to http://localhost:3000
         await page.goto("http://localhost:3000", wait_until="commit", timeout=10000)
         
-        # -> Focus the site search input by clicking the search field (element index 4).
+        # -> Focus the site search input so text can be entered.
         frame = context.pages[-1]
         # Click element
-        elem = frame.locator('xpath=/html/body/nav/div/form/div/input').nth(0)
+        elem = frame.locator('xpath=/html/body/nav/div/div[2]/div/form/div/input').nth(0)
         await page.wait_for_timeout(3000); await elem.click(timeout=5000)
         
         frame = context.pages[-1]
         # Input text
-        elem = frame.locator('xpath=/html/body/nav/div/form/div/input').nth(0)
+        elem = frame.locator('xpath=/html/body/nav/div/div[2]/div/form/div/input').nth(0)
         await page.wait_for_timeout(3000); await elem.fill('bra')
         
-        # -> Select a suggestion from the typeahead suggestions (use keyboard to move to first suggestion and activate it), then verify search results are displayed for the selected suggestion.
+        # -> Clear the search input and enter a Cyrillic partial query ('бр') to trigger typeahead, then wait for suggestions to appear.
+        frame = context.pages[-1]
+        # Input text
+        elem = frame.locator('xpath=/html/body/nav/div/div[2]/div/form/div/input').nth(0)
+        await page.wait_for_timeout(3000); await elem.fill('бр')
+        
+        # -> Append one Cyrillic character to the search input (make it 'бра'), then wait briefly for autocomplete/typeahead suggestions to appear.
+        frame = context.pages[-1]
+        # Input text
+        elem = frame.locator('xpath=/html/body/nav/div/div[2]/div/form/div/input').nth(0)
+        await page.wait_for_timeout(3000); await elem.fill('а')
+        
+        # -> Attempt to open/show the typeahead suggestions by refocusing the search input and using keyboard navigation (ArrowDown) to reveal/select suggestions.
         frame = context.pages[-1]
         # Click element
-        elem = frame.locator('xpath=/html/body/nav/div/form/div/input').nth(0)
+        elem = frame.locator('xpath=/html/body/nav/div/div[2]/div/form/div/input').nth(0)
         await page.wait_for_timeout(3000); await elem.click(timeout=5000)
         
         # --> Assertions to verify final state

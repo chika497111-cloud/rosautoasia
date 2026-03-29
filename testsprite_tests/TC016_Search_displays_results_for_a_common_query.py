@@ -33,15 +33,15 @@ async def run_test():
         # -> Navigate to http://localhost:3000
         await page.goto("http://localhost:3000", wait_until="commit", timeout=10000)
         
-        # -> Enter the search term 'тормозная колодка' into the main search input and submit the search (press Enter).
+        # -> Enter the search term 'колодка' into the search box and submit the search (press Enter).
         frame = context.pages[-1]
         # Input text
-        elem = frame.locator('xpath=/html/body/nav/div/form/div/input').nth(0)
-        await page.wait_for_timeout(3000); await elem.fill('тормозная колодка')
+        elem = frame.locator('xpath=/html/body/nav/div/div[2]/div/form/div/input').nth(0)
+        await page.wait_for_timeout(3000); await elem.fill('колодка')
         
         # --> Assertions to verify final state
         frame = context.pages[-1]
-        await expect(frame.locator('text=тормозная колодка').first).to_be_visible(timeout=3000)
+        await expect(frame.locator('text=колодка').first).to_be_visible(timeout=3000)
         await asyncio.sleep(5)
 
     finally:

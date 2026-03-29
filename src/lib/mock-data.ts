@@ -217,6 +217,12 @@ export function getCategoryBySlug(slug: string): Category | undefined {
   return categories.find((c) => c.slug === slug);
 }
 
+/** Simple Russian stemming — strip common endings to match word forms */
+function stem(word: string): string {
+  return word
+    .replace(/(ами|ями|ого|ому|ыми|ими|ах|ях|ов|ев|ей|ой|ий|ый|ая|яя|ое|ее|ие|ые|ую|юю|их|ых|ём|ом|ем|ам|ям|ой|ей|ию|ью|ья|ье|ов|ек|ок|ки|ка|ку|ке|ко|ны|на|ну|не|но|ть|ся|ся)$/, "");
+}
+
 export function searchProducts(query: string): Product[] {
   const words = query.toLowerCase().trim().split(/\s+/).filter(Boolean);
   if (words.length === 0) return [];
@@ -230,7 +236,20 @@ export function searchProducts(query: string): Product[] {
       p.car_model,
     ].map((f) => f.toLowerCase());
 
-    // Every query word must match at least one field (partial match)
-    return words.every((word) => fields.some((field) => field.includes(word)));
+    // Every query word must match at least one field
+    // Try both direct partial match and stemmed match
+    return words.every((word) => {
+      const stemmed = stem(word);
+      return fields.some((field) => {
+        if (field.includes(word)) return true;
+        if (stemmed.length >= 3 && field.includes(stemmed)) return true;
+        // Also stem each word in the field and compare
+        const fieldWords = field.split(/[\s\-\/,]+/);
+        return fieldWords.some((fw) => {
+          const fwStemmed = stem(fw);
+          return fwStemmed === stemmed || fw.startsWith(stemmed) || (stemmed.length >= 3 && fwStemmed.startsWith(stemmed));
+        });
+      });
+    });
   });
 }

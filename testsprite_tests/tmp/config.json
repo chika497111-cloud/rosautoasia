@@ -8,13 +8,20 @@
   "executionArgs": {
     "projectName": "rosautoasia",
     "projectPath": "C:\\Users\\chika\\Desktop\\1C\\rosautoasia",
-    "testIds": [],
-    "additionalInstruction": "Site is in Russian. Base URL http://localhost:3000. Registration: phone format +996XXXXXXXXX, password min 6 chars. Login with phone+password. Test registration with new phone number like +996700999888. All product data is mock. Site uses Firebase Auth + Firestore.",
+    "testIds": [
+      "TC012",
+      "TC016",
+      "TC017",
+      "TC019",
+      "TC022",
+      "TC023"
+    ],
+    "additionalInstruction": "Re-run the 6 previously failed tests. Site is in Russian. Base URL http://localhost:3000. Search now supports partial word matching. Autocomplete suggestions appear after 2+ chars. Request form shows confirmation after submit. Quantity selector affects cart.",
     "serverMode": "development",
     "envs": {
       "API_KEY": "sk-user-rmYlFrGQtQV5x0rM77mt6Sp23DSDLOe5WpKv7CH8KoIB-U48VNSvgzNH_FwWV3T6rsTlJHC5PLMQJgYZMVoKsgkIha7v-NsowQsOmDuLUPQ5KPUBiflCFdiqO2C1qd2HEJs"
     }
   },
-  "serverPort": 51577,
-  "proxy": "http://04996c64-b807-41cf-b975-27b8c6e13baf:9n8EejZKlz8uuc3oheoBXUd6AxuGc24U@tun.testsprite.com:8080"
+  "serverPort": 57773,
+  "proxy": "http://d4a03bd5-d11d-478f-a2b3-873c48b108d6:kyRpDy6h64dUHLGB8oJ4P6JfqpRnxJR4@tun.testsprite.com:8080"
 }
