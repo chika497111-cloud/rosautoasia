@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { searchProducts } from "@/lib/mock-data";
 import { AddToCartButton } from "@/components/AddToCartButton";
+import { RequestForm } from "./RequestForm";
 
 export async function generateMetadata({ searchParams }: { searchParams: Promise<{ q?: string }> }): Promise<Metadata> {
   const { q } = await searchParams;
@@ -208,66 +209,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
             </div>
           </div>
 
-          <form action="#" className="space-y-4 bg-surface-lowest rounded-2xl p-6 md:p-8 warm-shadow">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">
-                  Марка авто
-                </label>
-                <input
-                  className="w-full bg-surface-low border-none rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary/20 transition-all placeholder:text-on-surface-variant/40"
-                  placeholder="Toyota"
-                  type="text"
-                />
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">
-                  Модель
-                </label>
-                <input
-                  className="w-full bg-surface-low border-none rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary/20 transition-all placeholder:text-on-surface-variant/40"
-                  placeholder="Camry"
-                  type="text"
-                />
-              </div>
-            </div>
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">
-                Год выпуска
-              </label>
-              <input
-                className="w-full bg-surface-low border-none rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary/20 transition-all placeholder:text-on-surface-variant/40"
-                placeholder="2021"
-                type="text"
-              />
-            </div>
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">
-                Описание запчасти
-              </label>
-              <textarea
-                className="w-full bg-surface-low border-none rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary/20 transition-all placeholder:text-on-surface-variant/40"
-                placeholder="Опишите, что именно вы ищете..."
-                rows={2}
-              />
-            </div>
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">
-                Ваш телефон
-              </label>
-              <input
-                className="w-full bg-surface-low border-none rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary/20 transition-all placeholder:text-on-surface-variant/40"
-                placeholder="+996 (___) __-__-__"
-                type="tel"
-              />
-            </div>
-            <button
-              type="submit"
-              className="w-full cta-gradient text-white py-4 rounded-full font-black font-[family-name:var(--font-headline)] text-sm uppercase tracking-widest warm-shadow transition-all hover:opacity-90 active:scale-95 mt-4"
-            >
-              Отправить заявку
-            </button>
-          </form>
+          <RequestForm />
         </div>
 
         {/* Decorative circle */}

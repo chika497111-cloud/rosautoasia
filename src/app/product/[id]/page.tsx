@@ -2,10 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { products, categories, getProductById, getProductsByCategory } from "@/lib/mock-data";
 import { notFound } from "next/navigation";
-import { AddToCartButton } from "@/components/AddToCartButton";
 import { FavoriteButton } from "@/components/FavoriteButton";
 import { ProductTabs } from "./ProductTabs";
-import { QuantitySelector } from "./QuantitySelector";
+import { ProductActions } from "./ProductActions";
 import { SimilarProductCard } from "./SimilarProductCard";
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
@@ -169,20 +168,9 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
               </span>
             </div>
 
-            {/* Quantity selector */}
-            {product.quantity > 0 && (
-              <div className="flex items-center gap-4 mb-4">
-                <QuantitySelector max={product.quantity} unit={product.unit} />
-              </div>
-            )}
+            <ProductActions product={product} />
 
-            {/* Action buttons */}
             <div className="flex flex-col sm:flex-row gap-4 mb-4">
-              {product.quantity > 0 && (
-                <div className="flex-1">
-                  <AddToCartButton product={product} />
-                </div>
-              )}
               <FavoriteButton
                 productId={product.id}
                 className="px-6 py-4 rounded-full border-2 border-outline-variant text-on-surface font-bold hover:bg-surface-mid transition-all flex items-center justify-center gap-2 active:scale-95"

@@ -4,12 +4,12 @@ import { useState } from "react";
 import { useCart } from "@/lib/cart-context";
 import type { Product } from "@/lib/mock-data";
 
-export function AddToCartButton({ product }: { product: Product }) {
+export function AddToCartButton({ product, quantity = 1 }: { product: Product; quantity?: number }) {
   const { addItem } = useCart();
   const [added, setAdded] = useState(false);
 
   const handleAdd = () => {
-    addItem(product);
+    addItem(product, quantity);
     setAdded(true);
     setTimeout(() => setAdded(false), 1500);
   };

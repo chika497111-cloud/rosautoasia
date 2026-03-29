@@ -218,13 +218,19 @@ export function getCategoryBySlug(slug: string): Category | undefined {
 }
 
 export function searchProducts(query: string): Product[] {
-  const q = query.toLowerCase();
-  return products.filter(
-    (p) =>
-      p.name.toLowerCase().includes(q) ||
-      p.article.toLowerCase().includes(q) ||
-      p.brand.toLowerCase().includes(q) ||
-      p.car_brand.toLowerCase().includes(q) ||
-      p.car_model.toLowerCase().includes(q)
-  );
+  const words = query.toLowerCase().trim().split(/\s+/).filter(Boolean);
+  if (words.length === 0) return [];
+
+  return products.filter((p) => {
+    const fields = [
+      p.name,
+      p.article,
+      p.brand,
+      p.car_brand,
+      p.car_model,
+    ].map((f) => f.toLowerCase());
+
+    // Every query word must match at least one field (partial match)
+    return words.every((word) => fields.some((field) => field.includes(word)));
+  });
 }

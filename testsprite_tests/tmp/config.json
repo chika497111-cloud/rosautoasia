@@ -4,5 +4,17 @@
   "scope": "codebase",
   "localEndpoint": "http://localhost:3000",
   "loginUser": "+996000000000",
-  "loginPassword": "admin123"
+  "loginPassword": "admin123",
+  "executionArgs": {
+    "projectName": "rosautoasia",
+    "projectPath": "C:\\Users\\chika\\Desktop\\1C\\rosautoasia",
+    "testIds": [],
+    "additionalInstruction": "Site is in Russian. Base URL http://localhost:3000. Registration: phone format +996XXXXXXXXX, password min 6 chars. Login with phone+password. Test registration with new phone number like +996700999888. All product data is mock. Site uses Firebase Auth + Firestore.",
+    "serverMode": "development",
+    "envs": {
+      "API_KEY": "sk-user-rmYlFrGQtQV5x0rM77mt6Sp23DSDLOe5WpKv7CH8KoIB-U48VNSvgzNH_FwWV3T6rsTlJHC5PLMQJgYZMVoKsgkIha7v-NsowQsOmDuLUPQ5KPUBiflCFdiqO2C1qd2HEJs"
+    }
+  },
+  "serverPort": 51577,
+  "proxy": "http://04996c64-b807-41cf-b975-27b8c6e13baf:9n8EejZKlz8uuc3oheoBXUd6AxuGc24U@tun.testsprite.com:8080"
 }
