@@ -75,7 +75,7 @@ export default function RegisterPage() {
     try {
       const result = await register(name.trim(), phone.trim(), password);
       if (result.success) {
-        router.push("/account");
+        router.push("/");
       } else {
         setError(result.error || "Ошибка регистрации");
       }

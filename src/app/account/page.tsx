@@ -22,8 +22,13 @@ export default function AccountPage() {
   }
 
   if (!user) {
-    router.push("/login");
-    return null;
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <div className="text-on-surface-variant">
+          <a href="/login" className="text-primary font-bold hover:underline">Войдите</a> чтобы увидеть личный кабинет
+        </div>
+      </div>
+    );
   }
 
   const sortedOrders = [...orders].sort(
