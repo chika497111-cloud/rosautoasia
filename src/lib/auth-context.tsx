@@ -145,12 +145,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
           let profile = await getUserProfile(fbUser.uid);
           if (!profile) {
-            await new Promise((r) => setTimeout(r, 1500));
+            // Profile may not be written yet (e.g. after registration on another tab)
+            // Retry once after a short delay
+            await new Promise((r) => setTimeout(r, 2000));
             profile = await getUserProfile(fbUser.uid);
           }
           if (profile) {
             setUser(profile);
-            // Load orders
+            // Load orders — wrapped in its own try/catch so failures don't cascade
             try {
               if (profile.role === "admin" || profile.role === "manager") {
                 setOrders(await fetchOrders());
@@ -162,6 +164,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               setOrders([]);
             }
           } else {
+            // Profile still doesn't exist — user auth is valid but profile is missing.
+            // Don't crash, just show as not logged in.
             setUser(null);
             setOrders([]);
           }
@@ -169,12 +173,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setUser(null);
           setOrders([]);
         }
-      } catch {
+      } catch (err) {
         // Prevent unhandled promise rejection from crashing the app
+        console.error("[AuthProvider] onAuthStateChanged error:", err);
         setUser(null);
         setOrders([]);
+      } finally {
+        setIsLoading(false);
       }
-      setIsLoading(false);
     });
     return () => unsub();
   }, []);
@@ -190,15 +196,42 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Mark that we're registering so onAuthStateChanged skips redundant Firestore lookup
       justRegisteredRef.current = true;
 
-      const cred = await createUserWithEmailAndPassword(auth, email, password);
+      let cred;
+      try {
+        cred = await createUserWithEmailAndPassword(auth, email, password);
+      } catch (authErr: unknown) {
+        // Auth creation failed — reset the flag and return error
+        justRegisteredRef.current = false;
+        const code = (authErr as { code?: string }).code;
+        if (code === "auth/email-already-in-use") {
+          return { success: false, error: "Пользователь с таким телефоном уже зарегистрирован" };
+        }
+        if (code === "auth/weak-password") {
+          return { success: false, error: "Пароль слишком слабый (минимум 6 символов)" };
+        }
+        return { success: false, error: "Ошибка регистрации. Попробуйте позже." };
+      }
 
-      // Create Firestore profile
-      await setDoc(doc(db, "users", cred.user.uid), {
-        name,
-        phone,
-        role: "client",
-        createdAt: new Date().toISOString(),
-      });
+      // Auth user created — now write the Firestore profile.
+      // If this fails, we still have the auth user, so we retry once.
+      const now = new Date().toISOString();
+      const profileData = { name, phone, role: "client" as const, createdAt: now };
+
+      try {
+        await setDoc(doc(db, "users", cred.user.uid), profileData);
+      } catch {
+        // Retry once after a brief pause
+        await new Promise((r) => setTimeout(r, 1000));
+        try {
+          await setDoc(doc(db, "users", cred.user.uid), profileData);
+        } catch (retryErr) {
+          console.error("[register] Failed to write profile after retry:", retryErr);
+          // Profile write failed but auth user exists.
+          // Let onAuthStateChanged handle it on next load.
+          justRegisteredRef.current = false;
+          return { success: false, error: "Аккаунт создан, но профиль не сохранён. Попробуйте войти." };
+        }
+      }
 
       const profile: User = {
         id: cred.user.uid,
@@ -206,7 +239,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         phone,
         password: "",
         role: "client",
-        createdAt: new Date().toISOString(),
+        createdAt: now,
       };
 
       setUser(profile);
@@ -214,15 +247,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setIsLoading(false);
       return { success: true };
     } catch (err: unknown) {
-      // Reset the flag so onAuthStateChanged can process normally on next auth event
+      // Catch-all for unexpected errors
       justRegisteredRef.current = false;
-      const code = (err as { code?: string }).code;
-      if (code === "auth/email-already-in-use") {
-        return { success: false, error: "Пользователь с таким телефоном уже зарегистрирован" };
-      }
-      if (code === "auth/weak-password") {
-        return { success: false, error: "Пароль слишком слабый (минимум 6 символов)" };
-      }
+      console.error("[register] Unexpected error:", err);
       return { success: false, error: "Ошибка регистрации. Попробуйте позже." };
     }
   }, []);
@@ -239,10 +266,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       setUser(profile);
 
-      if (profile.role === "admin" || profile.role === "manager") {
-        setOrders(await fetchOrders());
-      } else {
-        setOrders(await fetchOrders(cred.user.uid));
+      // Load orders — don't let failure block login
+      try {
+        if (profile.role === "admin" || profile.role === "manager") {
+          setOrders(await fetchOrders());
+        } else {
+          setOrders(await fetchOrders(cred.user.uid));
+        }
+      } catch {
+        // Orders may fail due to missing indexes — not fatal
+        setOrders([]);
       }
 
       return { success: true };

@@ -76,24 +76,31 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
   // Auth state listener
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (fbUser) => {
-      if (fbUser) {
-        uidRef.current = fbUser.uid;
-        const localFavs = loadLocalFavorites();
-        const firestoreFavs = await loadFirestoreFavorites(fbUser.uid);
-        const merged = mergeFavorites(firestoreFavs, localFavs);
-        setFavorites(merged);
-        // Clear localStorage after merge
-        try { localStorage.removeItem(LS_KEY); } catch {}
-        // Save merged to Firestore if local had items
-        if (localFavs.length > 0) {
-          await saveFirestoreFavorites(fbUser.uid, merged);
+      try {
+        if (fbUser) {
+          uidRef.current = fbUser.uid;
+          const localFavs = loadLocalFavorites();
+          const firestoreFavs = await loadFirestoreFavorites(fbUser.uid);
+          const merged = mergeFavorites(firestoreFavs, localFavs);
+          setFavorites(merged);
+          // Clear localStorage after merge
+          try { localStorage.removeItem(LS_KEY); } catch {}
+          // Save merged to Firestore if local had items
+          if (localFavs.length > 0) {
+            await saveFirestoreFavorites(fbUser.uid, merged);
+          }
+        } else {
+          uidRef.current = null;
+          setFavorites(loadLocalFavorites());
         }
-      } else {
-        uidRef.current = null;
+      } catch (err) {
+        // Don't let Firestore errors crash the app — fall back to local favorites
+        console.error("[FavoritesProvider] onAuthStateChanged error:", err);
         setFavorites(loadLocalFavorites());
+      } finally {
+        initializedRef.current = true;
+        setIsLoading(false);
       }
-      initializedRef.current = true;
-      setIsLoading(false);
     });
     return () => unsub();
   }, []);

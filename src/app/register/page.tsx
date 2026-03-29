@@ -17,12 +17,15 @@ export default function RegisterPage() {
   const [error, setError] = useState("");
   const [phoneError, setPhoneError] = useState("");
 
-  // Redirect authenticated users — use useEffect to avoid calling router.push during render
+  // Redirect already-authenticated users who navigate directly to /register
+  // (not triggered by the register() call itself — handleSubmit does its own redirect)
+  const [hasSubmitted, setHasSubmitted] = useState(false);
+
   useEffect(() => {
-    if (user) {
-      router.push("/account");
+    if (user && !hasSubmitted) {
+      router.replace("/account");
     }
-  }, [user, router]);
+  }, [user, router, hasSubmitted]);
 
   if (user) {
     return (
@@ -72,13 +75,18 @@ export default function RegisterPage() {
     }
 
     setSubmitting(true);
+    setHasSubmitted(true);
     try {
       const result = await register(name.trim(), phone.trim(), password);
       if (result.success) {
         router.push("/");
       } else {
+        setHasSubmitted(false);
         setError(result.error || "Ошибка регистрации");
       }
+    } catch {
+      setHasSubmitted(false);
+      setError("Произошла непредвиденная ошибка. Попробуйте ещё раз.");
     } finally {
       setSubmitting(false);
     }

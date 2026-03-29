@@ -14,10 +14,10 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [phoneError, setPhoneError] = useState("");
 
-  // Redirect authenticated users — use useEffect to avoid calling router.push during render
+  // Redirect already-authenticated users who navigate directly to /login
   useEffect(() => {
     if (user) {
-      router.push("/account");
+      router.replace("/account");
     }
   }, [user, router]);
 
@@ -57,10 +57,12 @@ export default function LoginPage() {
     try {
       const result = await login(phone.trim(), password);
       if (result.success) {
-        router.push("/account");
+        router.replace("/account");
       } else {
         setError(result.error || "Ошибка входа");
       }
+    } catch {
+      setError("Произошла непредвиденная ошибка. Попробуйте ещё раз.");
     } finally {
       setSubmitting(false);
     }

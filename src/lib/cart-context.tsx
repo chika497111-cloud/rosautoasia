@@ -94,24 +94,31 @@ export function CartProvider({ children }: { children: ReactNode }) {
   // Auth state listener — load / merge cart on login, fall back to localStorage on logout
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (fbUser) => {
-      if (fbUser) {
-        uidRef.current = fbUser.uid;
-        const localItems = loadLocalCart();
-        const firestoreItems = await loadFirestoreCart(fbUser.uid);
-        const merged = mergeCarts(firestoreItems, localItems);
-        setItems(merged);
-        // Clear localStorage cart after merge
-        try { localStorage.removeItem(LS_KEY); } catch {}
-        // Save merged cart to Firestore
-        if (localItems.length > 0) {
-          await saveFirestoreCart(fbUser.uid, merged);
+      try {
+        if (fbUser) {
+          uidRef.current = fbUser.uid;
+          const localItems = loadLocalCart();
+          const firestoreItems = await loadFirestoreCart(fbUser.uid);
+          const merged = mergeCarts(firestoreItems, localItems);
+          setItems(merged);
+          // Clear localStorage cart after merge
+          try { localStorage.removeItem(LS_KEY); } catch {}
+          // Save merged cart to Firestore
+          if (localItems.length > 0) {
+            await saveFirestoreCart(fbUser.uid, merged);
+          }
+        } else {
+          uidRef.current = null;
+          setItems(loadLocalCart());
         }
-      } else {
-        uidRef.current = null;
+      } catch (err) {
+        // Don't let Firestore errors crash the app — fall back to local cart
+        console.error("[CartProvider] onAuthStateChanged error:", err);
         setItems(loadLocalCart());
+      } finally {
+        initializedRef.current = true;
+        setIsLoading(false);
       }
-      initializedRef.current = true;
-      setIsLoading(false);
     });
     return () => unsub();
   }, []);
