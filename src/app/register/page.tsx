@@ -25,6 +25,9 @@ export default function RegisterPage() {
     if (user && !hasSubmitted) {
       router.replace("/account");
     }
+    if (user && hasSubmitted) {
+      router.replace("/");
+    }
   }, [user, router, hasSubmitted]);
 
   if (user) {

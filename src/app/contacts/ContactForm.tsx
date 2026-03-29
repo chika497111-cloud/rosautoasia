@@ -1,22 +1,31 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import { validatePhone } from "@/lib/phone-utils";
 
 export default function ContactForm() {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [message, setMessage] = useState("");
-  const [errors, setErrors] = useState<{ name?: string; message?: string }>({});
+  const [errors, setErrors] = useState<{ name?: string; phone?: string; message?: string }>({});
   const [submitted, setSubmitted] = useState(false);
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
 
-    const newErrors: { name?: string; message?: string } = {};
+    const newErrors: { name?: string; phone?: string; message?: string } = {};
 
     if (!name.trim()) {
       newErrors.name = "Введите имя";
     }
+
+    if (phone.trim()) {
+      const phoneCheck = validatePhone(phone.trim());
+      if (!phoneCheck.valid) {
+        newErrors.phone = "Введите корректный номер телефона";
+      }
+    }
+
     if (!message.trim()) {
       newErrors.message = "Введите сообщение";
     }
@@ -71,8 +80,12 @@ export default function ContactForm() {
             placeholder="+996 (___) __-__-__"
             type="tel"
             value={phone}
-            onChange={(e) => setPhone(e.target.value)}
+            onChange={(e) => {
+              setPhone(e.target.value);
+              if (errors.phone) setErrors((prev) => ({ ...prev, phone: undefined }));
+            }}
           />
+          {errors.phone && <p className="text-error text-sm mt-1">{errors.phone}</p>}
         </div>
         <div>
           <label className="block text-sm font-semibold text-on-surface-variant mb-2">Сообщение</label>
