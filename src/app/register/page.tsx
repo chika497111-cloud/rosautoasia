@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -17,10 +17,14 @@ export default function RegisterPage() {
   const [error, setError] = useState("");
   const [phoneError, setPhoneError] = useState("");
 
-  if (user) {
-    if (typeof window !== "undefined") {
+  // Redirect authenticated users — use useEffect to avoid calling router.push during render
+  useEffect(() => {
+    if (user) {
       router.push("/account");
     }
+  }, [user, router]);
+
+  if (user) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center">
         <div className="animate-pulse text-on-surface-variant">Перенаправление...</div>

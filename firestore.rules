@@ -25,15 +25,15 @@ service cloud.firestore {
         && resource.data.userId == request.auth.uid;
     }
 
-    // Orders — users can read own, admins can read all
+    // Orders — users can read own, admins/managers can read all
     match /orders/{orderId} {
       allow create: if request.auth != null;
       allow read: if request.auth != null && (
         resource.data.userId == request.auth.uid ||
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin'
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['admin', 'manager']
       );
       allow update: if request.auth != null &&
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['admin', 'manager'];
     }
   }
 }

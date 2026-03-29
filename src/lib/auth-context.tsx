@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from "react";
+import { createContext, useContext, useState, useCallback, useEffect, useRef, type ReactNode } from "react";
 import { auth, db } from "@/lib/firebase";
 import { initializeApp, deleteApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
@@ -127,30 +127,50 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Track whether register() already set the user so onAuthStateChanged can skip redundant work
+  const justRegisteredRef = useRef(false);
+
   // Listen for Firebase Auth state
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (fbUser: FirebaseUser | null) => {
-      if (fbUser) {
-        // Profile might not exist yet if registration just happened (race condition)
-        // Retry once after a short delay
-        let profile = await getUserProfile(fbUser.uid);
-        if (!profile) {
-          await new Promise((r) => setTimeout(r, 1500));
-          profile = await getUserProfile(fbUser.uid);
-        }
-        if (profile) {
-          setUser(profile);
-          // Load orders
-          if (profile.role === "admin" || profile.role === "manager") {
-            setOrders(await fetchOrders());
+      try {
+        if (fbUser) {
+          // If register() already set the user, skip the Firestore lookup
+          // to avoid the race condition where the profile doesn't exist yet
+          if (justRegisteredRef.current) {
+            justRegisteredRef.current = false;
+            setIsLoading(false);
+            return;
+          }
+
+          let profile = await getUserProfile(fbUser.uid);
+          if (!profile) {
+            await new Promise((r) => setTimeout(r, 1500));
+            profile = await getUserProfile(fbUser.uid);
+          }
+          if (profile) {
+            setUser(profile);
+            // Load orders
+            try {
+              if (profile.role === "admin" || profile.role === "manager") {
+                setOrders(await fetchOrders());
+              } else {
+                setOrders(await fetchOrders(fbUser.uid));
+              }
+            } catch {
+              // Orders query may fail (e.g. missing composite index) — not fatal
+              setOrders([]);
+            }
           } else {
-            setOrders(await fetchOrders(fbUser.uid));
+            setUser(null);
+            setOrders([]);
           }
         } else {
           setUser(null);
           setOrders([]);
         }
-      } else {
+      } catch {
+        // Prevent unhandled promise rejection from crashing the app
         setUser(null);
         setOrders([]);
       }
@@ -166,6 +186,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       const email = phoneToEmail(phone);
+
+      // Mark that we're registering so onAuthStateChanged skips redundant Firestore lookup
+      justRegisteredRef.current = true;
+
       const cred = await createUserWithEmailAndPassword(auth, email, password);
 
       // Create Firestore profile
@@ -187,8 +211,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       setUser(profile);
       setOrders([]);
+      setIsLoading(false);
       return { success: true };
     } catch (err: unknown) {
+      // Reset the flag so onAuthStateChanged can process normally on next auth event
+      justRegisteredRef.current = false;
       const code = (err as { code?: string }).code;
       if (code === "auth/email-already-in-use") {
         return { success: false, error: "Пользователь с таким телефоном уже зарегистрирован" };
