@@ -132,6 +132,10 @@ export default function CheckoutPage() {
         })),
         total: grandTotal,
         comment,
+        deliveryMethod: delivery,
+        paymentMethod: payment,
+        deliveryAddress: address,
+        city,
       });
 
       setOrderNumber(order.number);
@@ -327,6 +331,23 @@ export default function CheckoutPage() {
                   <p className="font-bold text-[#451A03]">{opt.label}</p>
                 </label>
               ))}
+
+              {/* Bonus payment - disabled placeholder */}
+              <div className="relative flex items-center p-4 rounded-lg border-2 border-transparent bg-surface-mid opacity-50 cursor-not-allowed">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-6 w-6 mr-4 flex-shrink-0 text-on-surface-variant"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
+                </svg>
+                <p className="font-bold text-[#451A03]">Бонусы</p>
+                <span className="ml-2 text-xs bg-amber-200 text-amber-800 px-2 py-0.5 rounded-full font-semibold">
+                  Скоро!
+                </span>
+              </div>
             </div>
           </div>
         </div>

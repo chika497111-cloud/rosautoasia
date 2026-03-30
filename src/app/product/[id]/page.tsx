@@ -6,6 +6,7 @@ import { FavoriteButton } from "@/components/FavoriteButton";
 import { ProductTabs } from "./ProductTabs";
 import { ProductActions } from "./ProductActions";
 import { SimilarProductCard } from "./SimilarProductCard";
+import { ArticleCopy } from "./ArticleCopy";
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params;
@@ -133,9 +134,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
             </h1>
 
             {/* Article */}
-            <p className="text-on-surface-variant mb-4">
-              Артикул: <span className="font-mono text-secondary">{product.article}</span>
-            </p>
+            <ArticleCopy article={product.article} />
 
             {/* Availability */}
             <div className="flex items-center gap-2 mb-6">

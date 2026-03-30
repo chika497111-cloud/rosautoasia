@@ -30,7 +30,11 @@ export type UserRole = "client" | "admin" | "manager";
 export interface User {
   id: string;
   name: string;
+  firstName?: string;
+  lastName?: string;
   phone: string;
+  city?: string;
+  address?: string;
   password: string;
   role: UserRole;
   createdAt: string;
@@ -44,8 +48,12 @@ export interface Order {
   userPhone: string;
   items: { name: string; article: string; price: number; quantity: number }[];
   total: number;
-  status: "new" | "confirmed" | "ready" | "completed" | "cancelled";
+  status: "new" | "confirmed" | "completed" | "cancelled";
   comment: string;
+  deliveryMethod?: "pickup" | "courier" | "regional";
+  paymentMethod?: "cash" | "elsom" | "card";
+  deliveryAddress?: string;
+  city?: string;
   createdAt: string;
 }
 
@@ -53,7 +61,7 @@ interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   login: (phone: string, password: string) => Promise<{ success: boolean; error?: string }>;
-  register: (name: string, phone: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  register: (firstName: string, lastName: string, phone: string, password: string, city?: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
   orders: Order[];
   addOrder: (order: Omit<Order, "id" | "number" | "userId" | "userName" | "userPhone" | "status" | "createdAt">) => Promise<Order>;
@@ -64,6 +72,8 @@ interface AuthContextType {
   createStaffAccount: (name: string, phone: string, password: string, role: "admin" | "manager") => Promise<{ success: boolean; error?: string }>;
   getStaffAccounts: () => Promise<User[]>;
   deleteStaffAccount: (userId: string) => Promise<boolean>;
+  updateProfile: (data: { firstName?: string; lastName?: string; city?: string; address?: string }) => Promise<boolean>;
+  createClientAccount: (firstName: string, lastName: string, phone: string, city?: string, address?: string) => Promise<{ success: boolean; error?: string }>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -83,7 +93,11 @@ async function getUserProfile(uid: string): Promise<User | null> {
     return {
       id: uid,
       name: data.name ?? "",
+      firstName: data.firstName ?? "",
+      lastName: data.lastName ?? "",
       phone: data.phone ?? "",
+      city: data.city ?? "",
+      address: data.address ?? "",
       password: "", // never stored / returned
       role: data.role ?? "client",
       createdAt: data.createdAt ?? new Date().toISOString(),
@@ -251,7 +265,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // register() creates the auth user + writes the Firestore profile, then returns.
   // It does NOT set user/orders — onAuthStateChanged will handle that.
-  const register = useCallback(async (name: string, phone: string, password: string): Promise<{ success: boolean; error?: string }> => {
+  const register = useCallback(async (firstName: string, lastName: string, phone: string, password: string, city?: string): Promise<{ success: boolean; error?: string }> => {
     try {
       if (password.length < 6) {
         return { success: false, error: "Пароль должен быть не менее 6 символов" };
@@ -275,7 +289,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       // Write Firestore profile
       const now = new Date().toISOString();
-      const profileData = { name, phone, role: "client" as const, createdAt: now };
+      const name = `${firstName} ${lastName}`;
+      const profileData = {
+        firstName,
+        lastName,
+        name,
+        phone,
+        city: city || "",
+        role: "client" as const,
+        createdAt: now,
+      };
 
       try {
         await setDoc(doc(db, "users", cred.user.uid), profileData);
@@ -371,7 +394,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return {
           id: d.id,
           name: data.name ?? "",
+          firstName: data.firstName ?? "",
+          lastName: data.lastName ?? "",
           phone: data.phone ?? "",
+          city: data.city ?? "",
+          address: data.address ?? "",
           password: "",
           role: data.role ?? "client",
           createdAt: data.createdAt ?? "",
@@ -437,7 +464,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return {
           id: d.id,
           name: data.name ?? "",
+          firstName: data.firstName ?? "",
+          lastName: data.lastName ?? "",
           phone: data.phone ?? "",
+          city: data.city ?? "",
           password: "",
           role: data.role ?? "manager",
           createdAt: data.createdAt ?? "",
@@ -457,12 +487,74 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  const updateProfile = useCallback(async (data: { firstName?: string; lastName?: string; city?: string; address?: string }): Promise<boolean> => {
+    if (!user) return false;
+    try {
+      const updates: Record<string, string> = {};
+      if (data.firstName !== undefined) updates.firstName = data.firstName;
+      if (data.lastName !== undefined) updates.lastName = data.lastName;
+      if (data.city !== undefined) updates.city = data.city;
+      if (data.address !== undefined) updates.address = data.address;
+      // Also update the combined name field
+      if (data.firstName !== undefined || data.lastName !== undefined) {
+        const fn = data.firstName ?? user.firstName ?? "";
+        const ln = data.lastName ?? user.lastName ?? "";
+        updates.name = [fn, ln].filter(Boolean).join(" ") || user.name;
+      }
+      await updateDoc(doc(db, "users", user.id), updates);
+      setUser((prev) => prev ? { ...prev, ...updates } : prev);
+      return true;
+    } catch {
+      return false;
+    }
+  }, [user]);
+
+  const createClientAccount = useCallback(async (firstName: string, lastName: string, phone: string, city?: string, address?: string): Promise<{ success: boolean; error?: string }> => {
+    let secondaryApp;
+    try {
+      const email = phoneToEmail(phone);
+      // Default password for manually created clients
+      const defaultPassword = "client123456";
+
+      secondaryApp = initializeApp(auth.app.options, "clientCreator_" + Date.now());
+      const secondaryAuth = getAuth(secondaryApp);
+      const cred = await createUserWithEmailAndPassword(secondaryAuth, email, defaultPassword);
+
+      const name = [firstName, lastName].filter(Boolean).join(" ");
+      await setDoc(doc(db, "users", cred.user.uid), {
+        name,
+        firstName,
+        lastName,
+        phone,
+        city: city || "",
+        address: address || "",
+        role: "client" as const,
+        createdAt: new Date().toISOString(),
+      });
+
+      await signOut(secondaryAuth);
+      await deleteApp(secondaryApp);
+
+      return { success: true };
+    } catch (err: unknown) {
+      if (secondaryApp) {
+        try { await deleteApp(secondaryApp); } catch { /* ignore */ }
+      }
+      const code = (err as { code?: string }).code;
+      if (code === "auth/email-already-in-use") {
+        return { success: false, error: "Клиент с таким телефоном уже существует" };
+      }
+      return { success: false, error: "Ошибка создания клиента" };
+    }
+  }, []);
+
   return (
     <AuthContext.Provider
       value={{
         user, isLoading, login, register, logout, orders, addOrder,
         getAllOrders, getAllClients, updateOrderStatus,
         createStaffAccount, getStaffAccounts, deleteStaffAccount,
+        updateProfile, createClientAccount,
       }}
     >
       {children}

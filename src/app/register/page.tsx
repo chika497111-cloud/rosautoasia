@@ -6,16 +6,26 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { validatePhone, formatPhoneInput } from "@/lib/phone-utils";
 
+/** Only letters (cyrillic + latin), spaces, hyphens */
+function validateNameField(value: string): boolean {
+  return /^[A-Za-zА-Яа-яЁёÀ-ÿ\s\-]+$/.test(value);
+}
+
 export default function RegisterPage() {
   const { register, user } = useAuth();
   const router = useRouter();
-  const [name, setName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [phone, setPhone] = useState("+996");
+  const [city, setCity] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
   const [error, setError] = useState("");
   const [phoneError, setPhoneError] = useState("");
+  const [firstNameError, setFirstNameError] = useState("");
+  const [lastNameError, setLastNameError] = useState("");
+  const [cityError, setCityError] = useState("");
 
   // Redirect authenticated users
   useEffect(() => {
@@ -36,20 +46,65 @@ export default function RegisterPage() {
     }
   };
 
+  const handleFirstNameChange = (value: string) => {
+    setFirstName(value);
+    if (value && !validateNameField(value)) {
+      setFirstNameError("Введите только буквы");
+    } else {
+      setFirstNameError("");
+    }
+  };
+
+  const handleLastNameChange = (value: string) => {
+    setLastName(value);
+    if (value && !validateNameField(value)) {
+      setLastNameError("Введите только буквы");
+    } else {
+      setLastNameError("");
+    }
+  };
+
+  const handleCityChange = (value: string) => {
+    setCity(value);
+    if (value && !validateNameField(value)) {
+      setCityError("Введите только буквы");
+    } else {
+      setCityError("");
+    }
+  };
+
   const [submitting, setSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
-    if (!name.trim()) {
+    if (!firstName.trim()) {
       setError("Введите имя");
+      return;
+    }
+    if (!validateNameField(firstName.trim())) {
+      setFirstNameError("Введите только буквы");
+      return;
+    }
+
+    if (!lastName.trim()) {
+      setError("Введите фамилию");
+      return;
+    }
+    if (!validateNameField(lastName.trim())) {
+      setLastNameError("Введите только буквы");
       return;
     }
 
     const phoneCheck = validatePhone(phone);
     if (!phoneCheck.valid) {
       setPhoneError(phoneCheck.error || "");
+      return;
+    }
+
+    if (city.trim() && !validateNameField(city.trim())) {
+      setCityError("Введите только буквы");
       return;
     }
 
@@ -65,7 +120,13 @@ export default function RegisterPage() {
 
     setSubmitting(true);
     try {
-      const result = await register(name.trim(), phone.trim(), password);
+      const result = await register(
+        firstName.trim(),
+        lastName.trim(),
+        phone.trim(),
+        password,
+        city.trim() || undefined,
+      );
       if (!result.success) {
         setError(result.error || "Ошибка регистрации");
       }
@@ -76,6 +137,11 @@ export default function RegisterPage() {
       setSubmitting(false);
     }
   };
+
+  const inputClass =
+    "w-full px-4 py-4 bg-surface-mid rounded-lg border-none focus:ring-2 focus:ring-primary-container/40 text-on-surface placeholder:text-outline/50 transition-all";
+  const inputErrorClass =
+    "w-full px-4 py-4 bg-surface-mid rounded-lg border-none focus:ring-2 ring-2 ring-error/40 text-on-surface placeholder:text-outline/50 transition-all";
 
   return (
     <div className="min-h-screen bg-surface flex items-center justify-center px-4 py-12">
@@ -94,18 +160,38 @@ export default function RegisterPage() {
             </div>
           )}
 
-          <div className="md:col-span-2 space-y-2">
+          <div className="space-y-2">
             <label className="text-sm font-semibold text-on-surface-variant uppercase tracking-wider ml-1">
-              ФИО
+              Имя
             </label>
             <input
               type="text"
               required
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Иванов Иван Иванович"
-              className="w-full px-4 py-4 bg-surface-mid rounded-lg border-none focus:ring-2 focus:ring-primary/20 text-on-surface placeholder:text-outline/50 transition-all"
+              value={firstName}
+              onChange={(e) => handleFirstNameChange(e.target.value)}
+              placeholder="Иван"
+              className={firstNameError ? inputErrorClass : inputClass}
             />
+            {firstNameError && (
+              <p className="text-error text-xs mt-1 ml-1">{firstNameError}</p>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-semibold text-on-surface-variant uppercase tracking-wider ml-1">
+              Фамилия
+            </label>
+            <input
+              type="text"
+              required
+              value={lastName}
+              onChange={(e) => handleLastNameChange(e.target.value)}
+              placeholder="Иванов"
+              className={lastNameError ? inputErrorClass : inputClass}
+            />
+            {lastNameError && (
+              <p className="text-error text-xs mt-1 ml-1">{lastNameError}</p>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -118,11 +204,7 @@ export default function RegisterPage() {
               value={phone}
               onChange={(e) => handlePhoneChange(e.target.value)}
               placeholder="770 000 000"
-              className={`w-full px-4 py-4 bg-surface-mid rounded-lg border-none focus:ring-2 text-on-surface placeholder:text-outline/50 transition-all ${
-                phoneError
-                  ? "ring-2 ring-error/40"
-                  : "focus:ring-primary/20"
-              }`}
+              className={phoneError ? inputErrorClass : inputClass}
             />
             {phoneError && (
               <p className="text-error text-xs mt-1 ml-1">{phoneError}</p>
@@ -131,6 +213,22 @@ export default function RegisterPage() {
 
           <div className="space-y-2">
             <label className="text-sm font-semibold text-on-surface-variant uppercase tracking-wider ml-1">
+              Город
+            </label>
+            <input
+              type="text"
+              value={city}
+              onChange={(e) => handleCityChange(e.target.value)}
+              placeholder="Бишкек"
+              className={cityError ? inputErrorClass : inputClass}
+            />
+            {cityError && (
+              <p className="text-error text-xs mt-1 ml-1">{cityError}</p>
+            )}
+          </div>
+
+          <div className="md:col-span-2 space-y-2">
+            <label className="text-sm font-semibold text-on-surface-variant uppercase tracking-wider ml-1">
               Email
             </label>
             <input
@@ -138,7 +236,7 @@ export default function RegisterPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="example@mail.ru"
-              className="w-full px-4 py-4 bg-surface-mid rounded-lg border-none focus:ring-2 focus:ring-primary/20 text-on-surface placeholder:text-outline/50 transition-all"
+              className={inputClass}
             />
           </div>
 
@@ -152,7 +250,7 @@ export default function RegisterPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
-              className="w-full px-4 py-4 bg-surface-mid rounded-lg border-none focus:ring-2 focus:ring-primary/20 text-on-surface placeholder:text-outline/50 transition-all"
+              className={inputClass}
             />
           </div>
 
@@ -166,7 +264,7 @@ export default function RegisterPage() {
               value={passwordConfirm}
               onChange={(e) => setPasswordConfirm(e.target.value)}
               placeholder="••••••••"
-              className="w-full px-4 py-4 bg-surface-mid rounded-lg border-none focus:ring-2 focus:ring-primary/20 text-on-surface placeholder:text-outline/50 transition-all"
+              className={inputClass}
             />
           </div>
 

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { carBrands, getModelsByBrand } from "@/lib/car-data";
 import { products } from "@/lib/mock-data";
 import { getYearsForModel } from "@/lib/car-years";
+import { CarBrandLogo } from "@/components/CarBrandLogo";
 
 export default function SelectCarPage() {
   const [selectedBrand, setSelectedBrand] = useState<string | null>(null);
@@ -159,27 +160,8 @@ export default function SelectCarPage() {
                   onClick={() => handleBrandSelect(brand.id, brand.name)}
                   className="bg-surface-lowest rounded-xl warm-shadow p-5 text-center font-semibold text-on-surface card-hover focus:outline-none focus:ring-2 focus:ring-primary/20"
                 >
-                  <div className="w-12 h-12 mx-auto mb-3 bg-surface-mid rounded-lg flex items-center justify-center">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-6 w-6 text-primary"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"
-                      />
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10m10 0h4m-4 0H9m4 0a1 1 0 01-1 1H6a1 1 0 01-1-1m14 0V9a1 1 0 00-1-1h-2l-3-4H8"
-                      />
-                    </svg>
+                  <div className="w-12 h-12 mx-auto mb-3 bg-surface-mid rounded-lg flex items-center justify-center text-primary">
+                    <CarBrandLogo brandId={brand.id} />
                   </div>
                   {brand.name}
                 </button>

@@ -6,17 +6,16 @@ import { useRouter } from "next/navigation";
 import { validatePhone, formatPhoneInput } from "@/lib/phone-utils";
 
 const statusLabels: Record<string, { text: string; color: string }> = {
-  new: { text: "Новый", color: "bg-primary-fixed text-on-primary-fixed-variant" },
-  confirmed: { text: "Подтверждён", color: "bg-secondary-container/30 text-secondary" },
-  ready: { text: "Готов к выдаче", color: "bg-primary-container/20 text-primary" },
+  new: { text: "Открыт", color: "bg-primary-fixed text-on-primary-fixed-variant" },
+  confirmed: { text: "В работе", color: "bg-secondary-container/30 text-secondary" },
+  ready: { text: "В работе", color: "bg-primary-container/20 text-primary" },
   completed: { text: "Выполнен", color: "bg-surface-high text-on-surface-variant" },
   cancelled: { text: "Отменён", color: "bg-error-container text-on-error-container" },
 };
 
 const statusOptions: { value: Order["status"]; label: string }[] = [
-  { value: "new", label: "Новый" },
-  { value: "confirmed", label: "Подтверждён" },
-  { value: "ready", label: "Готов к выдаче" },
+  { value: "new", label: "Открыт" },
+  { value: "confirmed", label: "В работе" },
   { value: "completed", label: "Выполнен" },
   { value: "cancelled", label: "Отменён" },
 ];
@@ -28,6 +27,7 @@ export default function AdminPage() {
     user, isLoading, logout,
     getAllOrders, getAllClients, updateOrderStatus,
     createStaffAccount, getStaffAccounts, deleteStaffAccount,
+    createClientAccount,
   } = useAuth();
   const router = useRouter();
   const [tab, setTab] = useState<Tab>("orders");
@@ -44,6 +44,16 @@ export default function AdminPage() {
   const [staffRole, setStaffRole] = useState<"admin" | "manager">("manager");
   const [staffError, setStaffError] = useState("");
   const [phoneError, setPhoneError] = useState("");
+
+  // Форма создания клиента
+  const [showClientForm, setShowClientForm] = useState(false);
+  const [clientFirstName, setClientFirstName] = useState("");
+  const [clientLastName, setClientLastName] = useState("");
+  const [clientPhone, setClientPhone] = useState("+996");
+  const [clientCity, setClientCity] = useState("");
+  const [clientAddress, setClientAddress] = useState("");
+  const [clientError, setClientError] = useState("");
+  const [clientPhoneError, setClientPhoneError] = useState("");
 
   // Фильтр заказов
   const [orderFilter, setOrderFilter] = useState<string>("all");
@@ -117,6 +127,61 @@ export default function AdminPage() {
       setPhoneError(result.valid ? "" : result.error || "");
     } else {
       setPhoneError("");
+    }
+  };
+
+  const handleClientPhoneChange = (value: string) => {
+    const formatted = formatPhoneInput(value);
+    setClientPhone(formatted);
+    if (formatted.length > 4) {
+      const result = validatePhone(formatted);
+      setClientPhoneError(result.valid ? "" : result.error || "");
+    } else {
+      setClientPhoneError("");
+    }
+  };
+
+  const handleCreateClient = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setClientError("");
+
+    if (!/^[\p{L}\s-]+$/u.test(clientFirstName.trim())) {
+      setClientError("Имя должно содержать только буквы");
+      return;
+    }
+    if (!/^[\p{L}\s-]+$/u.test(clientLastName.trim())) {
+      setClientError("Фамилия должна содержать только буквы");
+      return;
+    }
+
+    const phoneCheck = validatePhone(clientPhone);
+    if (!phoneCheck.valid) {
+      setClientPhoneError(phoneCheck.error || "");
+      return;
+    }
+
+    if (clientCity && !/^[\p{L}\s-]+$/u.test(clientCity.trim())) {
+      setClientError("Город должен содержать только буквы");
+      return;
+    }
+
+    const result = await createClientAccount(
+      clientFirstName.trim(),
+      clientLastName.trim(),
+      clientPhone.trim(),
+      clientCity.trim(),
+      clientAddress.trim(),
+    );
+    if (result.success) {
+      setClients(await getAllClients());
+      setShowClientForm(false);
+      setClientFirstName("");
+      setClientLastName("");
+      setClientPhone("+996");
+      setClientCity("");
+      setClientAddress("");
+    } else {
+      setClientError(result.error || "Ошибка");
     }
   };
 
@@ -300,17 +365,113 @@ export default function AdminPage() {
         {/* === CLIENTS === */}
         {tab === "clients" && (
           <div>
-            {clients.length === 0 ? (
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="font-[family-name:var(--font-headline)] font-bold text-lg text-[#451A03]">
+                Клиенты
+              </h3>
+              <button
+                onClick={() => setShowClientForm(!showClientForm)}
+                className="cta-gradient text-white font-bold px-5 py-2.5 rounded-full text-sm shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all"
+              >
+                + Добавить клиента
+              </button>
+            </div>
+
+            {/* Client creation form */}
+            {showClientForm && (
+              <form onSubmit={handleCreateClient} className="bg-surface-lowest rounded-xl warm-shadow p-6 mb-6 space-y-4">
+                {clientError && (
+                  <div className="bg-error-container text-on-error-container text-sm px-4 py-3 rounded-lg">{clientError}</div>
+                )}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-semibold text-on-surface-variant uppercase tracking-wider ml-1">Имя</label>
+                    <input
+                      type="text"
+                      required
+                      value={clientFirstName}
+                      onChange={(e) => setClientFirstName(e.target.value)}
+                      placeholder="Имя"
+                      className="w-full px-4 py-3 bg-surface-mid rounded-lg border-none focus:ring-2 focus:ring-primary/20 text-on-surface placeholder:text-outline/50 transition-all"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-semibold text-on-surface-variant uppercase tracking-wider ml-1">Фамилия</label>
+                    <input
+                      type="text"
+                      required
+                      value={clientLastName}
+                      onChange={(e) => setClientLastName(e.target.value)}
+                      placeholder="Фамилия"
+                      className="w-full px-4 py-3 bg-surface-mid rounded-lg border-none focus:ring-2 focus:ring-primary/20 text-on-surface placeholder:text-outline/50 transition-all"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-semibold text-on-surface-variant uppercase tracking-wider ml-1">Телефон</label>
+                    <input
+                      type="tel"
+                      required
+                      value={clientPhone}
+                      onChange={(e) => handleClientPhoneChange(e.target.value)}
+                      placeholder="+996 555 123 456"
+                      className={`w-full px-4 py-3 bg-surface-mid rounded-lg border-none focus:ring-2 text-on-surface placeholder:text-outline/50 transition-all ${
+                        clientPhoneError ? "ring-2 ring-error/40" : "focus:ring-primary/20"
+                      }`}
+                    />
+                    {clientPhoneError && <p className="text-error text-xs mt-1 ml-1">{clientPhoneError}</p>}
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-semibold text-on-surface-variant uppercase tracking-wider ml-1">Город</label>
+                    <input
+                      type="text"
+                      value={clientCity}
+                      onChange={(e) => setClientCity(e.target.value)}
+                      placeholder="Бишкек"
+                      className="w-full px-4 py-3 bg-surface-mid rounded-lg border-none focus:ring-2 focus:ring-primary/20 text-on-surface placeholder:text-outline/50 transition-all"
+                    />
+                  </div>
+                  <div className="sm:col-span-2 space-y-2">
+                    <label className="text-sm font-semibold text-on-surface-variant uppercase tracking-wider ml-1">Адрес</label>
+                    <input
+                      type="text"
+                      value={clientAddress}
+                      onChange={(e) => setClientAddress(e.target.value)}
+                      placeholder="ул. Советская, 123"
+                      className="w-full px-4 py-3 bg-surface-mid rounded-lg border-none focus:ring-2 focus:ring-primary/20 text-on-surface placeholder:text-outline/50 transition-all"
+                    />
+                  </div>
+                </div>
+                <div className="flex gap-3 pt-2">
+                  <button
+                    type="submit"
+                    className="cta-gradient text-white font-bold px-6 py-2.5 rounded-full text-sm shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all"
+                  >
+                    Создать
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowClientForm(false)}
+                    className="border border-outline-variant text-on-surface-variant font-medium px-6 py-2.5 rounded-full text-sm hover:bg-surface-low transition-colors"
+                  >
+                    Отмена
+                  </button>
+                </div>
+              </form>
+            )}
+
+            {clients.length === 0 && !showClientForm ? (
               <div className="text-center py-16">
                 <p className="text-on-surface-variant">Клиентов пока нет</p>
               </div>
-            ) : (
+            ) : clients.length > 0 && (
               <div className="bg-surface-lowest rounded-xl warm-shadow overflow-x-auto">
-                <table className="w-full text-sm min-w-[600px]">
+                <table className="w-full text-sm min-w-[800px]">
                   <thead className="bg-surface-mid">
                     <tr>
-                      <th className="text-left px-5 py-4 font-semibold text-on-surface-variant uppercase tracking-wider text-xs">Имя</th>
+                      <th className="text-left px-5 py-4 font-semibold text-on-surface-variant uppercase tracking-wider text-xs">ФИО</th>
                       <th className="text-left px-5 py-4 font-semibold text-on-surface-variant uppercase tracking-wider text-xs">Телефон</th>
+                      <th className="text-left px-5 py-4 font-semibold text-on-surface-variant uppercase tracking-wider text-xs">Город</th>
+                      <th className="text-left px-5 py-4 font-semibold text-on-surface-variant uppercase tracking-wider text-xs">Адрес</th>
                       <th className="text-left px-5 py-4 font-semibold text-on-surface-variant uppercase tracking-wider text-xs">Дата регистрации</th>
                       <th className="text-left px-5 py-4 font-semibold text-on-surface-variant uppercase tracking-wider text-xs">Заказов</th>
                     </tr>
@@ -318,10 +479,13 @@ export default function AdminPage() {
                   <tbody className="divide-y divide-outline-variant/20">
                     {clients.map((client) => {
                       const clientOrders = allOrders.filter((o) => o.userId === client.id);
+                      const fullName = [client.firstName, client.lastName].filter(Boolean).join(" ") || client.name;
                       return (
                         <tr key={client.id} className="hover:bg-surface-low transition-colors">
-                          <td className="px-5 py-4 font-medium text-on-surface">{client.name}</td>
+                          <td className="px-5 py-4 font-medium text-on-surface">{fullName}</td>
                           <td className="px-5 py-4 text-on-surface-variant">{client.phone}</td>
+                          <td className="px-5 py-4 text-on-surface-variant">{client.city || "---"}</td>
+                          <td className="px-5 py-4 text-on-surface-variant">{client.address || "---"}</td>
                           <td className="px-5 py-4 text-on-surface-variant">
                             {new Date(client.createdAt).toLocaleDateString("ru-RU")}
                           </td>

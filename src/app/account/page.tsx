@@ -1,21 +1,29 @@
 "use client";
 
+import { useState } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { AccountSkeleton } from "@/components/Skeleton";
 
 const statusLabels: Record<string, { text: string; color: string }> = {
-  new: { text: "Новый", color: "bg-primary-fixed text-on-primary-fixed-variant" },
-  confirmed: { text: "Подтверждён", color: "bg-secondary-container/30 text-secondary" },
-  ready: { text: "Готов к выдаче", color: "bg-primary-container/20 text-primary" },
+  new: { text: "Открыт", color: "bg-primary-fixed text-on-primary-fixed-variant" },
+  confirmed: { text: "В работе", color: "bg-secondary-container/30 text-secondary" },
+  ready: { text: "В работе", color: "bg-primary-container/20 text-primary" },
   completed: { text: "Выполнен", color: "bg-surface-high text-on-surface-variant" },
   cancelled: { text: "Отменён", color: "bg-error-container text-on-error-container" },
 };
 
 export default function AccountPage() {
-  const { user, isLoading, logout, orders } = useAuth();
+  const { user, isLoading, logout, orders, updateProfile } = useAuth();
   const router = useRouter();
+
+  const [editing, setEditing] = useState(false);
+  const [editFirstName, setEditFirstName] = useState("");
+  const [editLastName, setEditLastName] = useState("");
+  const [editCity, setEditCity] = useState("");
+  const [editAddress, setEditAddress] = useState("");
+  const [saving, setSaving] = useState(false);
 
   if (isLoading) {
     return <AccountSkeleton />;
@@ -30,6 +38,26 @@ export default function AccountPage() {
       </div>
     );
   }
+
+  const startEditing = () => {
+    setEditFirstName(user.firstName || "");
+    setEditLastName(user.lastName || "");
+    setEditCity(user.city || "");
+    setEditAddress(user.address || "");
+    setEditing(true);
+  };
+
+  const handleSave = async () => {
+    setSaving(true);
+    await updateProfile({
+      firstName: editFirstName.trim(),
+      lastName: editLastName.trim(),
+      city: editCity.trim(),
+      address: editAddress.trim(),
+    });
+    setSaving(false);
+    setEditing(false);
+  };
 
   const sortedOrders = [...orders].sort(
     (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
@@ -56,27 +84,134 @@ export default function AccountPage() {
 
         {/* Profile card */}
         <div className="bg-surface-lowest rounded-xl warm-shadow p-6 md:p-8 mb-6">
-          <h3 className="font-[family-name:var(--font-headline)] font-bold text-lg text-[#451A03] mb-5">
-            Мои данные
-          </h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            <div>
-              <span className="text-sm font-semibold text-on-surface-variant uppercase tracking-wider">Имя</span>
-              <p className="font-medium text-on-surface mt-1">{user.name}</p>
+          <div className="flex items-center justify-between mb-5">
+            <h3 className="font-[family-name:var(--font-headline)] font-bold text-lg text-[#451A03]">
+              Мои данные
+            </h3>
+            {!editing && (
+              <button
+                onClick={startEditing}
+                className="text-sm text-primary font-semibold hover:underline underline-offset-4 transition-colors flex items-center gap-1.5"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+                Редактировать профиль
+              </button>
+            )}
+          </div>
+
+          {editing ? (
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold text-on-surface-variant uppercase tracking-wider mb-1">Имя</label>
+                  <input
+                    type="text"
+                    value={editFirstName}
+                    onChange={(e) => setEditFirstName(e.target.value)}
+                    placeholder="Имя"
+                    className="w-full bg-surface-mid border-none rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary-container transition-all focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-on-surface-variant uppercase tracking-wider mb-1">Фамилия</label>
+                  <input
+                    type="text"
+                    value={editLastName}
+                    onChange={(e) => setEditLastName(e.target.value)}
+                    placeholder="Фамилия"
+                    className="w-full bg-surface-mid border-none rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary-container transition-all focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-on-surface-variant uppercase tracking-wider mb-1">Город</label>
+                  <input
+                    type="text"
+                    value={editCity}
+                    onChange={(e) => setEditCity(e.target.value)}
+                    placeholder="Бишкек"
+                    className="w-full bg-surface-mid border-none rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary-container transition-all focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-on-surface-variant uppercase tracking-wider mb-1">Адрес</label>
+                  <input
+                    type="text"
+                    value={editAddress}
+                    onChange={(e) => setEditAddress(e.target.value)}
+                    placeholder="ул. Советская, 123"
+                    className="w-full bg-surface-mid border-none rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary-container transition-all focus:outline-none"
+                  />
+                </div>
+              </div>
+              <div className="flex gap-3 pt-2">
+                <button
+                  onClick={handleSave}
+                  disabled={saving}
+                  className="cta-gradient text-white font-bold px-6 py-2.5 rounded-full text-sm shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50"
+                >
+                  {saving ? "Сохранение..." : "Сохранить"}
+                </button>
+                <button
+                  onClick={() => setEditing(false)}
+                  className="border border-outline-variant text-on-surface-variant font-medium px-6 py-2.5 rounded-full text-sm hover:bg-surface-low transition-colors"
+                >
+                  Отмена
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div>
+                <span className="text-sm font-semibold text-on-surface-variant uppercase tracking-wider">Имя</span>
+                <p className="font-medium text-on-surface mt-1">{user.firstName || user.name || "---"}</p>
+              </div>
+              <div>
+                <span className="text-sm font-semibold text-on-surface-variant uppercase tracking-wider">Фамилия</span>
+                <p className="font-medium text-on-surface mt-1">{user.lastName || "---"}</p>
+              </div>
+              <div>
+                <span className="text-sm font-semibold text-on-surface-variant uppercase tracking-wider">Телефон</span>
+                <p className="font-medium text-on-surface mt-1">{user.phone}</p>
+              </div>
+              <div>
+                <span className="text-sm font-semibold text-on-surface-variant uppercase tracking-wider">Город</span>
+                <p className="font-medium text-on-surface mt-1">{user.city || "---"}</p>
+              </div>
+              <div>
+                <span className="text-sm font-semibold text-on-surface-variant uppercase tracking-wider">Адрес</span>
+                <p className="font-medium text-on-surface mt-1">{user.address || "---"}</p>
+              </div>
+              <div>
+                <span className="text-sm font-semibold text-on-surface-variant uppercase tracking-wider">Дата регистрации</span>
+                <p className="font-medium text-on-surface mt-1">
+                  {new Date(user.createdAt).toLocaleDateString("ru-RU")}
+                </p>
+              </div>
+              <div>
+                <span className="text-sm font-semibold text-on-surface-variant uppercase tracking-wider">Всего заказов</span>
+                <p className="font-medium text-on-surface mt-1">{orders.length}</p>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Bonus card */}
+        <div className="bg-gradient-to-br from-amber-100 to-orange-100 rounded-xl warm-shadow p-6 md:p-8 mb-6 border border-amber-200/50">
+          <div className="flex items-start gap-4">
+            <div className="w-12 h-12 bg-amber-500/20 rounded-full flex items-center justify-center flex-shrink-0">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
+              </svg>
             </div>
             <div>
-              <span className="text-sm font-semibold text-on-surface-variant uppercase tracking-wider">Телефон</span>
-              <p className="font-medium text-on-surface mt-1">{user.phone}</p>
-            </div>
-            <div>
-              <span className="text-sm font-semibold text-on-surface-variant uppercase tracking-wider">Дата регистрации</span>
-              <p className="font-medium text-on-surface mt-1">
-                {new Date(user.createdAt).toLocaleDateString("ru-RU")}
+              <h3 className="font-[family-name:var(--font-headline)] font-bold text-lg text-amber-900 mb-1">
+                Бонусный баланс: 0 бонусов
+              </h3>
+              <p className="text-amber-800/80 text-sm font-medium">
+                Бонусы начисляются после выполнения заказа
               </p>
-            </div>
-            <div>
-              <span className="text-sm font-semibold text-on-surface-variant uppercase tracking-wider">Всего заказов</span>
-              <p className="font-medium text-on-surface mt-1">{orders.length}</p>
             </div>
           </div>
         </div>

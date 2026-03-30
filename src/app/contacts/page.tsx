@@ -90,38 +90,19 @@ export default function ContactsPage() {
               <ContactForm />
             </div>
 
-            {/* Right column: Map placeholder */}
+            {/* Right column: Google Maps */}
             <div className="h-full min-h-[500px] lg:sticky lg:top-32">
-              <div className="w-full h-full bg-surface-low rounded-xl flex items-center justify-center relative overflow-hidden warm-shadow group min-h-[500px]">
-                {/* Grid lines decoration */}
-                <div className="absolute inset-0 opacity-10 pointer-events-none">
-                  <div className="grid grid-cols-12 h-full">
-                    {Array.from({ length: 11 }).map((_, i) => (
-                      <div key={i} className="border-r border-primary col-span-1" />
-                    ))}
-                  </div>
-                </div>
-
-                <div className="text-center z-10 p-12">
-                  <div className="w-20 h-20 bg-primary-container/20 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <span className="material-symbols-outlined text-primary text-4xl">map</span>
-                  </div>
-                  <h3 className="text-2xl font-bold font-[family-name:var(--font-headline)] text-[#451A03] mb-4">Карта проезда</h3>
-                  <p className="text-on-surface-variant max-w-sm mx-auto mb-8 font-medium">
-                    Мы находимся в удобном районе Бишкека с просторной парковкой для клиентов.
-                  </p>
-                  <a
-                    href="https://maps.google.com/?q=Bishkek+Lva+Tolstogo+126"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-block px-8 py-3 border-2 border-primary text-primary font-bold rounded-full hover:bg-primary hover:text-white transition-all"
-                  >
-                    Открыть Google Карты
-                  </a>
-                </div>
-
-                {/* Bottom gradient overlay */}
-                <div className="absolute bottom-0 left-0 right-0 h-1/2 bg-gradient-to-t from-surface-low to-transparent pointer-events-none" />
+              <div className="w-full h-full rounded-xl overflow-hidden warm-shadow min-h-[500px]">
+                <iframe
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2924.5!2d74.59!3d42.87!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNDLCsDUyJzEyLjAiTiA3NMKwMzUnMjQuMCJF!5e0!3m2!1sru!2skg!4v1"
+                  width="100%"
+                  height="100%"
+                  style={{ border: 0, borderRadius: "16px", minHeight: "500px" }}
+                  allowFullScreen
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  title="ROSAutoAsia на карте"
+                />
               </div>
             </div>
           </div>
