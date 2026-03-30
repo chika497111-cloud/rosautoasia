@@ -22,7 +22,8 @@ import {
 import { firestoreProductToProduct, firestoreCategoryToCategory } from "@/lib/products-api";
 
 export default function CategoryPage({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = use(params);
+  const { slug: rawSlug } = use(params);
+  const slug = decodeURIComponent(rawSlug);
   const { addItem } = useCart();
   const { addToCompare, isInCompare, removeFromCompare } = useComparison();
 

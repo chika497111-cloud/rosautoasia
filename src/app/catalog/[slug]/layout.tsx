@@ -4,7 +4,8 @@ import { getCategoryBySlug } from "@/lib/products-api";
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
-  const { slug } = await params;
+  const { slug: rawSlug } = await params;
+  const slug = decodeURIComponent(rawSlug);
   const category = await getCategoryBySlug(slug);
 
   if (!category) {
