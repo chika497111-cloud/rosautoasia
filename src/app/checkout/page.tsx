@@ -368,9 +368,10 @@ export default function CheckoutPage() {
           </p>
           <button
             type="submit"
-            className="w-full bg-gradient-to-br from-primary to-primary-container text-white font-[family-name:var(--font-headline)] font-extrabold text-xl py-6 rounded-full shadow-2xl shadow-primary/30 hover:scale-[1.03] active:scale-95 transition-all"
+            disabled={submitting}
+            className="w-full bg-gradient-to-br from-primary to-primary-container text-white font-[family-name:var(--font-headline)] font-extrabold text-xl py-6 rounded-full shadow-2xl shadow-primary/30 hover:scale-[1.03] active:scale-95 transition-all disabled:opacity-50 disabled:hover:scale-100"
           >
-            Подтвердить заказ &bull; {grandTotal.toLocaleString("ru-RU")} сом
+            {submitting ? "Оформление..." : <>Подтвердить заказ &bull; {grandTotal.toLocaleString("ru-RU")} сом</>}
           </button>
         </div>
       </div>

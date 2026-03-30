@@ -554,7 +554,7 @@ export default function AdminPage() {
                       required
                       value={staffPassword}
                       onChange={(e) => setStaffPassword(e.target.value)}
-                      placeholder="Минимум 4 символа"
+                      placeholder="Минимум 6 символов"
                       className="w-full px-4 py-3 bg-surface-mid rounded-lg border-none focus:ring-2 focus:ring-primary/20 text-on-surface placeholder:text-outline/50 transition-all"
                     />
                   </div>

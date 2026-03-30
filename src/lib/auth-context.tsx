@@ -138,6 +138,10 @@ async function fetchOrders(uid?: string): Promise<Order[]> {
         total: data.total ?? 0,
         status: data.status ?? "new",
         comment: data.comment ?? "",
+        deliveryMethod: data.deliveryMethod,
+        paymentMethod: data.paymentMethod,
+        deliveryAddress: data.deliveryAddress,
+        city: data.city,
         createdAt: data.createdAt ?? "",
       } as Order;
     });
