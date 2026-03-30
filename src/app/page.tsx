@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { categories, products } from "@/lib/mock-data";
+import { getCategories, getFeaturedProducts } from "@/lib/products-api";
 
 export const metadata: Metadata = {
   title: "ROSAutoAsia — Автозапчасти в Бишкеке | Оригиналы и аналоги",
@@ -14,66 +14,60 @@ export const metadata: Metadata = {
   },
 };
 
-/* SVG icons for each category (keyed by category id) */
-const categoryIcons: Record<string, React.ReactNode> = {
-  /* 1 — Тормозная система */
-  "1": (
+export const dynamic = "force-dynamic";
+
+/* SVG icons for each category (keyed by slug prefix — matches if slug starts with key) */
+const categoryIconsByPrefix: Record<string, React.ReactNode> = {
+  /* Тормозная система */
+  "тормозная": (
     <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
       <circle cx="12" cy="12" r="9" strokeWidth={2} />
       <circle cx="12" cy="12" r="4" strokeWidth={2} />
       <path strokeLinecap="round" strokeWidth={2} d="M12 3v2M12 19v2M3 12h2M19 12h2" />
     </svg>
   ),
-  /* 2 — Двигатель */
-  "2": (
+  /* Двигатель */
+  "двигатель": (
     <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
     </svg>
   ),
-  /* 3 — Подвеска */
-  "3": (
+  /* Подвеска */
+  "подвеска": (
     <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5v-4m0 4h-4m4 0l-5-5" />
     </svg>
   ),
-  /* 4 — Фильтры */
-  "4": (
+  /* Фильтры */
+  "фильтр": (
     <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
     </svg>
   ),
-  /* 5 — Электрика */
-  "5": (
+  /* Электрика */
+  "электри": (
     <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
     </svg>
   ),
-  /* 6 — Кузов */
-  "6": (
+  /* Кузов */
+  "кузов": (
     <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
     </svg>
   ),
-  /* 7 — Масла и жидкости */
-  "7": (
+  /* Масла и жидкости / Автохимия */
+  "масл": (
     <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
     </svg>
   ),
-  /* 8 — Охлаждение */
-  "8": (
+  /* Охлаждение / КПП / Компрессор */
+  "кпп": (
     <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v18m0-18l-3 3m3-3l3 3m-3 15l-3-3m3 3l3-3M3 12h18M3 12l3-3m-3 3l3 3m15-3l-3-3m3 3l-3 3" />
     </svg>
   ),
-};
-
-/* Badge text for featured products */
-const productBadges: Record<string, string> = {
-  p1: "Гарантия 1 год",
-  p5: "Хит продаж",
-  p7: "Полный комплект",
-  p8: "Оригинал",
 };
 
 /** Russian pluralization for "товар" */
@@ -85,14 +79,30 @@ function pluralizeProducts(count: number): string {
   return `${count} товаров`;
 }
 
-/** Count products per category */
-const productCountByCategory: Record<string, number> = {};
-for (const product of products) {
-  productCountByCategory[product.category_id] = (productCountByCategory[product.category_id] || 0) + 1;
+/** Find a matching icon by checking if the slug starts with any known prefix */
+function getCategoryIcon(slug: string): React.ReactNode | null {
+  for (const [prefix, icon] of Object.entries(categoryIconsByPrefix)) {
+    if (slug.startsWith(prefix)) return icon;
+  }
+  return null;
 }
 
-export default function Home() {
-  const featuredProducts = products.slice(0, 4);
+/** Default gear icon for categories without a specific icon */
+const defaultCategoryIcon = (
+  <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+  </svg>
+);
+
+export default async function Home() {
+  const [allCategories, featuredProducts] = await Promise.all([
+    getCategories(),
+    getFeaturedProducts(4),
+  ]);
+
+  // Show top 8 categories by product count
+  const topCategories = allCategories.slice(0, 8);
 
   return (
     <div>
@@ -161,20 +171,20 @@ export default function Home() {
 
           {/* Category grid */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-5">
-            {categories.slice(0, 8).map((category) => (
+            {topCategories.map((category) => (
               <Link
                 key={category.id}
                 href={`/catalog/${category.slug}`}
                 className="bg-white warm-shadow rounded-xl p-6 flex flex-col items-center text-center group hover:bg-primary-container transition-all duration-300"
               >
                 <div className="w-14 h-14 rounded-full bg-primary flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
-                  {categoryIcons[category.id]}
+                  {getCategoryIcon(category.slug) || defaultCategoryIcon}
                 </div>
                 <h3 className="font-bold text-on-surface group-hover:text-on-primary-container text-sm sm:text-base">
                   {category.name}
                 </h3>
                 <p className="text-xs text-on-surface-variant group-hover:text-on-primary-container/70 mt-1">
-                  {pluralizeProducts(productCountByCategory[category.id] || 0)}
+                  {pluralizeProducts(category.productCount)}
                 </p>
               </Link>
             ))}
@@ -196,8 +206,7 @@ export default function Home() {
           {/* Products grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {featuredProducts.map((product) => {
-              const category = categories.find((c) => c.id === product.category_id);
-              const badge = productBadges[product.id];
+              const category = topCategories.find((c) => c.slug === product.category_id);
 
               return (
                 <Link
@@ -221,9 +230,9 @@ export default function Home() {
                         d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
                       />
                     </svg>
-                    {badge && (
-                      <div className="absolute top-3 left-3 bg-primary text-white text-[10px] font-bold px-3 py-1 rounded-full">
-                        {badge}
+                    {product.quantity > 0 && (
+                      <div className="absolute top-3 left-3 bg-green-500 text-white text-[10px] font-bold px-3 py-1 rounded-full">
+                        В наличии
                       </div>
                     )}
                   </div>

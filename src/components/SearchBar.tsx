@@ -2,11 +2,68 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { searchProducts } from "@/lib/mock-data";
+import { searchProducts as mockSearch } from "@/lib/mock-data";
 import type { Product } from "@/lib/mock-data";
+import { db } from "@/lib/firebase";
+import {
+  collection,
+  getDocs,
+  query as fsQuery,
+  where,
+  limit as fsLimit,
+} from "firebase/firestore";
+import { firestoreProductToProduct } from "@/lib/products-api";
 
-function searchLocal(query: string): Product[] {
-  return searchProducts(query).slice(0, 5);
+async function searchFirestore(q: string): Promise<Product[]> {
+  const trimmed = q.trim();
+  if (trimmed.length < 2) return [];
+
+  try {
+    const results = new Map<string, Product>();
+
+    // Search by article prefix
+    const articleUpper = trimmed.toUpperCase();
+    const articleQ = fsQuery(
+      collection(db, "products"),
+      where("article", ">=", articleUpper),
+      where("article", "<=", articleUpper + "\uf8ff"),
+      fsLimit(5),
+    );
+    const articleSnap = await getDocs(articleQ);
+    for (const d of articleSnap.docs) {
+      results.set(d.id, firestoreProductToProduct(d.id, d.data()));
+    }
+
+    // Search by name prefix
+    const nameVariants = [
+      trimmed,
+      trimmed.charAt(0).toUpperCase() + trimmed.slice(1),
+    ];
+    for (const variant of nameVariants) {
+      if (results.size >= 5) break;
+      const nameQ = fsQuery(
+        collection(db, "products"),
+        where("name", ">=", variant),
+        where("name", "<=", variant + "\uf8ff"),
+        fsLimit(5),
+      );
+      const nameSnap = await getDocs(nameQ);
+      for (const d of nameSnap.docs) {
+        if (!results.has(d.id)) {
+          results.set(d.id, firestoreProductToProduct(d.id, d.data()));
+        }
+      }
+    }
+
+    if (results.size > 0) {
+      return Array.from(results.values()).slice(0, 5);
+    }
+
+    // Fallback to mock
+    return mockSearch(trimmed).slice(0, 5);
+  } catch {
+    return mockSearch(trimmed).slice(0, 5);
+  }
 }
 
 function formatPrice(price: number): string {
@@ -23,13 +80,13 @@ export function SearchBar() {
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const router = useRouter();
 
-  const updateSuggestions = useCallback((value: string) => {
+  const updateSuggestions = useCallback(async (value: string) => {
     if (value.trim().length < 2) {
       setSuggestions([]);
       setIsOpen(false);
       return;
     }
-    const results = searchLocal(value);
+    const results = await searchFirestore(value);
     setSuggestions(results);
     setIsOpen(results.length > 0);
     setActiveIndex(-1);

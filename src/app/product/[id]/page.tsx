@@ -1,16 +1,22 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { products, categories, getProductById, getProductsByCategory } from "@/lib/mock-data";
 import { notFound } from "next/navigation";
 import { FavoriteButton } from "@/components/FavoriteButton";
 import { ProductTabs } from "./ProductTabs";
 import { ProductActions } from "./ProductActions";
 import { SimilarProductCard } from "./SimilarProductCard";
 import { ArticleCopy } from "./ArticleCopy";
+import {
+  getProductById,
+  getCategoryBySlug,
+  getProductsByCategory as getProductsByCategoryApi,
+} from "@/lib/products-api";
+
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params;
-  const product = getProductById(id);
+  const product = await getProductById(id);
 
   if (!product) {
     return { title: "Товар не найден" };
@@ -31,22 +37,23 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   };
 }
 
-export function generateStaticParams() {
-  return products.map((p) => ({ id: p.id }));
-}
-
 export default async function ProductPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const product = getProductById(id);
+  const product = await getProductById(id);
 
   if (!product) {
     notFound();
   }
 
-  const category = categories.find((c) => c.id === product.category_id);
+  const category = product.category_id
+    ? await getCategoryBySlug(product.category_id)
+    : null;
 
   // Similar products: same category, exclude current, max 4
-  const similarProducts = getProductsByCategory(product.category_id)
+  const allCategoryProducts = product.category_id
+    ? await getProductsByCategoryApi(product.category_id, { limit: 5 })
+    : [];
+  const similarProducts = allCategoryProducts
     .filter((p) => p.id !== product.id)
     .slice(0, 4);
 
@@ -191,7 +198,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
     </div>
 
       {/* Tabs Section */}
-      <ProductTabs product={product} category={category} />
+      <ProductTabs product={product} category={category ?? undefined} />
 
       {/* Similar Products */}
       {similarProducts.length > 0 && (

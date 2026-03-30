@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { searchProducts } from "@/lib/mock-data";
+import { searchProducts } from "@/lib/products-api";
 import { AddToCartButton } from "@/components/AddToCartButton";
 import { RequestForm } from "./RequestForm";
+
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ searchParams }: { searchParams: Promise<{ q?: string }> }): Promise<Metadata> {
   const { q } = await searchParams;
@@ -25,7 +27,7 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
 export default async function SearchPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
   const { q } = await searchParams;
   const query = q || "";
-  const results = query ? searchProducts(query) : [];
+  const results = query ? await searchProducts(query) : [];
 
   // Extract unique car brands for filter chips
   const carBrands = [...new Set(results.map((p) => p.car_brand).filter(Boolean))];

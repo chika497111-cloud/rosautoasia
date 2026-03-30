@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { categories, products } from "@/lib/mock-data";
+import { getCategories, getTotalProductCount } from "@/lib/products-api";
 
 export const metadata: Metadata = {
   title: "Каталог запчастей",
@@ -14,19 +14,37 @@ export const metadata: Metadata = {
   },
 };
 
-const categoryIcons: Record<string, string> = {
-  "tormoznaya-sistema": "disc_full",
-  "dvigatel": "manufacturing",
-  "podveska": "height",
-  "filtry": "filter_alt",
-  "elektrika": "bolt",
-  "kuzov": "directions_car",
-  "masla-i-zhidkosti": "water_drop",
-  "ohlazhdenie": "ac_unit",
+export const dynamic = "force-dynamic";
+
+/** Map slug prefixes to Material Symbols icon names */
+const categoryIconMap: Record<string, string> = {
+  "тормозная": "disc_full",
+  "двигатель": "manufacturing",
+  "подвеска": "height",
+  "кузов": "directions_car",
+  "кпп": "settings",
+  "электри": "bolt",
+  "компрессор": "compress",
+  "инструмент": "construction",
+  "аксессуар": "widgets",
+  "автохимия": "water_drop",
+  "болт": "hardware",
+  "гайк": "hardware",
+  "винт": "hardware",
 };
 
-export default function CatalogPage() {
-  const totalProducts = products.length;
+function getCategoryIcon(slug: string): string {
+  for (const [prefix, icon] of Object.entries(categoryIconMap)) {
+    if (slug.startsWith(prefix)) return icon;
+  }
+  return "category";
+}
+
+export default async function CatalogPage() {
+  const [categories, totalProducts] = await Promise.all([
+    getCategories(),
+    getTotalProductCount(),
+  ]);
 
   return (
     <main className="pt-28 pb-20 max-w-[1440px] mx-auto px-6">
@@ -52,8 +70,8 @@ export default function CatalogPage() {
       {/* Categories Grid */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
         {categories.map((category) => {
-          const count = products.filter((p) => p.category_id === category.id).length;
-          const icon = categoryIcons[category.slug] || "category";
+          const count = category.productCount;
+          const icon = getCategoryIcon(category.slug);
 
           return (
             <Link

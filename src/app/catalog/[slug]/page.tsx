@@ -2,22 +2,112 @@
 
 import Link from "next/link";
 import { useState, useMemo, use, useEffect } from "react";
-import { categories, products, getCategoryBySlug } from "@/lib/mock-data";
 import { notFound } from "next/navigation";
 import { useCart } from "@/lib/cart-context";
 import { useComparison } from "@/lib/comparison-context";
+import type { Product, Category } from "@/lib/mock-data";
+import {
+  getCategoryBySlug as mockGetCategoryBySlug,
+  products as mockProducts,
+} from "@/lib/mock-data";
+import { db } from "@/lib/firebase";
+import {
+  collection,
+  getDocs,
+  getDoc,
+  doc,
+  query,
+  where,
+} from "firebase/firestore";
+import { firestoreProductToProduct, firestoreCategoryToCategory } from "@/lib/products-api";
 
 export default function CategoryPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = use(params);
   const { addItem } = useCart();
   const { addToCompare, isInCompare, removeFromCompare } = useComparison();
-  const category = getCategoryBySlug(slug);
+
+  const [category, setCategory] = useState<(Category & { productCount?: number }) | null>(null);
+  const [categoryProducts, setCategoryProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [notFoundState, setNotFoundState] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function fetchData() {
+      try {
+        // Try Firestore: category doc ID === slug
+        const catRef = doc(db, "categories", slug);
+        const catSnap = await getDoc(catRef);
+
+        if (!cancelled && catSnap.exists()) {
+          const cat = firestoreCategoryToCategory(catSnap.id, catSnap.data());
+          setCategory(cat);
+
+          // Fetch products by category name
+          const q = query(
+            collection(db, "products"),
+            where("category", "==", cat.name),
+          );
+          const prodSnap = await getDocs(q);
+          if (!cancelled) {
+            setCategoryProducts(
+              prodSnap.docs.map((d) => firestoreProductToProduct(d.id, d.data())),
+            );
+          }
+        } else if (!cancelled) {
+          // Fallback to mock
+          const mockCat = mockGetCategoryBySlug(slug);
+          if (mockCat) {
+            setCategory(mockCat);
+            setCategoryProducts(mockProducts.filter((p) => p.category_id === mockCat.id));
+          } else {
+            setNotFoundState(true);
+          }
+        }
+      } catch {
+        if (!cancelled) {
+          // Fallback to mock on error
+          const mockCat = mockGetCategoryBySlug(slug);
+          if (mockCat) {
+            setCategory(mockCat);
+            setCategoryProducts(mockProducts.filter((p) => p.category_id === mockCat.id));
+          } else {
+            setNotFoundState(true);
+          }
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+
+    fetchData();
+    return () => { cancelled = true; };
+  }, [slug]);
+
+  if (notFoundState) {
+    notFound();
+  }
+
+  if (loading) {
+    return (
+      <main className="pt-28 pb-20 max-w-[1440px] mx-auto px-6">
+        <div className="animate-pulse space-y-6">
+          <div className="h-8 w-48 bg-surface-mid rounded" />
+          <div className="h-12 w-96 bg-surface-mid rounded" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="bg-surface-mid rounded-xl h-80" />
+            ))}
+          </div>
+        </div>
+      </main>
+    );
+  }
 
   if (!category) {
     notFound();
   }
-
-  const categoryProducts = products.filter((p) => p.category_id === category.id);
 
   // Unique car brands and product brands for filters
   const carBrands = [...new Set(categoryProducts.map((p) => p.car_brand).filter(Boolean))];
