@@ -193,24 +193,49 @@ export default function CategoryClient({
   const carBrands = [...new Set(sourceProducts.map((p) => p.car_brand).filter(Boolean))];
   const brands = [...new Set(sourceProducts.map((p) => p.brand).filter(Boolean))];
 
+  // Lock scroll position during filter changes to prevent jerking
+  const scrollLockRef = useRef(false);
+
+  useEffect(() => {
+    if (scrollLockRef.current) {
+      scrollLockRef.current = false;
+    }
+  }, [filteredProducts]);
+
+  const withScrollLock = (fn: () => void) => {
+    const scrollY = window.scrollY;
+    scrollLockRef.current = true;
+    fn();
+    // Restore scroll after React re-render
+    requestAnimationFrame(() => {
+      window.scrollTo(0, scrollY);
+    });
+  };
+
   const toggleCarBrand = (brand: string) => {
-    setSelectedCarBrands((prev) =>
-      prev.includes(brand) ? prev.filter((b) => b !== brand) : [...prev, brand]
-    );
+    withScrollLock(() => {
+      setSelectedCarBrands((prev) =>
+        prev.includes(brand) ? prev.filter((b) => b !== brand) : [...prev, brand]
+      );
+    });
   };
 
   const toggleBrand = (brand: string) => {
-    setSelectedBrands((prev) =>
-      prev.includes(brand) ? prev.filter((b) => b !== brand) : [...prev, brand]
-    );
+    withScrollLock(() => {
+      setSelectedBrands((prev) =>
+        prev.includes(brand) ? prev.filter((b) => b !== brand) : [...prev, brand]
+      );
+    });
   };
 
   const resetFilters = () => {
-    setSelectedCarBrands([]);
-    setSelectedBrands([]);
-    setInStockOnly(false);
-    setSortBy("default");
-    setPriceMax(maxPrice);
+    withScrollLock(() => {
+      setSelectedCarBrands([]);
+      setSelectedBrands([]);
+      setInStockOnly(false);
+      setSortBy("default");
+      setPriceMax(maxPrice);
+    });
   };
 
   // Show loading overlay when fetching a page or loading all products for filters
@@ -481,7 +506,7 @@ export default function CategoryClient({
               </button>
             </div>
           ) : !isLoading ? (
-            <div ref={gridRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" style={{ minHeight: "600px" }}>
+            <div ref={gridRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" style={{ minHeight: "80vh", overflowAnchor: "none" }}>
               {currentPageProducts.map((product) => (
                 <article
                   key={product.id}
