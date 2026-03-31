@@ -80,12 +80,12 @@ export default function CategoryClient({
     }
   }, [slug, allProductsLoading]);
 
-  // When filters become active, load all products
+  // Pre-load ALL products in background on mount (for filters + brand list)
   useEffect(() => {
-    if (filtersActive && !allProductsLoadedRef.current) {
+    if (!allProductsLoadedRef.current) {
       loadAllProducts();
     }
-  }, [filtersActive, loadAllProducts]);
+  }, [loadAllProducts]);
 
   // Reset to page 1 when filters/sort change
   useEffect(() => {
@@ -481,7 +481,7 @@ export default function CategoryClient({
               </button>
             </div>
           ) : !isLoading ? (
-            <div ref={gridRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div ref={gridRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" style={{ minHeight: "600px" }}>
               {currentPageProducts.map((product) => (
                 <article
                   key={product.id}
