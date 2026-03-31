@@ -1,10 +1,12 @@
-"use client";
-
-import { useState, useEffect } from "react";
 import Link from "next/link";
-import { getCategories, getTotalProductCount } from "@/lib/products-api";
-import { categories as mockCategories } from "@/lib/mock-data";
+import { getCategories, getTotalProductCount } from "@/lib/products-server";
+import type { Metadata } from "next";
 import type { Category } from "@/lib/mock-data";
+
+export const metadata: Metadata = {
+  title: "Каталог запчастей — ROSAutoAsia",
+  description: "Каталог автозапчастей из Японии, Кореи и Китая. Оригинал и аналоги с доставкой по Кыргызстану.",
+};
 
 /** Map slug prefixes to Material Symbols icon names */
 const categoryIconMap: Record<string, string> = {
@@ -30,17 +32,9 @@ function getCategoryIcon(slug: string): string {
   return "category";
 }
 
-// Mock data with productCount for initial render
-const mockCategoriesWithCount = mockCategories.map((c) => ({ ...c, productCount: 0 }));
-
-export default function CatalogPage() {
-  const [categories, setCategories] = useState<(Category & { productCount: number })[]>(mockCategoriesWithCount);
-  const [totalProducts, setTotalProducts] = useState(0);
-
-  useEffect(() => {
-    getCategories().then(setCategories).catch(() => {});
-    getTotalProductCount().then(setTotalProducts).catch(() => {});
-  }, []);
+export default async function CatalogPage() {
+  const categories = await getCategories();
+  const totalProducts = await getTotalProductCount();
 
   return (
     <main className="pt-28 pb-20 max-w-[1440px] mx-auto px-6">

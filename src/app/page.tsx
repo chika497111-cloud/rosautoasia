@@ -1,12 +1,5 @@
-"use client";
-
-import { useState, useEffect } from "react";
 import Link from "next/link";
-import { getCategories, getFeaturedProducts } from "@/lib/products-api";
-import {
-  categories as mockCategories,
-  products as mockProducts,
-} from "@/lib/mock-data";
+import { getCategories, getFeaturedProducts } from "@/lib/products-server";
 import type { Product, Category } from "@/lib/mock-data";
 
 /* SVG icons for each category (keyed by slug prefix — matches if slug starts with key) */
@@ -88,18 +81,9 @@ const defaultCategoryIcon = (
   </svg>
 );
 
-// Mock data with productCount for initial render
-const mockCategoriesWithCount = mockCategories.map((c) => ({ ...c, productCount: 0 }));
-const mockFeatured = mockProducts.slice(0, 4);
-
-export default function Home() {
-  const [allCategories, setAllCategories] = useState<(Category & { productCount: number })[]>(mockCategoriesWithCount);
-  const [featuredProducts, setFeaturedProducts] = useState<Product[]>(mockFeatured);
-
-  useEffect(() => {
-    getCategories().then(setAllCategories).catch(() => {});
-    getFeaturedProducts(4).then(setFeaturedProducts).catch(() => {});
-  }, []);
+export default async function Home() {
+  const allCategories = await getCategories();
+  const featuredProducts = await getFeaturedProducts(4);
 
   // Show top 8 categories by product count
   const topCategories = allCategories.slice(0, 8);

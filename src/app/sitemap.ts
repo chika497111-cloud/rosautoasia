@@ -1,7 +1,9 @@
 import type { MetadataRoute } from "next";
-import { categories as mockCategories } from "@/lib/mock-data";
+import { getCategories } from "@/lib/products-server";
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export const dynamic = "force-dynamic";
+
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = "https://raa.kg";
 
   const staticPages = [
@@ -14,8 +16,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${baseUrl}/search`, changeFrequency: "daily" as const, priority: 0.6 },
   ];
 
-  // Use static mock categories for sitemap — no Firestore calls in server-side code
-  const categoryPages = mockCategories.map((cat) => ({
+  // Fetch real categories from Firestore via firebase-admin
+  const categories = await getCategories();
+  const categoryPages = categories.map((cat) => ({
     url: `${baseUrl}/catalog/${cat.slug}`,
     changeFrequency: "daily" as const,
     priority: 0.8,
