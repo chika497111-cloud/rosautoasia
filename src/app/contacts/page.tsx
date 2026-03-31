@@ -57,7 +57,7 @@ export default function ContactsPage() {
                 <div className="p-8 bg-surface-low rounded-xl space-y-3 transition-colors hover:bg-surface-mid">
                   <span className="material-symbols-outlined text-primary">location_on</span>
                   <p className="text-sm font-semibold uppercase tracking-wider text-on-surface-variant">Адрес</p>
-                  <p className="text-lg font-bold text-[#451A03]">Бишкек, ул. Льва Толстого, 126</p>
+                  <p className="text-lg font-bold text-[#451A03]">Бишкек, рынок Дордой</p>
                 </div>
                 <div className="p-8 bg-surface-low rounded-xl space-y-3 transition-colors hover:bg-surface-mid">
                   <span className="material-symbols-outlined text-primary">schedule</span>
@@ -94,7 +94,7 @@ export default function ContactsPage() {
             <div className="h-full min-h-[500px] lg:sticky lg:top-32">
               <div className="w-full h-full rounded-xl overflow-hidden warm-shadow min-h-[500px]">
                 <iframe
-                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2924.5!2d74.59!3d42.87!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNDLCsDUyJzEyLjAiTiA3NMKwMzUnMjQuMCJF!5e0!3m2!1sru!2skg!4v1"
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d5849.5!2d74.5268!3d42.9056!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x389eb7a44798de01%3A0x8d4d3a9f2a2e5f1a!2z0KDRi9C90L7QuiDQlNC-0YDQtNC-0Lk!5e0!3m2!1sru!2skg!4v1"
                   width="100%"
                   height="100%"
                   style={{ border: 0, borderRadius: "16px", minHeight: "500px" }}

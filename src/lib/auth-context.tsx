@@ -367,6 +367,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         };
 
         setOrders((prev) => [newOrder, ...prev]);
+
+        // Send Telegram notification (fire and forget)
+        import("@/lib/telegram").then(({ notifyNewOrder }) => {
+          notifyNewOrder({
+            number: orderNumber,
+            userName: user.name,
+            userPhone: user.phone,
+            total: orderData.total,
+            items: orderData.items,
+            comment: orderData.comment,
+            deliveryMethod: orderData.deliveryMethod,
+            city: orderData.city,
+          }).catch(() => {});
+        });
+
         return newOrder;
       } catch (err) {
         console.error("[addOrder] Error:", err);
