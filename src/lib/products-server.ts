@@ -98,6 +98,45 @@ export async function getProductsByCategory(categorySlug: string, options?: { li
   }
 }
 
+/**
+ * Paginated product fetch for a category. Returns products for a given page
+ * plus total count (from category doc).
+ */
+export async function getProductsByCategoryPage(
+  categorySlug: string,
+  page: number = 1,
+  pageSize: number = 48,
+): Promise<{ products: Product[]; totalCount: number; categoryName: string }> {
+  try {
+    const cat = await getCategoryBySlug(categorySlug);
+    if (!cat) return { products: [], totalCount: 0, categoryName: "" };
+
+    const db = getAdminFirestore();
+    const offset = (page - 1) * pageSize;
+
+    const snap = await db
+      .collection("products")
+      .where("category", "==", cat.name)
+      .orderBy("__name__")
+      .offset(offset)
+      .limit(pageSize)
+      .get();
+
+    const products = snap.docs.map((d) => firestoreToProduct(d.id, d.data()));
+    return { products, totalCount: cat.productCount, categoryName: cat.name };
+  } catch {
+    const mock = mockGetCategoryBySlug(categorySlug);
+    if (!mock) return { products: [], totalCount: 0, categoryName: "" };
+    const allMock = mockProducts.filter((p) => p.category_id === mock.id);
+    const offset = (page - 1) * pageSize;
+    return {
+      products: allMock.slice(offset, offset + pageSize),
+      totalCount: allMock.length,
+      categoryName: mock.name,
+    };
+  }
+}
+
 export async function getProductById(id: string): Promise<Product | null> {
   try {
     const db = getAdminFirestore();
