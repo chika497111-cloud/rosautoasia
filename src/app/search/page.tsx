@@ -148,7 +148,7 @@ function SearchPageContent() {
       {/* Product Grid */}
       {!loading && results.length > 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {results.map((product) => (
+          {results.map((product, index) => (
             <article
               key={product.id}
               className="bg-surface-lowest rounded-xl p-5 warm-shadow group transition-all hover:-translate-y-1 relative flex flex-col"
@@ -160,7 +160,7 @@ function SearchPageContent() {
                     <img
                       alt={product.name}
                       src={product.image}
-                      loading="lazy"
+                      loading={index < 6 ? "eager" : "lazy"}
                       className="w-full h-full object-contain mix-blend-multiply group-hover:scale-105 transition-transform duration-500"
                     />
                   ) : (

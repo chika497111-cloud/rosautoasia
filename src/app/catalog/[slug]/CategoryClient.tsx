@@ -500,7 +500,7 @@ export default function CategoryClient({
             </div>
           ) : !isLoading ? (
             <div ref={gridRef} className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 transition-opacity duration-150 ${isStale ? "opacity-50" : "opacity-100"}`}>
-              {currentPageProducts.map((product) => (
+              {currentPageProducts.map((product, index) => (
                 <article
                   key={product.id}
                   className="bg-surface-lowest rounded-xl p-5 warm-shadow group transition-all hover:-translate-y-1 relative"
@@ -512,7 +512,7 @@ export default function CategoryClient({
                         <img
                           alt={product.name}
                           src={product.image}
-                          loading="lazy"
+                          loading={index < 6 ? "eager" : "lazy"}
                           className="w-full h-full object-contain mix-blend-multiply group-hover:scale-105 transition-transform duration-500"
                         />
                       ) : (
