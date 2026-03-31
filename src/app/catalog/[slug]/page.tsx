@@ -32,6 +32,12 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
   const [categoryProducts, setCategoryProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [notFoundState, setNotFoundState] = useState(false);
+  const [selectedCarBrands, setSelectedCarBrands] = useState<string[]>([]);
+  const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
+  const [inStockOnly, setInStockOnly] = useState(false);
+  const [sortBy, setSortBy] = useState("default");
+  const [priceMax, setPriceMax] = useState(50000);
+  const [showMobileFilters, setShowMobileFilters] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -88,41 +94,7 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
     return () => { cancelled = true; };
   }, [slug]);
 
-  if (notFoundState) {
-    notFound();
-  }
-
-  if (loading) {
-    return (
-      <main className="pt-28 pb-20 max-w-[1440px] mx-auto px-6">
-        <div className="animate-pulse space-y-6">
-          <div className="h-8 w-48 bg-surface-mid rounded" />
-          <div className="h-12 w-96 bg-surface-mid rounded" />
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="bg-surface-mid rounded-xl h-80" />
-            ))}
-          </div>
-        </div>
-      </main>
-    );
-  }
-
-  if (!category) {
-    notFound();
-  }
-
-  // Unique car brands and product brands for filters
-  const carBrands = [...new Set(categoryProducts.map((p) => p.car_brand).filter(Boolean))];
-  const brands = [...new Set(categoryProducts.map((p) => p.brand).filter(Boolean))];
-
-  const [selectedCarBrands, setSelectedCarBrands] = useState<string[]>([]);
-  const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
-  const [inStockOnly, setInStockOnly] = useState(false);
-  const [sortBy, setSortBy] = useState("default");
-  const [priceMax, setPriceMax] = useState(50000);
-  const [showMobileFilters, setShowMobileFilters] = useState(false);
-
+  // All hooks MUST be above any early returns
   useEffect(() => {
     if (showMobileFilters) {
       document.body.style.overflow = "hidden";
@@ -164,6 +136,36 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
 
     return result;
   }, [categoryProducts, selectedCarBrands, selectedBrands, inStockOnly, sortBy, priceMax, maxPrice]);
+
+  // --- Early returns AFTER all hooks ---
+
+  if (notFoundState) {
+    notFound();
+  }
+
+  if (loading) {
+    return (
+      <main className="pt-28 pb-20 max-w-[1440px] mx-auto px-6">
+        <div className="animate-pulse space-y-6">
+          <div className="h-8 w-48 bg-surface-mid rounded" />
+          <div className="h-12 w-96 bg-surface-mid rounded" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="bg-surface-mid rounded-xl h-80" />
+            ))}
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  if (!category) {
+    notFound();
+  }
+
+  // Unique car brands and product brands for filters
+  const carBrands = [...new Set(categoryProducts.map((p) => p.car_brand).filter(Boolean))];
+  const brands = [...new Set(categoryProducts.map((p) => p.brand).filter(Boolean))];
 
   const toggleCarBrand = (brand: string) => {
     setSelectedCarBrands((prev) =>
