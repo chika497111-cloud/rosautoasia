@@ -330,7 +330,7 @@ export default function CategoryClient({
 
       <div className="flex flex-col md:flex-row gap-8 items-start">
         {/* Desktop Sidebar Filters */}
-        <aside className="hidden md:flex w-64 rounded-xl bg-surface-mid warm-shadow flex-col shrink-0">
+        <aside className="hidden md:flex w-64 rounded-xl bg-surface-mid warm-shadow flex-col shrink-0" style={{ overflowAnchor: "auto" }}>
           <div className="py-6 px-6 pb-2">
             <h3 className="font-[family-name:var(--font-headline)] font-bold text-on-surface mb-1">
               Фильтры
@@ -449,8 +449,8 @@ export default function CategoryClient({
           </div>
         </aside>
 
-        {/* Main Content Area — fixed min-height prevents scroll jumping on filter */}
-        <section ref={sectionRef} className="flex-1" style={{ minHeight: "2000px" }}>
+        {/* Main Content Area */}
+        <section ref={sectionRef} className="flex-1" style={{ overflowAnchor: "none" }}>
           {/* Sorting & View Controls */}
           <div className="flex flex-wrap justify-between items-center bg-surface-low rounded-xl px-6 py-4 mb-8 gap-4">
             <div className="flex items-center gap-4">
