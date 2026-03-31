@@ -508,11 +508,20 @@ export default function CategoryClient({
                   {/* Image Area */}
                   <Link href={`/product/${product.id}`}>
                     <div className="aspect-square rounded-lg overflow-hidden mb-4 bg-surface-low relative">
-                      <div className="w-full h-full flex items-center justify-center group-hover:scale-105 transition-transform duration-500">
-                        <span className="material-symbols-outlined text-6xl text-outline-variant/40">
-                          image
-                        </span>
-                      </div>
+                      {product.image ? (
+                        <img
+                          alt={product.name}
+                          src={product.image}
+                          loading="lazy"
+                          className="w-full h-full object-contain mix-blend-multiply group-hover:scale-105 transition-transform duration-500"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center group-hover:scale-105 transition-transform duration-500">
+                          <span className="material-symbols-outlined text-6xl text-outline-variant/40">
+                            image
+                          </span>
+                        </div>
+                      )}
                       {/* Brand Badge */}
                       <div className="absolute top-2 left-2 bg-primary-container/10 text-on-primary-fixed-variant text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wider backdrop-blur-md">
                         {product.brand}
