@@ -2,6 +2,8 @@
 
 import { useState, type FormEvent } from "react";
 import { validatePhone } from "@/lib/phone-utils";
+import { db } from "@/lib/firebase";
+import { collection, addDoc } from "firebase/firestore";
 
 export default function ContactForm() {
   const [name, setName] = useState("");
@@ -9,8 +11,9 @@ export default function ContactForm() {
   const [message, setMessage] = useState("");
   const [errors, setErrors] = useState<{ name?: string; phone?: string; message?: string }>({});
   const [submitted, setSubmitted] = useState(false);
+  const [sending, setSending] = useState(false);
 
-  function handleSubmit(e: FormEvent) {
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault();
 
     const newErrors: { name?: string; phone?: string; message?: string } = {};
@@ -36,7 +39,51 @@ export default function ContactForm() {
     }
 
     setErrors({});
-    setSubmitted(true);
+    setSending(true);
+
+    try {
+      // Save to Firestore
+      await addDoc(collection(db, "contact_requests"), {
+        name: name.trim(),
+        phone: phone.trim(),
+        message: message.trim(),
+        createdAt: new Date().toISOString(),
+        status: "new",
+      });
+
+      // Send Telegram notification
+      import("@/lib/telegram").then(({ notifyNewOrder }) => {
+        // Reuse notifyNewOrder structure for contact requests
+        const TELEGRAM_BOT_TOKEN = process.env.NEXT_PUBLIC_TELEGRAM_BOT_TOKEN || "";
+        if (TELEGRAM_BOT_TOKEN) {
+          fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getUpdates?limit=100`)
+            .then((r) => r.json())
+            .then((data) => {
+              const chatIds = new Set<string>();
+              for (const update of data.result || []) {
+                const chatId = update.message?.chat?.id;
+                if (chatId) chatIds.add(String(chatId));
+              }
+              const text = `📩 <b>Новая заявка с сайта</b>\n\n👤 ${name.trim()}\n📱 ${phone.trim() || "не указан"}\n\n💬 ${message.trim()}\n\n🔗 https://raa.kg/admin`;
+              for (const chatId of chatIds) {
+                fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ chat_id: chatId, text, parse_mode: "HTML" }),
+                }).catch(() => {});
+              }
+            })
+            .catch(() => {});
+        }
+      }).catch(() => {});
+
+      setSubmitted(true);
+    } catch (err) {
+      console.error("Failed to submit contact form:", err);
+      setErrors({ message: "Ошибка отправки. Попробуйте позже." });
+    } finally {
+      setSending(false);
+    }
   }
 
   if (submitted) {
@@ -102,10 +149,11 @@ export default function ContactForm() {
           {errors.message && <p className="text-error text-sm mt-1">{errors.message}</p>}
         </div>
         <button
-          className="w-full cta-gradient text-white font-bold py-4 rounded-full warm-shadow hover:opacity-90 active:scale-95 transition-all"
+          className="w-full cta-gradient text-white font-bold py-4 rounded-full warm-shadow hover:opacity-90 active:scale-95 transition-all disabled:opacity-50"
           type="submit"
+          disabled={sending}
         >
-          Отправить
+          {sending ? "Отправка..." : "Отправить"}
         </button>
       </form>
     </div>
