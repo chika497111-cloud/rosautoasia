@@ -5,7 +5,7 @@ import { useState, useMemo, useEffect, useRef, useCallback } from "react";
 import { useCart } from "@/lib/cart-context";
 import { useComparison } from "@/lib/comparison-context";
 import type { Product, Category } from "@/lib/mock-data";
-import { fetchCategoryPage } from "./actions";
+import { fetchCategoryPage, fetchAllCategoryProducts } from "./actions";
 
 interface CategoryClientProps {
   category: Category & { productCount: number };
@@ -63,25 +63,13 @@ export default function CategoryClient({
     sortBy !== "default" ||
     priceMax < 50000;
 
-  // Load ALL products from server (via Server Action in pages) when filters are activated
+  // Load ALL products in one server request (for filtering)
   const loadAllProducts = useCallback(async () => {
     if (allProductsLoadedRef.current || allProductsLoading) return;
     setAllProductsLoading(true);
 
     try {
-      const all: Product[] = [];
-      let page = 1;
-      let hasMore = true;
-
-      while (hasMore) {
-        const result = await fetchCategoryPage(slug, page, PAGE_SIZE);
-        all.push(...result.products);
-        if (all.length >= result.totalCount || result.products.length < PAGE_SIZE) {
-          hasMore = false;
-        }
-        page++;
-      }
-
+      const all = await fetchAllCategoryProducts(slug);
       setAllProducts(all);
       setCurrentTotalCount(all.length);
       allProductsLoadedRef.current = true;
@@ -324,13 +312,14 @@ export default function CategoryClient({
 
       <div className="flex flex-col md:flex-row gap-8 items-start">
         {/* Desktop Sidebar Filters */}
-        <aside className="hidden md:flex w-64 sticky top-24 rounded-xl overflow-hidden bg-surface-mid py-8 px-6 warm-shadow flex-col gap-6 shrink-0">
-          <div>
+        <aside className="hidden md:flex w-64 sticky top-24 rounded-xl bg-surface-mid warm-shadow flex-col shrink-0" style={{ maxHeight: "calc(100vh - 120px)" }}>
+          <div className="py-6 px-6 pb-2">
             <h3 className="font-[family-name:var(--font-headline)] font-bold text-on-surface mb-1">
               Фильтры
             </h3>
-            <p className="text-xs text-on-surface-variant mb-4">Параметры поиска</p>
+            <p className="text-xs text-on-surface-variant mb-2">Параметры поиска</p>
           </div>
+          <div className="flex-1 overflow-y-auto px-6 space-y-6 pb-2">
 
           {/* Categories (car brands) */}
           {carBrands.length > 0 && (
@@ -430,13 +419,16 @@ export default function CategoryClient({
             </div>
           </div>
 
-          {/* Apply / Reset Button */}
-          <button
-            onClick={resetFilters}
-            className="signature-glow text-white font-bold py-3 rounded-full mt-4 hover:opacity-90 active:scale-95 transition-all shadow-md"
-          >
-            Сбросить
-          </button>
+          </div>{/* end scrollable area */}
+          {/* Fixed reset button at bottom */}
+          <div className="px-6 py-4 border-t border-outline-variant/20">
+            <button
+              onClick={resetFilters}
+              className="w-full signature-glow text-white font-bold py-3 rounded-full hover:opacity-90 active:scale-95 transition-all shadow-md"
+            >
+              Сбросить
+            </button>
+          </div>
         </aside>
 
         {/* Main Content Area */}
