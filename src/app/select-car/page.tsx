@@ -1,328 +1,197 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { carBrands, getModelsByBrand } from "@/lib/car-data";
-import { products } from "@/lib/mock-data";
-import { getYearsForModel } from "@/lib/car-years";
-import { CarBrandLogo } from "@/components/CarBrandLogo";
+import { db } from "@/lib/firebase";
+import { collection, getDocs, query, orderBy } from "firebase/firestore";
+
+interface BrandInfo {
+  name: string;
+  categories: { slug: string; name: string; systemName: string; productCount: number }[];
+  totalProducts: number;
+}
+
+const BRAND_ICONS: Record<string, string> = {
+  "ВАЗ": "🚗",
+  "ГАЗ": "🚐",
+  "КАМАЗ": "🚛",
+  "УАЗ": "🚙",
+  "ЗИЛ": "🚚",
+  "МАЗ": "🚛",
+  "УРАЛ": "🚛",
+  "Москвич": "🚗",
+  "Тракторы": "🚜",
+  "Иномарки": "🌏",
+};
+
+const BRAND_ORDER = ["ВАЗ", "ГАЗ", "КАМАЗ", "УАЗ", "ЗИЛ", "МАЗ", "УРАЛ", "Москвич", "Тракторы", "Иномарки"];
 
 export default function SelectCarPage() {
-  const [selectedBrand, setSelectedBrand] = useState<string | null>(null);
-  const [selectedBrandName, setSelectedBrandName] = useState<string>("");
-  const [selectedModel, setSelectedModel] = useState<string | null>(null);
-  const [selectedModelName, setSelectedModelName] = useState<string>("");
-  const [selectedYear, setSelectedYear] = useState<number | null>(null);
+  const [brands, setBrands] = useState<BrandInfo[]>([]);
+  const [selectedBrand, setSelectedBrand] = useState<BrandInfo | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const models = selectedBrand ? getModelsByBrand(selectedBrand) : [];
-  const availableYears = selectedModel ? getYearsForModel(selectedModel) : [];
-  const matchingProducts = selectedBrandName
-    ? products.filter(
-        (p) => p.car_brand.toLowerCase() === selectedBrandName.toLowerCase()
-      )
-    : [];
+  useEffect(() => {
+    async function loadBrands() {
+      try {
+        const snap = await getDocs(
+          query(collection(db, "categories"), orderBy("productCount", "desc"))
+        );
 
-  function handleBrandSelect(brandId: string, brandName: string) {
-    setSelectedBrand(brandId);
-    setSelectedBrandName(brandName);
-    setSelectedModel(null);
-    setSelectedModelName("");
-    setSelectedYear(null);
-  }
+        const brandMap = new Map<string, BrandInfo>();
 
-  function handleModelSelect(modelId: string, modelName: string) {
-    setSelectedModel(modelId);
-    setSelectedModelName(modelName);
-    setSelectedYear(null);
-  }
+        for (const doc of snap.docs) {
+          const data = doc.data();
+          const name = (data.name as string) || "";
+          const parts = name.split(" ");
+          const brandName = parts.length > 1 ? parts[parts.length - 1] : "";
 
-  function handleYearSelect(year: number) {
-    setSelectedYear(year);
-  }
+          if (!BRAND_ORDER.includes(brandName)) continue;
 
-  function handleReset() {
-    setSelectedBrand(null);
-    setSelectedBrandName("");
-    setSelectedModel(null);
-    setSelectedModelName("");
-    setSelectedYear(null);
+          const systemName = parts.slice(0, -1).join(" ");
+
+          if (!brandMap.has(brandName)) {
+            brandMap.set(brandName, {
+              name: brandName,
+              categories: [],
+              totalProducts: 0,
+            });
+          }
+
+          const brand = brandMap.get(brandName)!;
+          brand.categories.push({
+            slug: doc.id,
+            name: data.name,
+            systemName,
+            productCount: (data.productCount as number) || 0,
+          });
+          brand.totalProducts += (data.productCount as number) || 0;
+        }
+
+        const sorted = BRAND_ORDER
+          .filter((b) => brandMap.has(b))
+          .map((b) => brandMap.get(b)!);
+
+        setBrands(sorted);
+      } catch (err) {
+        console.error("Failed to load brands:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadBrands();
+  }, []);
+
+  if (loading) {
+    return (
+      <main className="pt-28 pb-20 max-w-7xl mx-auto px-6">
+        <div className="animate-pulse space-y-6">
+          <div className="h-10 w-64 bg-surface-mid rounded-lg" />
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+            {Array.from({ length: 10 }).map((_, i) => (
+              <div key={i} className="h-32 bg-surface-mid rounded-xl" />
+            ))}
+          </div>
+        </div>
+      </main>
+    );
   }
 
   return (
-    <div className="min-h-screen bg-surface">
-      {/* Header */}
-      <section className="bg-gradient-to-r from-[#451A03] to-[#5d260a] text-white">
-        <div className="max-w-7xl mx-auto px-4 py-10">
-          <nav className="flex items-center gap-2 text-sm text-outline mb-4">
-            <Link href="/" className="hover:text-primary-container transition-colors">
-              Главная
-            </Link>
-            <span>/</span>
-            <span className="text-white">Подбор по авто</span>
-          </nav>
-          <h1 className="font-[family-name:var(--font-headline)] text-3xl sm:text-4xl font-bold tracking-tight">
-            Подбор по <span className="text-primary-container">автомобилю</span>
-          </h1>
-          <p className="text-outline-variant mt-2">
-            Выберите марку, модель и год, чтобы найти подходящие запчасти
-          </p>
-        </div>
-      </section>
-
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        {/* Progress steps */}
-        <div className="flex items-center gap-4 mb-8">
-          <div
-            className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 ${
-              !selectedBrand
-                ? "cta-gradient text-white shadow-lg shadow-primary/20"
-                : "bg-[#451A03] text-white"
-            }`}
-          >
-            <span className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold">
-              1
-            </span>
-            Марка
-          </div>
-          <div className="h-px flex-1 bg-outline-variant" />
-          <div
-            className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 ${
-              selectedBrand && !selectedModel
-                ? "cta-gradient text-white shadow-lg shadow-primary/20"
-                : selectedModel
-                ? "bg-[#451A03] text-white"
-                : "bg-surface-mid text-on-surface-variant"
-            }`}
-          >
-            <span className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold">
-              2
-            </span>
-            Модель
-          </div>
-          <div className="h-px flex-1 bg-outline-variant" />
-          <div
-            className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 ${
-              selectedModel && !selectedYear
-                ? "cta-gradient text-white shadow-lg shadow-primary/20"
-                : selectedYear
-                ? "bg-[#451A03] text-white"
-                : "bg-surface-mid text-on-surface-variant"
-            }`}
-          >
-            <span className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold">
-              3
-            </span>
-            Год
-          </div>
-          <div className="h-px flex-1 bg-outline-variant" />
-          <div
-            className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 ${
-              selectedYear
-                ? "cta-gradient text-white shadow-lg shadow-primary/20"
-                : "bg-surface-mid text-on-surface-variant"
-            }`}
-          >
-            <span className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold">
-              4
-            </span>
-            Запчасти
-          </div>
-        </div>
-
-        {/* Selected info + reset */}
-        {selectedBrand && (
-          <div className="flex items-center gap-3 mb-6 animate-[fadeIn_0.3s_ease-in-out]">
-            <button
-              onClick={handleReset}
-              className="text-sm text-primary font-semibold hover:underline underline-offset-4 transition-colors"
-            >
-              Начать заново
+    <main className="pt-28 pb-20 max-w-7xl mx-auto px-6">
+      {/* Breadcrumbs */}
+      <nav className="flex items-center gap-2 mb-6 text-sm font-medium text-on-surface-variant">
+        <Link href="/" className="hover:text-primary transition-colors">Главная</Link>
+        <span className="material-symbols-outlined text-xs">chevron_right</span>
+        {selectedBrand ? (
+          <>
+            <button onClick={() => setSelectedBrand(null)} className="hover:text-primary transition-colors">
+              Подбор по марке
             </button>
-            <span className="text-outline-variant">|</span>
-            <span className="text-sm font-medium text-on-surface-variant">
-              {selectedBrandName}
-              {selectedModelName && ` → ${selectedModelName}`}
-              {selectedYear && ` → ${selectedYear}`}
-            </span>
-          </div>
+            <span className="material-symbols-outlined text-xs">chevron_right</span>
+            <span className="text-primary">{selectedBrand.name}</span>
+          </>
+        ) : (
+          <span className="text-primary">Подбор по марке</span>
         )}
+      </nav>
 
-        {/* Step 1: Brand selection */}
-        {!selectedBrand && (
-          <div className="animate-[fadeIn_0.3s_ease-in-out]">
-            <h2 className="font-[family-name:var(--font-headline)] text-xl font-bold text-[#451A03] mb-4">
-              Выберите марку автомобиля
-            </h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-              {carBrands.map((brand) => (
-                <button
-                  key={brand.id}
-                  onClick={() => handleBrandSelect(brand.id, brand.name)}
-                  className="bg-surface-lowest rounded-xl warm-shadow p-5 text-center font-semibold text-on-surface card-hover focus:outline-none focus:ring-2 focus:ring-primary/20"
-                >
-                  <div className="w-12 h-12 mx-auto mb-3 bg-surface-mid rounded-lg flex items-center justify-center text-primary">
-                    <CarBrandLogo brandId={brand.id} />
-                  </div>
+      {!selectedBrand ? (
+        <>
+          <header className="mb-10">
+            <h1 className="font-[family-name:var(--font-headline)] text-4xl md:text-5xl font-extrabold text-[#451A03] tracking-tight mb-2">
+              Подбор по марке
+            </h1>
+            <p className="text-on-surface-variant">Выберите марку автомобиля для поиска запчастей</p>
+          </header>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+            {brands.map((brand) => (
+              <button
+                key={brand.name}
+                onClick={() => setSelectedBrand(brand)}
+                className="bg-white warm-shadow rounded-xl p-6 flex flex-col items-center text-center group hover:bg-primary-container transition-all duration-300 active:scale-95"
+              >
+                <span className="text-4xl mb-3 group-hover:scale-110 transition-transform">
+                  {BRAND_ICONS[brand.name] || "🔧"}
+                </span>
+                <h3 className="font-bold text-on-surface group-hover:text-on-primary-container text-lg">
                   {brand.name}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Step 2: Model selection */}
-        {selectedBrand && !selectedModel && (
-          <div className="animate-[fadeIn_0.3s_ease-in-out]">
-            <h2 className="font-[family-name:var(--font-headline)] text-xl font-bold text-[#451A03] mb-4">
-              Выберите модель{" "}
-              <span className="text-primary">{selectedBrandName}</span>
-            </h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-              {models.map((model) => (
-                <button
-                  key={model.id}
-                  onClick={() => handleModelSelect(model.id, model.name)}
-                  className="bg-surface-lowest rounded-xl warm-shadow p-5 text-left card-hover focus:outline-none focus:ring-2 focus:ring-primary/20"
-                >
-                  <div className="font-semibold text-on-surface">
-                    {model.name}
-                  </div>
-                  <div className="text-sm text-on-surface-variant mt-1">
-                    {model.years}
-                  </div>
-                </button>
-              ))}
-            </div>
-            {models.length === 0 && (
-              <div className="text-center py-12 text-on-surface-variant">
-                Модели для этой марки пока не добавлены
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Step 3: Year selection */}
-        {selectedModel && !selectedYear && (
-          <div className="animate-[fadeIn_0.3s_ease-in-out]">
-            <h2 className="font-[family-name:var(--font-headline)] text-xl font-bold text-[#451A03] mb-4">
-              Выберите год выпуска{" "}
-              <span className="text-primary">
-                {selectedBrandName} {selectedModelName}
-              </span>
-            </h2>
-            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-4">
-              {availableYears.map((year) => (
-                <button
-                  key={year}
-                  onClick={() => handleYearSelect(year)}
-                  className="bg-surface-lowest rounded-xl warm-shadow p-5 text-center font-semibold text-on-surface card-hover focus:outline-none focus:ring-2 focus:ring-primary/20"
-                >
-                  {year}
-                </button>
-              ))}
-            </div>
-            {availableYears.length === 0 && (
-              <div className="text-center py-12 text-on-surface-variant">
-                Годы выпуска для этой модели пока не добавлены
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Step 4: Matching products */}
-        {selectedYear && (
-          <div className="animate-[fadeIn_0.3s_ease-in-out]">
-            <h2 className="font-[family-name:var(--font-headline)] text-xl font-bold text-[#451A03] mb-4">
-              Запчасти для{" "}
-              <span className="text-primary">
-                {selectedBrandName} {selectedModelName} {selectedYear}
-              </span>
-            </h2>
-
-            {matchingProducts.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {matchingProducts.map((product) => (
-                  <Link
-                    key={product.id}
-                    href={`/product/${product.id}`}
-                    className="bg-surface-lowest rounded-xl warm-shadow p-5 card-hover"
-                  >
-                    <div className="w-full h-40 bg-surface-mid rounded-lg mb-4 flex items-center justify-center text-outline">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-12 w-12"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={1.5}
-                          d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                        />
-                      </svg>
-                    </div>
-                    <div className="text-xs text-on-surface-variant mb-1">
-                      {product.article}
-                    </div>
-                    <div className="font-semibold text-on-surface mb-1">
-                      {product.name}
-                    </div>
-                    <div className="text-sm text-on-surface-variant mb-3">
-                      {product.brand} · {product.car_brand} {product.car_model}
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-lg font-bold text-[#451A03]">
-                        {product.price.toLocaleString()} сом
-                      </span>
-                      <span
-                        className={`text-xs px-3 py-1 rounded-full font-medium ${
-                          product.quantity > 0
-                            ? "bg-primary-container/20 text-primary"
-                            : "bg-error-container text-on-error-container"
-                        }`}
-                      >
-                        {product.quantity > 0 ? "В наличии" : "Под заказ"}
-                      </span>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-16 bg-surface-lowest rounded-xl warm-shadow">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-16 w-16 mx-auto text-outline-variant mb-4"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={1.5}
-                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                  />
-                </svg>
-                <p className="text-on-surface-variant text-lg mb-2">
-                  Запчасти не найдены
+                </h3>
+                <p className="text-xs text-on-surface-variant group-hover:text-on-primary-container/70 mt-1">
+                  {brand.totalProducts.toLocaleString("ru-RU")} товаров
                 </p>
-                <p className="text-outline text-sm mb-6">
-                  Попробуйте выбрать другую модель или свяжитесь с нами
+              </button>
+            ))}
+          </div>
+        </>
+      ) : (
+        <>
+          <header className="mb-10">
+            <div className="flex items-center gap-4 mb-2">
+              <button
+                onClick={() => setSelectedBrand(null)}
+                className="w-10 h-10 rounded-full bg-surface-mid flex items-center justify-center hover:bg-primary-container/20 transition-colors"
+              >
+                <span className="material-symbols-outlined">arrow_back</span>
+              </button>
+              <div>
+                <h1 className="font-[family-name:var(--font-headline)] text-4xl md:text-5xl font-extrabold text-[#451A03] tracking-tight">
+                  {BRAND_ICONS[selectedBrand.name]} {selectedBrand.name}
+                </h1>
+                <p className="text-on-surface-variant mt-1">
+                  {selectedBrand.totalProducts.toLocaleString("ru-RU")} товаров в {selectedBrand.categories.length} категориях
                 </p>
+              </div>
+            </div>
+          </header>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {selectedBrand.categories
+              .sort((a, b) => b.productCount - a.productCount)
+              .map((cat) => (
                 <Link
-                  href="/contacts"
-                  className="inline-block cta-gradient text-white font-bold px-8 py-3 rounded-full shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all"
+                  key={cat.slug}
+                  href={`/catalog/${cat.slug}`}
+                  className="bg-white warm-shadow rounded-xl p-6 group hover:bg-primary-container transition-all duration-300 flex items-center justify-between"
                 >
-                  Связаться с нами
+                  <div>
+                    <h3 className="font-bold text-on-surface group-hover:text-on-primary-container">
+                      {cat.systemName}
+                    </h3>
+                    <p className="text-sm text-on-surface-variant group-hover:text-on-primary-container/70 mt-1">
+                      {cat.productCount.toLocaleString("ru-RU")} товаров
+                    </p>
+                  </div>
+                  <span className="material-symbols-outlined text-on-surface-variant group-hover:text-on-primary-container transition-colors">
+                    chevron_right
+                  </span>
                 </Link>
-              </div>
-            )}
+              ))}
           </div>
-        )}
-      </div>
-
-    </div>
+        </>
+      )}
+    </main>
   );
 }
