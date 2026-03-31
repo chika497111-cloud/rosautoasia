@@ -274,7 +274,77 @@ async function main() {
     }
   }
 
-  console.log(`\n=== Done: ${synced} synced, ${failed} failed ===`);
+  console.log(`\n=== Push done: ${synced} synced, ${failed} failed ===`);
+
+  // --- Pull order statuses from 1C back to Firestore ---
+  await syncOrderStatuses(db);
+}
+
+/**
+ * Sync order statuses: 1С → Firestore
+ * Reads orders that have been synced to 1C and checks their status
+ */
+async function syncOrderStatuses(db) {
+  console.log("\n--- Syncing order statuses from 1С ---");
+
+  // Get orders that were synced to 1C
+  const snap = await db
+    .collection("orders")
+    .where("syncedTo1C", "==", true)
+    .get();
+
+  const syncedOrders = snap.docs
+    .map((doc) => ({ id: doc.id, ...doc.data() }))
+    .filter((o) => o.code1C && o.status !== "completed" && o.status !== "cancelled");
+
+  if (syncedOrders.length === 0) {
+    console.log("  No orders to check status for");
+    return;
+  }
+
+  console.log(`  Checking ${syncedOrders.length} orders...`);
+
+  let updated = 0;
+
+  for (const order of syncedOrders) {
+    try {
+      const url = `${ODATA_BASE}/Document_ЗаказПокупателя(guid'${order.code1C}')?$format=json`;
+      const response = await fetch(url, { headers: odataHeaders() });
+
+      if (!response.ok) continue;
+
+      const data = await response.json();
+
+      // Map 1C status to website status
+      // 1C statuses: "Открыт", "ВРаботе"/"В работе", "Выполнен", "Закрыт"
+      let newStatus = order.status;
+      const status1C = data.СтатусЗаказа || data.Статус || "";
+      const posted = data.Posted === true; // Проведён
+
+      if (status1C.includes("Выполнен") || status1C.includes("Закрыт")) {
+        newStatus = "completed";
+      } else if (status1C.includes("Работ") || posted) {
+        newStatus = "confirmed";
+      } else if (data.DeletionMark === true) {
+        newStatus = "cancelled";
+      }
+
+      if (newStatus !== order.status) {
+        if (!DRY_RUN) {
+          await db.collection("orders").doc(order.id).update({
+            status: newStatus,
+            statusUpdatedAt: new Date().toISOString(),
+          });
+        }
+        console.log(`  Order ${order.number}: ${order.status} → ${newStatus}`);
+        updated++;
+      }
+    } catch {
+      // Skip orders that can't be fetched
+    }
+  }
+
+  console.log(`  Status updates: ${updated}`);
 }
 
 main().catch((err) => {
