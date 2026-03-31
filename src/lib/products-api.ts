@@ -1,6 +1,9 @@
 /**
  * Server & client functions to read products/categories from Firestore.
  * Falls back to mock-data if Firestore is unavailable or empty.
+ *
+ * Includes in-memory TTL cache to avoid hitting Firestore on every request
+ * (critical for Vercel serverless where the 10-second timeout is tight).
  */
 
 import { db } from "./firebase";
@@ -22,6 +25,34 @@ import {
   getProductById as mockGetProductById,
   getCategoryBySlug as mockGetCategoryBySlug,
 } from "./mock-data";
+
+// ---------------------------------------------------------------------------
+// In-memory TTL cache
+// ---------------------------------------------------------------------------
+
+interface CacheEntry<T> {
+  data: T;
+  expiresAt: number;
+}
+
+const cache = new Map<string, CacheEntry<unknown>>();
+
+function getCached<T>(key: string): T | null {
+  const entry = cache.get(key);
+  if (!entry) return null;
+  if (Date.now() > entry.expiresAt) {
+    cache.delete(key);
+    return null;
+  }
+  return entry.data as T;
+}
+
+function setCache<T>(key: string, data: T, ttlMs: number): void {
+  cache.set(key, { data, expiresAt: Date.now() + ttlMs });
+}
+
+const FIVE_MINUTES = 5 * 60 * 1000;
+const ONE_MINUTE = 60 * 1000;
 
 // ---------------------------------------------------------------------------
 // Firestore → App type mappers
@@ -91,51 +122,80 @@ export function firestoreCategoryToCategory(
 }
 
 // ---------------------------------------------------------------------------
+// Query limits — no query should ever load all 23k products
+// ---------------------------------------------------------------------------
+
+const CATEGORIES_LIMIT = 50;
+const PRODUCTS_PER_CATEGORY_LIMIT = 100;
+const SEARCH_RESULTS_LIMIT = 50;
+
+// ---------------------------------------------------------------------------
 // Public API
 // ---------------------------------------------------------------------------
 
 /**
  * Get all categories sorted by productCount descending.
+ * Limited to top 50 categories. Cached for 5 minutes.
  */
 export async function getCategories(): Promise<
   (Category & { productCount: number })[]
 > {
+  const cacheKey = "categories";
+  const cached = getCached<(Category & { productCount: number })[]>(cacheKey);
+  if (cached) return cached;
+
   try {
     const q = query(
       collection(db, "categories"),
       orderBy("productCount", "desc"),
+      firestoreLimit(CATEGORIES_LIMIT),
     );
     const snap = await getDocs(q);
     if (snap.empty) throw new Error("empty");
 
-    return snap.docs.map((d) =>
+    const result = snap.docs.map((d) =>
       firestoreCategoryToCategory(d.id, d.data()),
     );
+    setCache(cacheKey, result, FIVE_MINUTES);
+    return result;
   } catch {
     // Fallback to mock
-    return mockCategories.map((c) => ({ ...c, productCount: 0 }));
+    const fallback = mockCategories.map((c) => ({ ...c, productCount: 0 }));
+    setCache(cacheKey, fallback, ONE_MINUTE);
+    return fallback;
   }
 }
 
 /**
  * Get a single category by its slug.
  * In Firestore the document ID === slug.
+ * Cached for 5 minutes.
  */
 export async function getCategoryBySlug(
   slug: string,
 ): Promise<(Category & { productCount: number }) | null> {
+  const cacheKey = `category:${slug}`;
+  const cached = getCached<(Category & { productCount: number }) | null>(cacheKey);
+  if (cached !== null) return cached;
+
   try {
     const ref = doc(db, "categories", slug);
     const snap = await getDoc(ref);
     if (!snap.exists()) {
       // Try mock fallback
       const mock = mockGetCategoryBySlug(slug);
-      return mock ? { ...mock, productCount: 0 } : null;
+      const result = mock ? { ...mock, productCount: 0 } : null;
+      if (result) setCache(cacheKey, result, FIVE_MINUTES);
+      return result;
     }
-    return firestoreCategoryToCategory(snap.id, snap.data());
+    const result = firestoreCategoryToCategory(snap.id, snap.data());
+    setCache(cacheKey, result, FIVE_MINUTES);
+    return result;
   } catch {
     const mock = mockGetCategoryBySlug(slug);
-    return mock ? { ...mock, productCount: 0 } : null;
+    const result = mock ? { ...mock, productCount: 0 } : null;
+    if (result) setCache(cacheKey, result, ONE_MINUTE);
+    return result;
   }
 }
 
@@ -143,30 +203,35 @@ export async function getCategoryBySlug(
  * Get products by category slug.
  * Products store the category *name*, so we first resolve slug → name,
  * then query products where category == name.
+ * Default limit: 100 products per category. Cached for 5 minutes.
  */
 export async function getProductsByCategory(
   categorySlug: string,
   options?: { limit?: number },
 ): Promise<Product[]> {
+  const maxItems = options?.limit ?? PRODUCTS_PER_CATEGORY_LIMIT;
+  const cacheKey = `products:${categorySlug}:${maxItems}`;
+  const cached = getCached<Product[]>(cacheKey);
+  if (cached) return cached;
+
   try {
     // Resolve slug → category name
     const cat = await getCategoryBySlug(categorySlug);
     if (!cat) return [];
 
     const categoryName = cat.name;
-    let q = query(
+    const q = query(
       collection(db, "products"),
       where("category", "==", categoryName),
+      firestoreLimit(maxItems),
     );
-
-    if (options?.limit) {
-      q = query(q, firestoreLimit(options.limit));
-    }
 
     const snap = await getDocs(q);
     if (snap.empty) return [];
 
-    return snap.docs.map((d) => firestoreProductToProduct(d.id, d.data()));
+    const result = snap.docs.map((d) => firestoreProductToProduct(d.id, d.data()));
+    setCache(cacheKey, result, FIVE_MINUTES);
+    return result;
   } catch {
     return [];
   }
@@ -179,12 +244,18 @@ export async function getProductsByCategory(
 export async function getProductById(
   id: string,
 ): Promise<Product | null> {
+  const cacheKey = `product:${id}`;
+  const cached = getCached<Product | null>(cacheKey);
+  if (cached !== null) return cached;
+
   // Try Firestore first
   try {
     const ref = doc(db, "products", id);
     const snap = await getDoc(ref);
     if (snap.exists()) {
-      return firestoreProductToProduct(snap.id, snap.data());
+      const result = firestoreProductToProduct(snap.id, snap.data());
+      setCache(cacheKey, result, FIVE_MINUTES);
+      return result;
     }
   } catch {
     // fall through to mock
@@ -200,15 +271,17 @@ export async function getProductById(
  * Uses Firestore >= / <= range queries on `name` field as a prefix search,
  * plus a secondary client-side filter by article.
  *
- * Firestore doesn't support full-text search, so we fetch a broader set
- * and filter client-side. For a site with 19k products this is acceptable
- * for now; later you can add Algolia/Typesense.
+ * Limited to 50 results total. Cached for 1 minute.
  */
 export async function searchProducts(
   queryStr: string,
 ): Promise<Product[]> {
   const trimmed = queryStr.trim();
   if (!trimmed) return [];
+
+  const cacheKey = `search:${trimmed.toLowerCase()}`;
+  const cached = getCached<Product[]>(cacheKey);
+  if (cached) return cached;
 
   try {
     // Strategy 1: search by article (exact or prefix)
@@ -238,7 +311,7 @@ export async function searchProducts(
 
     // Name prefix search (try each variant)
     for (const variant of nameVariants) {
-      if (results.size >= 30) break;
+      if (results.size >= SEARCH_RESULTS_LIMIT) break;
       try {
         const nameQuery = query(
           collection(db, "products"),
@@ -258,11 +331,15 @@ export async function searchProducts(
     }
 
     if (results.size > 0) {
-      return Array.from(results.values());
+      const resultArray = Array.from(results.values()).slice(0, SEARCH_RESULTS_LIMIT);
+      setCache(cacheKey, resultArray, ONE_MINUTE);
+      return resultArray;
     }
 
     // If nothing found in Firestore, fall back to mock
-    return mockSearch(trimmed);
+    const mockResults = mockSearch(trimmed);
+    setCache(cacheKey, mockResults, ONE_MINUTE);
+    return mockResults;
   } catch {
     return mockSearch(trimmed);
   }
@@ -270,11 +347,16 @@ export async function searchProducts(
 
 /**
  * Get featured/popular products for homepage.
- * Returns products that are in stock, sorted by price descending (most expensive = "popular").
+ * Returns products that are in stock, sorted by quantity descending.
+ * Cached for 5 minutes.
  */
 export async function getFeaturedProducts(
   count: number = 8,
 ): Promise<Product[]> {
+  const cacheKey = `featured:${count}`;
+  const cached = getCached<Product[]>(cacheKey);
+  if (cached) return cached;
+
   try {
     const q = query(
       collection(db, "products"),
@@ -286,14 +368,19 @@ export async function getFeaturedProducts(
     const snap = await getDocs(q);
     if (snap.empty) throw new Error("empty");
 
-    return snap.docs.map((d) => firestoreProductToProduct(d.id, d.data()));
+    const result = snap.docs.map((d) => firestoreProductToProduct(d.id, d.data()));
+    setCache(cacheKey, result, FIVE_MINUTES);
+    return result;
   } catch {
-    return mockProducts.slice(0, count);
+    const fallback = mockProducts.slice(0, count);
+    setCache(cacheKey, fallback, ONE_MINUTE);
+    return fallback;
   }
 }
 
 /**
  * Get total product count (approximate — just sum category productCounts).
+ * Cached along with getCategories.
  */
 export async function getTotalProductCount(): Promise<number> {
   try {

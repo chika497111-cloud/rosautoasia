@@ -1,6 +1,12 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Vercel serverless: increase body size limit
+  experimental: {
+    serverActions: {
+      bodySizeLimit: "2mb",
+    },
+  },
   // Оптимизация изображений
   images: {
     formats: ["image/avif", "image/webp"],

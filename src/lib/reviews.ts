@@ -6,6 +6,7 @@ import {
   where,
   getDocs,
   orderBy,
+  limit as firestoreLimit,
   Timestamp,
 } from "firebase/firestore";
 
@@ -61,7 +62,8 @@ export async function getProductReviews(productId: string): Promise<Review[]> {
   const q = query(
     collection(db, "reviews"),
     where("productId", "==", productId),
-    orderBy("createdAt", "desc")
+    orderBy("createdAt", "desc"),
+    firestoreLimit(50),
   );
 
   const snap = await getDocs(q);

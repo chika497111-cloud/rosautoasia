@@ -18,6 +18,7 @@ import {
   doc,
   query,
   where,
+  limit as firestoreLimit,
 } from "firebase/firestore";
 import { firestoreProductToProduct, firestoreCategoryToCategory } from "@/lib/products-api";
 
@@ -45,10 +46,11 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
           const cat = firestoreCategoryToCategory(catSnap.id, catSnap.data());
           setCategory(cat);
 
-          // Fetch products by category name
+          // Fetch products by category name (limit to 100 to avoid timeout)
           const q = query(
             collection(db, "products"),
             where("category", "==", cat.name),
+            firestoreLimit(100),
           );
           const prodSnap = await getDocs(q);
           if (!cancelled) {

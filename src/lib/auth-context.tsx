@@ -23,6 +23,7 @@ import {
   updateDoc,
   deleteDoc,
   orderBy,
+  limit as firestoreLimit,
 } from "firebase/firestore";
 
 export type UserRole = "client" | "admin" | "manager";
@@ -123,8 +124,8 @@ async function fetchOrders(uid?: string): Promise<Order[]> {
   try {
     const ordersRef = collection(db, "orders");
     const q = uid
-      ? query(ordersRef, where("userId", "==", uid), orderBy("createdAt", "desc"))
-      : query(ordersRef, orderBy("createdAt", "desc"));
+      ? query(ordersRef, where("userId", "==", uid), orderBy("createdAt", "desc"), firestoreLimit(100))
+      : query(ordersRef, orderBy("createdAt", "desc"), firestoreLimit(200));
     const snap = await getDocs(q);
     return snap.docs.map((d) => {
       const data = d.data();
@@ -391,7 +392,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const getAllClients = useCallback(async (): Promise<User[]> => {
     try {
-      const q = query(collection(db, "users"), where("role", "==", "client"));
+      const q = query(collection(db, "users"), where("role", "==", "client"), firestoreLimit(500));
       const snap = await getDocs(q);
       return snap.docs.map((d) => {
         const data = d.data();
@@ -461,7 +462,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const getStaffAccounts = useCallback(async (): Promise<User[]> => {
     try {
-      const q = query(collection(db, "users"), where("role", "in", ["admin", "manager"]));
+      const q = query(collection(db, "users"), where("role", "in", ["admin", "manager"]), firestoreLimit(50));
       const snap = await getDocs(q);
       return snap.docs.map((d) => {
         const data = d.data();
