@@ -195,13 +195,8 @@ export default function CategoryClient({
 
   const sectionRef = useRef<HTMLElement>(null);
 
-  // Scroll to top of products when filter changes
   const withScrollLock = (fn: () => void) => {
     fn();
-    // Scroll to top of grid after filter to avoid being stuck at bottom
-    requestAnimationFrame(() => {
-      gridRef.current?.scrollIntoView({ behavior: "instant", block: "start" });
-    });
   };
 
   const toggleCarBrand = (brand: string) => {
