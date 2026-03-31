@@ -4,6 +4,7 @@ import { useState, type FormEvent } from "react";
 import { validatePhone } from "@/lib/phone-utils";
 import { db } from "@/lib/firebase";
 import { collection, addDoc } from "firebase/firestore";
+import { sendContactEmail } from "./actions";
 
 export default function ContactForm() {
   const [name, setName] = useState("");
@@ -42,14 +43,21 @@ export default function ContactForm() {
     setSending(true);
 
     try {
-      // Save to Firestore
-      await addDoc(collection(db, "contact_requests"), {
-        name: name.trim(),
-        phone: phone.trim(),
-        message: message.trim(),
-        createdAt: new Date().toISOString(),
-        status: "new",
-      });
+      // Save to Firestore + send email in parallel
+      await Promise.all([
+        addDoc(collection(db, "contact_requests"), {
+          name: name.trim(),
+          phone: phone.trim(),
+          message: message.trim(),
+          createdAt: new Date().toISOString(),
+          status: "new",
+        }),
+        sendContactEmail({
+          name: name.trim(),
+          phone: phone.trim(),
+          message: message.trim(),
+        }),
+      ]);
 
       // Send Telegram notification
       import("@/lib/telegram").then(({ notifyNewOrder }) => {
