@@ -166,25 +166,21 @@ function generateOrderNumber(): string {
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  // Instant load from localStorage cache (optimistic)
-  const [user, setUser] = useState<User | null>(() => {
-    if (typeof window === "undefined") return null;
+  // Start with null/empty — identical on server and client to avoid hydration mismatch.
+  // localStorage cache is loaded in useEffect below.
+  const [user, setUser] = useState<User | null>(null);
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Load cached data from localStorage after mount (client only)
+  useEffect(() => {
     try {
-      const cached = localStorage.getItem("roa_user_cache");
-      return cached ? JSON.parse(cached) : null;
-    } catch { return null; }
-  });
-  const [orders, setOrders] = useState<Order[]>(() => {
-    if (typeof window === "undefined") return [];
-    try {
-      const cached = localStorage.getItem("roa_orders_cache");
-      return cached ? JSON.parse(cached) : [];
-    } catch { return []; }
-  });
-  const [isLoading, setIsLoading] = useState(() => {
-    if (typeof window === "undefined") return true;
-    return !localStorage.getItem("roa_user_cache");
-  });
+      const cachedUser = localStorage.getItem("roa_user_cache");
+      if (cachedUser) setUser(JSON.parse(cachedUser));
+      const cachedOrders = localStorage.getItem("roa_orders_cache");
+      if (cachedOrders) setOrders(JSON.parse(cachedOrders));
+    } catch { /* ignore */ }
+  }, []);
 
   // Sync cache when user/orders change
   useEffect(() => {
