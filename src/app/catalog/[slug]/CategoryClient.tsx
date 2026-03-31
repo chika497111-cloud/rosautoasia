@@ -195,34 +195,24 @@ export default function CategoryClient({
 
   const sectionRef = useRef<HTMLElement>(null);
 
-  const withScrollLock = (fn: () => void) => {
-    fn();
-  };
-
   const toggleCarBrand = (brand: string) => {
-    withScrollLock(() => {
-      setSelectedCarBrands((prev) =>
-        prev.includes(brand) ? prev.filter((b) => b !== brand) : [...prev, brand]
-      );
-    });
+    setSelectedCarBrands((prev) =>
+      prev.includes(brand) ? prev.filter((b) => b !== brand) : [...prev, brand]
+    );
   };
 
   const toggleBrand = (brand: string) => {
-    withScrollLock(() => {
-      setSelectedBrands((prev) =>
-        prev.includes(brand) ? prev.filter((b) => b !== brand) : [...prev, brand]
-      );
-    });
+    setSelectedBrands((prev) =>
+      prev.includes(brand) ? prev.filter((b) => b !== brand) : [...prev, brand]
+    );
   };
 
   const resetFilters = () => {
-    withScrollLock(() => {
-      setSelectedCarBrands([]);
-      setSelectedBrands([]);
-      setInStockOnly(false);
-      setSortBy("default");
-      setPriceMax(maxPrice);
-    });
+    setSelectedCarBrands([]);
+    setSelectedBrands([]);
+    setInStockOnly(false);
+    setSortBy("default");
+    setPriceMax(maxPrice);
   };
 
   // Show loading overlay when fetching a page or loading all products for filters
@@ -413,7 +403,7 @@ export default function CategoryClient({
                   type="radio"
                   name="stock"
                   checked={!inStockOnly}
-                  onChange={() => withScrollLock(() => setInStockOnly(false))}
+                  onChange={() => () => setInStockOnly(false)}
                   className="text-primary focus:ring-primary"
                 />
                 <span>Все товары</span>
@@ -423,7 +413,7 @@ export default function CategoryClient({
                   type="radio"
                   name="stock"
                   checked={inStockOnly}
-                  onChange={() => withScrollLock(() => setInStockOnly(true))}
+                  onChange={() => () => setInStockOnly(true)}
                   className="text-primary focus:ring-primary"
                 />
                 <span>В наличии</span>
@@ -443,15 +433,15 @@ export default function CategoryClient({
           </div>
         </aside>
 
-        {/* Main Content Area */}
-        <section ref={sectionRef} className="flex-1" style={{ minHeight: "calc(100vh - 200px)" }}>
+        {/* Main Content Area — fixed min-height prevents scroll jumping on filter */}
+        <section ref={sectionRef} className="flex-1" style={{ minHeight: "2000px" }}>
           {/* Sorting & View Controls */}
           <div className="flex flex-wrap justify-between items-center bg-surface-low rounded-xl px-6 py-4 mb-8 gap-4">
             <div className="flex items-center gap-4">
               <span className="text-sm font-semibold text-on-surface-variant">Сортировка:</span>
               <select
                 value={sortBy}
-                onChange={(e) => withScrollLock(() => setSortBy(e.target.value))}
+                onChange={(e) => () => setSortBy(e.target.value)}
                 className="bg-transparent border-none text-sm font-bold text-primary focus:ring-0 cursor-pointer"
               >
                 <option value="default">По популярности</option>
