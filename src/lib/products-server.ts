@@ -1,5 +1,6 @@
 import "server-only";
 
+import { unstable_cache } from "next/cache";
 import { getAdminFirestore } from "./firebase-admin";
 import type { Product, Category } from "./mock-data";
 import {
@@ -67,7 +68,7 @@ export async function getCategories(): Promise<(Category & { productCount: numbe
   }
 }
 
-export async function getCategoryBySlug(slug: string): Promise<(Category & { productCount: number }) | null> {
+async function _getCategoryBySlug(slug: string): Promise<(Category & { productCount: number }) | null> {
   try {
     const db = getAdminFirestore();
     const snap = await db.collection("categories").doc(slug).get();
@@ -81,6 +82,13 @@ export async function getCategoryBySlug(slug: string): Promise<(Category & { pro
     return mock ? { ...mock, productCount: 0 } : null;
   }
 }
+
+/** Cached version — revalidates every 60 seconds */
+export const getCategoryBySlug = unstable_cache(
+  _getCategoryBySlug,
+  ["category-by-slug"],
+  { revalidate: 60 },
+);
 
 export async function getProductsByCategory(categorySlug: string, options?: { limit?: number }): Promise<Product[]> {
   try {
@@ -98,11 +106,7 @@ export async function getProductsByCategory(categorySlug: string, options?: { li
   }
 }
 
-/**
- * Paginated product fetch for a category. Returns products for a given page
- * plus total count (from category doc).
- */
-export async function getProductsByCategoryPage(
+async function _getProductsByCategoryPage(
   categorySlug: string,
   page: number = 1,
   pageSize: number = 48,
@@ -136,6 +140,13 @@ export async function getProductsByCategoryPage(
     };
   }
 }
+
+/** Cached paginated fetch — revalidates every 60 seconds */
+export const getProductsByCategoryPage = unstable_cache(
+  _getProductsByCategoryPage,
+  ["products-by-category-page"],
+  { revalidate: 60 },
+);
 
 export async function getProductById(id: string): Promise<Product | null> {
   try {
