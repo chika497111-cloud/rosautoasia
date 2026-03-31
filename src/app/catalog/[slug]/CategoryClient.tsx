@@ -193,21 +193,15 @@ export default function CategoryClient({
   const carBrands = [...new Set(sourceProducts.map((p) => p.car_brand).filter(Boolean))];
   const brands = [...new Set(sourceProducts.map((p) => p.brand).filter(Boolean))];
 
-  // Prevent layout shift: freeze the section height during filter changes
   const sectionRef = useRef<HTMLElement>(null);
 
+  // Scroll to top of products when filter changes
   const withScrollLock = (fn: () => void) => {
-    // Freeze the section height so page doesn't jump
-    if (sectionRef.current) {
-      sectionRef.current.style.minHeight = sectionRef.current.offsetHeight + "px";
-    }
     fn();
-    // Release after paint
-    setTimeout(() => {
-      if (sectionRef.current) {
-        sectionRef.current.style.minHeight = "";
-      }
-    }, 100);
+    // Scroll to top of grid after filter to avoid being stuck at bottom
+    requestAnimationFrame(() => {
+      gridRef.current?.scrollIntoView({ behavior: "instant", block: "start" });
+    });
   };
 
   const toggleCarBrand = (brand: string) => {
@@ -455,7 +449,7 @@ export default function CategoryClient({
         </aside>
 
         {/* Main Content Area */}
-        <section ref={sectionRef} className="flex-1">
+        <section ref={sectionRef} className="flex-1" style={{ minHeight: "calc(100vh - 200px)" }}>
           {/* Sorting & View Controls */}
           <div className="flex flex-wrap justify-between items-center bg-surface-low rounded-xl px-6 py-4 mb-8 gap-4">
             <div className="flex items-center gap-4">
