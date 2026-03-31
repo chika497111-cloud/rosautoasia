@@ -19,6 +19,9 @@ import {
   query,
   where,
   limit as firestoreLimit,
+  startAfter,
+  orderBy,
+  type QueryDocumentSnapshot,
 } from "firebase/firestore";
 import { firestoreProductToProduct, firestoreCategoryToCategory } from "@/lib/products-api";
 
@@ -27,6 +30,9 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
   const slug = decodeURIComponent(rawSlug);
   const { addItem } = useCart();
   const { addToCompare, isInCompare, removeFromCompare } = useComparison();
+
+  const BATCH_SIZE = 500; // Firestore batch size for loading
+  const PAGE_SIZE = 48; // Products shown per page in UI
 
   const [category, setCategory] = useState<(Category & { productCount?: number }) | null>(null);
   const [categoryProducts, setCategoryProducts] = useState<Product[]>([]);
@@ -38,6 +44,12 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
   const [sortBy, setSortBy] = useState("default");
   const [priceMax, setPriceMax] = useState(50000);
   const [showMobileFilters, setShowMobileFilters] = useState(false);
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+
+  // Reset visible count when filters/sort change
+  useEffect(() => {
+    setVisibleCount(PAGE_SIZE);
+  }, [selectedCarBrands, selectedBrands, inStockOnly, sortBy, priceMax]);
 
   useEffect(() => {
     let cancelled = false;
@@ -52,17 +64,33 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
           const cat = firestoreCategoryToCategory(catSnap.id, catSnap.data());
           setCategory(cat);
 
-          // Fetch products by category name (limit to 100 to avoid timeout)
-          const q = query(
-            collection(db, "products"),
-            where("category", "==", cat.name),
-            firestoreLimit(100),
-          );
-          const prodSnap = await getDocs(q);
-          if (!cancelled) {
-            setCategoryProducts(
-              prodSnap.docs.map((d) => firestoreProductToProduct(d.id, d.data())),
-            );
+          // Fetch ALL products in batches (no limit)
+          const allProducts: Product[] = [];
+          let lastDoc: QueryDocumentSnapshot | null = null;
+          let hasMore = true;
+
+          while (hasMore && !cancelled) {
+            const constraints = [
+              where("category", "==", cat.name),
+              orderBy("__name__"),
+              firestoreLimit(BATCH_SIZE),
+            ];
+            if (lastDoc) constraints.push(startAfter(lastDoc));
+
+            const q = query(collection(db, "products"), ...constraints);
+            const snap = await getDocs(q);
+
+            const batch = snap.docs.map((d) => firestoreProductToProduct(d.id, d.data()));
+            allProducts.push(...batch);
+
+            // Update UI progressively — show products as they load
+            if (!cancelled) setCategoryProducts([...allProducts]);
+
+            if (snap.docs.length < BATCH_SIZE) {
+              hasMore = false;
+            } else {
+              lastDoc = snap.docs[snap.docs.length - 1];
+            }
           }
         } else if (!cancelled) {
           // Fallback to mock
@@ -434,7 +462,7 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredProducts.map((product) => (
+              {filteredProducts.slice(0, visibleCount).map((product) => (
                 <article
                   key={product.id}
                   className="bg-surface-lowest rounded-xl p-5 warm-shadow group transition-all hover:-translate-y-1 relative"
@@ -532,6 +560,21 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
                   </div>
                 </article>
               ))}
+            </div>
+          )}
+
+          {/* Load more button */}
+          {filteredProducts.length > visibleCount && (
+            <div className="text-center mt-10">
+              <p className="text-sm text-on-surface-variant mb-3">
+                Показано {visibleCount} из {filteredProducts.length} товаров
+              </p>
+              <button
+                onClick={() => setVisibleCount((prev) => prev + PAGE_SIZE)}
+                className="cta-gradient text-white font-bold px-10 py-3 rounded-full shadow-lg hover:shadow-xl hover:shadow-primary/25 transition-all active:scale-95"
+              >
+                Показать ещё {Math.min(PAGE_SIZE, filteredProducts.length - visibleCount)} товаров
+              </button>
             </div>
           )}
         </section>
