@@ -1,4 +1,4 @@
-const TELEGRAM_BOT_TOKEN = "7963530513:AAHamqEBRhklS49YcBvMZoRd37YK71ZTt58";
+const TELEGRAM_BOT_TOKEN = process.env.NEXT_PUBLIC_TELEGRAM_BOT_TOKEN || "";
 
 // Chat IDs for admin notifications — will be populated by /start command
 // For now, use the bot's getUpdates to find chat_id
