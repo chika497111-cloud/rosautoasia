@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useMemo, use, useEffect } from "react";
+import { useState, useMemo, use, useEffect, useRef } from "react";
 import { notFound } from "next/navigation";
 import { useCart } from "@/lib/cart-context";
 import { useComparison } from "@/lib/comparison-context";
@@ -44,11 +44,14 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
   const [sortBy, setSortBy] = useState("default");
   const [priceMax, setPriceMax] = useState(50000);
   const [showMobileFilters, setShowMobileFilters] = useState(false);
-  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [jumpInput, setJumpInput] = useState("");
+  const [showJumpInput, setShowJumpInput] = useState(false);
+  const gridRef = useRef<HTMLDivElement>(null);
 
-  // Reset visible count when filters/sort change
+  // Reset to page 1 when filters/sort change
   useEffect(() => {
-    setVisibleCount(PAGE_SIZE);
+    setCurrentPage(1);
   }, [selectedCarBrands, selectedBrands, inStockOnly, sortBy, priceMax]);
 
   useEffect(() => {
@@ -457,8 +460,8 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredProducts.slice(0, visibleCount).map((product) => (
+            <div ref={gridRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredProducts.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE).map((product) => (
                 <article
                   key={product.id}
                   className="bg-surface-lowest rounded-xl p-5 warm-shadow group transition-all hover:-translate-y-1 relative"
@@ -559,20 +562,119 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
             </div>
           )}
 
-          {/* Load more button */}
-          {filteredProducts.length > visibleCount && (
-            <div className="text-center mt-10">
-              <p className="text-sm text-on-surface-variant mb-3">
-                Показано {visibleCount} из {filteredProducts.length} товаров
-              </p>
-              <button
-                onClick={() => setVisibleCount((prev) => prev + PAGE_SIZE)}
-                className="cta-gradient text-white font-bold px-10 py-3 rounded-full shadow-lg hover:shadow-xl hover:shadow-primary/25 transition-all active:scale-95"
-              >
-                Показать ещё {Math.min(PAGE_SIZE, filteredProducts.length - visibleCount)} товаров
-              </button>
-            </div>
-          )}
+          {/* Pagination */}
+          {(() => {
+            const totalPages = Math.ceil(filteredProducts.length / PAGE_SIZE);
+            if (totalPages <= 1) return null;
+
+            const goToPage = (page: number) => {
+              setCurrentPage(Math.max(1, Math.min(page, totalPages)));
+              gridRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+            };
+
+            // Build page numbers: 1, 2, 3, ..., last
+            const pages: (number | "dots")[] = [];
+            if (totalPages <= 7) {
+              for (let i = 1; i <= totalPages; i++) pages.push(i);
+            } else {
+              pages.push(1);
+              if (currentPage > 3) pages.push("dots");
+              for (let i = Math.max(2, currentPage - 1); i <= Math.min(totalPages - 1, currentPage + 1); i++) {
+                pages.push(i);
+              }
+              if (currentPage < totalPages - 2) pages.push("dots");
+              pages.push(totalPages);
+            }
+
+            const from = (currentPage - 1) * PAGE_SIZE + 1;
+            const to = Math.min(currentPage * PAGE_SIZE, filteredProducts.length);
+
+            return (
+              <div className="mt-10 space-y-4">
+                <p className="text-sm text-on-surface-variant text-center">
+                  Показано {from}–{to} из {filteredProducts.length} товаров
+                </p>
+                <div className="flex items-center justify-center gap-2 flex-wrap">
+                  {/* Prev arrow */}
+                  <button
+                    onClick={() => goToPage(currentPage - 1)}
+                    disabled={currentPage === 1}
+                    className="w-10 h-10 rounded-full flex items-center justify-center transition-all disabled:opacity-30 disabled:cursor-not-allowed hover:bg-surface-mid active:scale-90"
+                  >
+                    <span className="material-symbols-outlined text-lg">chevron_left</span>
+                  </button>
+
+                  {pages.map((page, i) =>
+                    page === "dots" ? (
+                      <button
+                        key={`dots-${i}`}
+                        onClick={() => setShowJumpInput(!showJumpInput)}
+                        className="w-10 h-10 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-mid transition-all text-sm font-bold"
+                        title="Перейти к странице..."
+                      >
+                        •••
+                      </button>
+                    ) : (
+                      <button
+                        key={page}
+                        onClick={() => goToPage(page)}
+                        className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold transition-all active:scale-90 ${
+                          page === currentPage
+                            ? "cta-gradient text-white shadow-md"
+                            : "hover:bg-surface-mid text-on-surface-variant"
+                        }`}
+                      >
+                        {page}
+                      </button>
+                    )
+                  )}
+
+                  {/* Next arrow */}
+                  <button
+                    onClick={() => goToPage(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                    className="w-10 h-10 rounded-full flex items-center justify-center transition-all disabled:opacity-30 disabled:cursor-not-allowed hover:bg-surface-mid active:scale-90"
+                  >
+                    <span className="material-symbols-outlined text-lg">chevron_right</span>
+                  </button>
+                </div>
+
+                {/* Jump to page input */}
+                {showJumpInput && (
+                  <form
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      const num = parseInt(jumpInput, 10);
+                      if (num >= 1 && num <= totalPages) {
+                        goToPage(num);
+                        setShowJumpInput(false);
+                        setJumpInput("");
+                      }
+                    }}
+                    className="flex items-center justify-center gap-2"
+                  >
+                    <span className="text-sm text-on-surface-variant">Страница:</span>
+                    <input
+                      type="number"
+                      min={1}
+                      max={totalPages}
+                      value={jumpInput}
+                      onChange={(e) => setJumpInput(e.target.value)}
+                      placeholder={`1–${totalPages}`}
+                      className="w-20 px-3 py-2 rounded-lg border border-outline-variant/30 text-sm text-center focus:outline-none focus:ring-2 focus:ring-primary"
+                      autoFocus
+                    />
+                    <button
+                      type="submit"
+                      className="cta-gradient text-white text-sm font-bold px-4 py-2 rounded-lg active:scale-95 transition-transform"
+                    >
+                      Перейти
+                    </button>
+                  </form>
+                )}
+              </div>
+            );
+          })()}
         </section>
       </div>
     </main>
