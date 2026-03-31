@@ -328,9 +328,9 @@ export default function CategoryClient({
         </div>
       )}
 
-      <div className="flex flex-col md:flex-row gap-8 items-start">
-        {/* Desktop Sidebar Filters */}
-        <aside className="hidden md:flex w-64 rounded-xl bg-surface-mid warm-shadow flex-col shrink-0" style={{ overflowAnchor: "auto" }}>
+      <div className="flex flex-col md:flex-row gap-8 md:h-[calc(100vh-220px)]">
+        {/* Desktop Sidebar Filters — own scroll */}
+        <aside className="hidden md:flex w-64 rounded-xl bg-surface-mid warm-shadow flex-col shrink-0 overflow-y-auto">
           <div className="py-6 px-6 pb-2">
             <h3 className="font-[family-name:var(--font-headline)] font-bold text-on-surface mb-1">
               Фильтры
@@ -419,7 +419,7 @@ export default function CategoryClient({
                   type="radio"
                   name="stock"
                   checked={!inStockOnly}
-                  onChange={() => () => setInStockOnly(false)}
+                  onChange={() => setInStockOnly(false)}
                   className="text-primary focus:ring-primary"
                 />
                 <span>Все товары</span>
@@ -429,7 +429,7 @@ export default function CategoryClient({
                   type="radio"
                   name="stock"
                   checked={inStockOnly}
-                  onChange={() => () => setInStockOnly(true)}
+                  onChange={() => setInStockOnly(true)}
                   className="text-primary focus:ring-primary"
                 />
                 <span>В наличии</span>
@@ -449,15 +449,15 @@ export default function CategoryClient({
           </div>
         </aside>
 
-        {/* Main Content Area */}
-        <section ref={sectionRef} className="flex-1" style={{ overflowAnchor: "none" }}>
+        {/* Main Content Area — own scroll */}
+        <section ref={sectionRef} className="flex-1 overflow-y-auto">
           {/* Sorting & View Controls */}
           <div className="flex flex-wrap justify-between items-center bg-surface-low rounded-xl px-6 py-4 mb-8 gap-4">
             <div className="flex items-center gap-4">
               <span className="text-sm font-semibold text-on-surface-variant">Сортировка:</span>
               <select
                 value={sortBy}
-                onChange={(e) => () => setSortBy(e.target.value)}
+                onChange={(e) => setSortBy(e.target.value)}
                 className="bg-transparent border-none text-sm font-bold text-primary focus:ring-0 cursor-pointer"
               >
                 <option value="default">По популярности</option>
@@ -608,7 +608,7 @@ export default function CategoryClient({
 
             const goToPage = (page: number) => {
               setCurrentPage(Math.max(1, Math.min(page, totalPages)));
-              gridRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+              sectionRef.current?.scrollTo({ top: 0, behavior: "smooth" });
             };
 
             // Build page numbers: 1, 2, 3, ..., last
