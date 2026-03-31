@@ -106,16 +106,30 @@ export default function ContactForm() {
 
   if (submitted) {
     return (
-      <div className="bg-primary-container/10 p-10 rounded-xl warm-shadow text-center space-y-4">
-        <div className="w-16 h-16 mx-auto bg-primary-container/20 rounded-full flex items-center justify-center">
-          <span className="material-symbols-outlined text-primary text-3xl">check_circle</span>
+      <div className="bg-primary-container/10 p-10 rounded-xl warm-shadow text-center space-y-4 animate-[fadeScaleIn_0.5s_ease-out]">
+        <div className="w-20 h-20 mx-auto bg-green-100 rounded-full flex items-center justify-center animate-[bounceIn_0.6s_ease-out]">
+          <svg className="w-10 h-10 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" className="animate-[drawCheck_0.4s_ease-out_0.3s_both]" style={{ strokeDasharray: 24, strokeDashoffset: 24, animation: "drawCheck 0.4s ease-out 0.3s forwards" }} />
+          </svg>
         </div>
-        <h3 className="text-2xl font-bold font-[family-name:var(--font-headline)] text-[#451A03]">
-          Спасибо! Ваша заявка отправлена.
+        <h3 className="text-2xl font-bold font-[family-name:var(--font-headline)] text-[#451A03] animate-[fadeUp_0.4s_ease-out_0.2s_both]">
+          Спасибо! Заявка отправлена
         </h3>
-        <p className="text-on-surface-variant font-medium">
-          Мы свяжемся с вами в ближайшее время.
+        <p className="text-on-surface-variant font-medium animate-[fadeUp_0.4s_ease-out_0.35s_both]">
+          Мы свяжемся с вами в ближайшее время
         </p>
+        <button
+          onClick={() => { setSubmitted(false); setName(""); setPhone(""); setMessage(""); }}
+          className="text-primary font-semibold hover:underline underline-offset-4 transition-colors animate-[fadeUp_0.4s_ease-out_0.5s_both]"
+        >
+          Отправить ещё одну заявку
+        </button>
+        <style>{`
+          @keyframes fadeScaleIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+          @keyframes bounceIn { 0% { opacity: 0; transform: scale(0); } 50% { transform: scale(1.15); } 100% { opacity: 1; transform: scale(1); } }
+          @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+          @keyframes drawCheck { to { stroke-dashoffset: 0; } }
+        `}</style>
       </div>
     );
   }
