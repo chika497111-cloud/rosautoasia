@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useMemo, useEffect, useRef, useCallback } from "react";
+import { useState, useMemo, useEffect, useRef, useCallback, useTransition } from "react";
 import { useCart } from "@/lib/cart-context";
 import { useComparison } from "@/lib/comparison-context";
 import type { Product, Category } from "@/lib/mock-data";
@@ -194,25 +194,32 @@ export default function CategoryClient({
   const brands = [...new Set(sourceProducts.map((p) => p.brand).filter(Boolean))];
 
   const sectionRef = useRef<HTMLElement>(null);
+  const [isPending, startTransition] = useTransition();
 
   const toggleCarBrand = (brand: string) => {
-    setSelectedCarBrands((prev) =>
-      prev.includes(brand) ? prev.filter((b) => b !== brand) : [...prev, brand]
-    );
+    startTransition(() => {
+      setSelectedCarBrands((prev) =>
+        prev.includes(brand) ? prev.filter((b) => b !== brand) : [...prev, brand]
+      );
+    });
   };
 
   const toggleBrand = (brand: string) => {
-    setSelectedBrands((prev) =>
-      prev.includes(brand) ? prev.filter((b) => b !== brand) : [...prev, brand]
-    );
+    startTransition(() => {
+      setSelectedBrands((prev) =>
+        prev.includes(brand) ? prev.filter((b) => b !== brand) : [...prev, brand]
+      );
+    });
   };
 
   const resetFilters = () => {
-    setSelectedCarBrands([]);
-    setSelectedBrands([]);
-    setInStockOnly(false);
-    setSortBy("default");
-    setPriceMax(maxPrice);
+    startTransition(() => {
+      setSelectedCarBrands([]);
+      setSelectedBrands([]);
+      setInStockOnly(false);
+      setSortBy("default");
+      setPriceMax(maxPrice);
+    });
   };
 
   // Show loading overlay when fetching a page or loading all products for filters
@@ -483,7 +490,7 @@ export default function CategoryClient({
               </button>
             </div>
           ) : !isLoading ? (
-            <div ref={gridRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div ref={gridRef} className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 transition-opacity duration-200 ${isPending ? "opacity-60" : "opacity-100"}`}>
               {currentPageProducts.map((product) => (
                 <article
                   key={product.id}
