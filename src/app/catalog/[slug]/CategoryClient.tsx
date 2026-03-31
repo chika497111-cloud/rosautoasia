@@ -193,23 +193,21 @@ export default function CategoryClient({
   const carBrands = [...new Set(sourceProducts.map((p) => p.car_brand).filter(Boolean))];
   const brands = [...new Set(sourceProducts.map((p) => p.brand).filter(Boolean))];
 
-  // Lock scroll position during filter changes to prevent jerking
-  const scrollLockRef = useRef(false);
-
-  useEffect(() => {
-    if (scrollLockRef.current) {
-      scrollLockRef.current = false;
-    }
-  }, [filteredProducts]);
+  // Prevent layout shift: freeze the section height during filter changes
+  const sectionRef = useRef<HTMLElement>(null);
 
   const withScrollLock = (fn: () => void) => {
-    const scrollY = window.scrollY;
-    scrollLockRef.current = true;
+    // Freeze the section height so page doesn't jump
+    if (sectionRef.current) {
+      sectionRef.current.style.minHeight = sectionRef.current.offsetHeight + "px";
+    }
     fn();
-    // Restore scroll after React re-render
-    requestAnimationFrame(() => {
-      window.scrollTo(0, scrollY);
-    });
+    // Release after paint
+    setTimeout(() => {
+      if (sectionRef.current) {
+        sectionRef.current.style.minHeight = "";
+      }
+    }, 100);
   };
 
   const toggleCarBrand = (brand: string) => {
@@ -426,7 +424,7 @@ export default function CategoryClient({
                   type="radio"
                   name="stock"
                   checked={!inStockOnly}
-                  onChange={() => setInStockOnly(false)}
+                  onChange={() => withScrollLock(() => setInStockOnly(false))}
                   className="text-primary focus:ring-primary"
                 />
                 <span>Все товары</span>
@@ -436,7 +434,7 @@ export default function CategoryClient({
                   type="radio"
                   name="stock"
                   checked={inStockOnly}
-                  onChange={() => setInStockOnly(true)}
+                  onChange={() => withScrollLock(() => setInStockOnly(true))}
                   className="text-primary focus:ring-primary"
                 />
                 <span>В наличии</span>
@@ -457,14 +455,14 @@ export default function CategoryClient({
         </aside>
 
         {/* Main Content Area */}
-        <section className="flex-1">
+        <section ref={sectionRef} className="flex-1">
           {/* Sorting & View Controls */}
           <div className="flex flex-wrap justify-between items-center bg-surface-low rounded-xl px-6 py-4 mb-8 gap-4">
             <div className="flex items-center gap-4">
               <span className="text-sm font-semibold text-on-surface-variant">Сортировка:</span>
               <select
                 value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
+                onChange={(e) => withScrollLock(() => setSortBy(e.target.value))}
                 className="bg-transparent border-none text-sm font-bold text-primary focus:ring-0 cursor-pointer"
               >
                 <option value="default">По популярности</option>
@@ -506,7 +504,7 @@ export default function CategoryClient({
               </button>
             </div>
           ) : !isLoading ? (
-            <div ref={gridRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" style={{ minHeight: "80vh", overflowAnchor: "none" }}>
+            <div ref={gridRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {currentPageProducts.map((product) => (
                 <article
                   key={product.id}
