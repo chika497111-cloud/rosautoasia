@@ -24,6 +24,7 @@ export default function AccountPage() {
   const [editCity, setEditCity] = useState("");
   const [editAddress, setEditAddress] = useState("");
   const [saving, setSaving] = useState(false);
+  const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
 
   if (isLoading) {
     return <AccountSkeleton />;
@@ -241,44 +242,111 @@ export default function AccountPage() {
             <div className="space-y-4">
               {sortedOrders.map((order) => {
                 const status = statusLabels[order.status] || statusLabels.new;
+                const isExpanded = expandedOrder === order.id;
+                const deliveryLabels: Record<string, string> = { pickup: "Самовывоз", courier: "Курьер", regional: "Доставка по регионам" };
+                const paymentLabels: Record<string, string> = { cash: "Наличные", elsom: "Элсом", card: "Карта" };
+
                 return (
-                  <div key={order.id} className="bg-surface-low rounded-xl p-5 transition-all hover:warm-shadow">
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center gap-3">
+                  <div key={order.id} className="bg-surface-low rounded-xl overflow-hidden transition-all hover:warm-shadow">
+                    {/* Header — clickable */}
+                    <button
+                      onClick={() => setExpandedOrder(isExpanded ? null : order.id)}
+                      className="w-full p-5 flex items-center justify-between text-left"
+                    >
+                      <div className="flex items-center gap-3 flex-wrap">
                         <span className="font-bold text-on-surface text-lg">{order.number}</span>
                         <span className={`text-xs px-3 py-1 rounded-full font-medium ${status.color}`}>
                           {status.text}
                         </span>
+                        <span className="text-sm text-on-surface-variant">
+                          {new Date(order.createdAt).toLocaleDateString("ru-RU")}
+                        </span>
                       </div>
-                      <span className="text-sm text-on-surface-variant">
-                        {new Date(order.createdAt).toLocaleDateString("ru-RU")},{" "}
-                        {new Date(order.createdAt).toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" })}
-                      </span>
-                    </div>
+                      <div className="flex items-center gap-3">
+                        <span className="font-bold text-[#451A03]">
+                          {order.total.toLocaleString("ru-RU")} сом
+                        </span>
+                        <span className={`material-symbols-outlined text-on-surface-variant transition-transform ${isExpanded ? "rotate-180" : ""}`}>
+                          expand_more
+                        </span>
+                      </div>
+                    </button>
 
-                    <div className="divide-y divide-outline-variant/20">
-                      {order.items.map((item, i) => (
-                        <div key={i} className="flex justify-between py-2 text-sm">
-                          <span className="text-on-surface-variant">
-                            {item.name} <span className="text-outline">x{item.quantity}</span>
-                          </span>
-                          <span className="text-on-surface font-medium">
-                            {(item.price * item.quantity).toLocaleString("ru-RU")} сом
+                    {/* Expandable details */}
+                    {isExpanded && (
+                      <div className="px-5 pb-5 space-y-4">
+                        {/* Order info */}
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">
+                          <div>
+                            <span className="text-on-surface-variant block text-xs uppercase tracking-wider">Дата</span>
+                            <span className="font-medium text-on-surface">
+                              {new Date(order.createdAt).toLocaleDateString("ru-RU")},{" "}
+                              {new Date(order.createdAt).toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" })}
+                            </span>
+                          </div>
+                          {order.deliveryMethod && (
+                            <div>
+                              <span className="text-on-surface-variant block text-xs uppercase tracking-wider">Доставка</span>
+                              <span className="font-medium text-on-surface">{deliveryLabels[order.deliveryMethod] || order.deliveryMethod}</span>
+                            </div>
+                          )}
+                          {order.paymentMethod && (
+                            <div>
+                              <span className="text-on-surface-variant block text-xs uppercase tracking-wider">Оплата</span>
+                              <span className="font-medium text-on-surface">{paymentLabels[order.paymentMethod] || order.paymentMethod}</span>
+                            </div>
+                          )}
+                          {order.city && (
+                            <div>
+                              <span className="text-on-surface-variant block text-xs uppercase tracking-wider">Город</span>
+                              <span className="font-medium text-on-surface">{order.city}</span>
+                            </div>
+                          )}
+                        </div>
+
+                        {order.deliveryAddress && (
+                          <div className="text-sm">
+                            <span className="text-on-surface-variant text-xs uppercase tracking-wider">Адрес доставки: </span>
+                            <span className="text-on-surface">{order.deliveryAddress}</span>
+                          </div>
+                        )}
+
+                        {/* Items */}
+                        <div className="divide-y divide-outline-variant/20">
+                          {order.items.map((item, i) => (
+                            <div key={i} className="flex justify-between py-2 text-sm">
+                              <span className="text-on-surface-variant">
+                                {item.name}{" "}
+                                {item.article && <span className="text-outline text-xs">({item.article})</span>}{" "}
+                                <span className="text-outline">x{item.quantity}</span>
+                              </span>
+                              <span className="text-on-surface font-medium whitespace-nowrap ml-4">
+                                {(item.price * item.quantity).toLocaleString("ru-RU")} сом
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+
+                        <div className="border-t border-outline-variant/30 pt-3 flex justify-between">
+                          <span className="font-medium text-on-surface-variant">Итого</span>
+                          <span className="font-bold text-[#451A03] text-lg">
+                            {order.total.toLocaleString("ru-RU")} сом
                           </span>
                         </div>
-                      ))}
-                    </div>
 
-                    <div className="border-t border-outline-variant/30 mt-2 pt-3 flex justify-between">
-                      <span className="font-medium text-on-surface-variant">Итого</span>
-                      <span className="font-bold text-[#451A03] text-lg">
-                        {order.total.toLocaleString("ru-RU")} сом
-                      </span>
-                    </div>
+                        {order.comment && (
+                          <div className="text-sm text-on-surface-variant bg-surface-mid rounded-lg px-4 py-2.5">
+                            💬 {order.comment}
+                          </div>
+                        )}
 
-                    {order.comment && (
-                      <div className="mt-3 text-sm text-on-surface-variant bg-surface-mid rounded-lg px-4 py-2.5">
-                        Комментарий: {order.comment}
+                        {/* 1C sync info */}
+                        {order.status === "completed" && (
+                          <div className="text-xs text-on-surface-variant bg-green-50 border border-green-200 rounded-lg px-4 py-2.5 flex items-center gap-2">
+                            <span className="text-green-600">✓</span>
+                            Заказ выполнен и передан в 1С
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
