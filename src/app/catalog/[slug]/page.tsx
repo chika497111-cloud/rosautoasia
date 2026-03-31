@@ -70,10 +70,11 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
           let hasMore = true;
 
           while (hasMore && !cancelled) {
-            const q = lastDoc
-              ? query(collection(db, "products"), where("category", "==", cat.name), orderBy("__name__"), startAfter(lastDoc), firestoreLimit(BATCH_SIZE))
-              : query(collection(db, "products"), where("category", "==", cat.name), orderBy("__name__"), firestoreLimit(BATCH_SIZE));
-            const snap = await getDocs(q);
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const constraints: any[] = [where("category", "==", cat.name), orderBy("__name__")];
+            if (lastDoc) constraints.push(startAfter(lastDoc));
+            constraints.push(firestoreLimit(BATCH_SIZE));
+            const snap = await getDocs(query(collection(db, "products"), ...constraints));
 
             const batch = snap.docs.map((d) => firestoreProductToProduct(d.id, d.data()));
             allProducts.push(...batch);
