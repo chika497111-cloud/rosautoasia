@@ -1,15 +1,25 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useState, useEffect, type FormEvent } from "react";
 import { validatePhone } from "@/lib/phone-utils";
 import { db } from "@/lib/firebase";
 import { collection, addDoc } from "firebase/firestore";
 import { sendContactEmail } from "./actions";
+import { useAuth } from "@/lib/auth-context";
 
 export default function ContactForm() {
+  const { user } = useAuth();
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [message, setMessage] = useState("");
+
+  // Autofill from user account
+  useEffect(() => {
+    if (user) {
+      if (user.name) setName(user.name);
+      if (user.phone) setPhone(user.phone);
+    }
+  }, [user]);
   const [errors, setErrors] = useState<{ name?: string; phone?: string; message?: string }>({});
   const [submitted, setSubmitted] = useState(false);
   const [sending, setSending] = useState(false);

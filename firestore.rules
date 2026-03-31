@@ -46,6 +46,13 @@ service cloud.firestore {
         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['admin', 'manager'];
     }
 
+    // Contact requests — anyone can create, admins can read
+    match /contact_requests/{requestId} {
+      allow create: if true;
+      allow read: if request.auth != null &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['admin', 'manager'];
+    }
+
     // Orders — users can read own, admins/managers can read all
     match /orders/{orderId} {
       allow create: if request.auth != null;
