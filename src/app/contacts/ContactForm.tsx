@@ -119,7 +119,18 @@ export default function ContactForm() {
           Мы свяжемся с вами в ближайшее время
         </p>
         <button
-          onClick={() => { setSubmitted(false); setName(""); setPhone(""); setMessage(""); }}
+          onClick={() => {
+            setSubmitted(false);
+            setMessage("");
+            // Re-fill name and phone from user account
+            if (user) {
+              if (user.name) setName(user.name);
+              if (user.phone) setPhone(user.phone);
+            } else {
+              setName("");
+              setPhone("");
+            }
+          }}
           className="text-primary font-semibold hover:underline underline-offset-4 transition-colors animate-[fadeUp_0.4s_ease-out_0.5s_both]"
         >
           Отправить ещё одну заявку
@@ -135,8 +146,18 @@ export default function ContactForm() {
   }
 
   return (
-    <div className="bg-surface-lowest p-10 rounded-xl warm-shadow space-y-6">
+    <div className="bg-surface-lowest p-10 rounded-xl warm-shadow space-y-6 animate-[fadeScaleIn_0.4s_ease-out]">
       <h3 className="text-2xl font-bold font-[family-name:var(--font-headline)] text-[#451A03]">Оставить заявку</h3>
+      <style>{`
+        @keyframes fadeScaleIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        @keyframes dotBounce {
+          0%, 80%, 100% { transform: translateY(0); }
+          40% { transform: translateY(-6px); }
+        }
+        .dot-bounce span { display: inline-block; animation: dotBounce 1.2s infinite; }
+        .dot-bounce span:nth-child(2) { animation-delay: 0.15s; }
+        .dot-bounce span:nth-child(3) { animation-delay: 0.3s; }
+      `}</style>
       <form className="space-y-4" onSubmit={handleSubmit} noValidate>
         <div>
           <label className="block text-sm font-semibold text-on-surface-variant mb-2">Имя</label>
@@ -185,7 +206,7 @@ export default function ContactForm() {
           type="submit"
           disabled={sending}
         >
-          {sending ? "Отправка..." : "Отправить"}
+          {sending ? <span className="dot-bounce">Отправка<span>.</span><span>.</span><span>.</span></span> : "Отправить"}
         </button>
       </form>
     </div>
