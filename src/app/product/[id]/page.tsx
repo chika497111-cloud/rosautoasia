@@ -1,6 +1,8 @@
-import type { Metadata } from "next";
+"use client";
+
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { useParams } from "next/navigation";
 import { FavoriteButton } from "@/components/FavoriteButton";
 import { ProductTabs } from "./ProductTabs";
 import { ProductActions } from "./ProductActions";
@@ -11,51 +13,95 @@ import {
   getCategoryBySlug,
   getProductsByCategory as getProductsByCategoryApi,
 } from "@/lib/products-api";
+import { getProductById as mockGetProductById } from "@/lib/mock-data";
+import type { Product, Category } from "@/lib/mock-data";
 
-export const dynamic = "force-dynamic";
+export default function ProductPage() {
+  const params = useParams();
+  const id = params.id as string;
 
-export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
-  const { id } = await params;
-  const product = await getProductById(id);
+  const [product, setProduct] = useState<Product | null>(null);
+  const [category, setCategory] = useState<(Category & { productCount: number }) | null>(null);
+  const [similarProducts, setSimilarProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
 
-  if (!product) {
-    return { title: "Товар не найден" };
+  useEffect(() => {
+    if (!id) return;
+
+    // Try mock data first for instant render
+    const mockProduct = mockGetProductById(id);
+    if (mockProduct) {
+      setProduct(mockProduct);
+      setLoading(false);
+    }
+
+    // Then try Firestore
+    getProductById(id)
+      .then(async (p) => {
+        if (!p) {
+          if (!mockProduct) {
+            setNotFound(true);
+            setLoading(false);
+          }
+          return;
+        }
+        setProduct(p);
+        setLoading(false);
+
+        // Load category
+        if (p.category_id) {
+          const cat = await getCategoryBySlug(p.category_id).catch(() => null);
+          setCategory(cat);
+
+          // Load similar products
+          const allCategoryProducts = await getProductsByCategoryApi(p.category_id, { limit: 5 }).catch(() => []);
+          const similar = allCategoryProducts.filter((sp) => sp.id !== p.id).slice(0, 4);
+          setSimilarProducts(similar);
+        }
+      })
+      .catch(() => {
+        if (!mockProduct) {
+          setNotFound(true);
+          setLoading(false);
+        }
+      });
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="max-w-7xl mx-auto px-6 pt-8 pb-12">
+        {/* Skeleton breadcrumbs */}
+        <div className="h-4 w-48 bg-surface-low rounded animate-pulse mb-8" />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+          {/* Image skeleton */}
+          <div className="bg-surface-low rounded-xl aspect-square animate-pulse" />
+          {/* Info skeleton */}
+          <div className="bg-surface-low rounded-xl p-8 space-y-4 animate-pulse">
+            <div className="h-6 w-24 bg-surface-mid rounded" />
+            <div className="h-10 w-3/4 bg-surface-mid rounded" />
+            <div className="h-4 w-32 bg-surface-mid rounded" />
+            <div className="h-12 w-48 bg-surface-mid rounded" />
+          </div>
+        </div>
+      </div>
+    );
   }
 
-  const fullName = product.car_brand
-    ? `${product.name} ${product.car_brand} ${product.car_model || ""}`
-    : product.name;
-
-  return {
-    title: fullName,
-    description: `Купить ${fullName} в ROSAutoAsia. Цена: ${product.price.toLocaleString("ru-RU")} сом. Бренд: ${product.brand}. Доставка по Кыргызстану.`,
-    openGraph: {
-      title: `${fullName} — ROSAutoAsia`,
-      description: `${fullName} — ${product.price.toLocaleString("ru-RU")} сом. ${product.brand}. Доставка по Бишкеку и Кыргызстану.`,
-      url: `https://raa.kg/product/${id}`,
-    },
-  };
-}
-
-export default async function ProductPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
-  const product = await getProductById(id);
-
-  if (!product) {
-    notFound();
+  if (notFound || !product) {
+    return (
+      <div className="max-w-7xl mx-auto px-6 pt-8 pb-12 text-center py-20">
+        <span className="material-symbols-outlined text-6xl text-outline-variant mb-4 block">
+          search_off
+        </span>
+        <h1 className="text-2xl font-bold text-on-surface mb-2">Товар не найден</h1>
+        <p className="text-on-surface-variant mb-6">Возможно, он был удалён или ссылка неверна.</p>
+        <Link href="/catalog" className="text-primary font-bold hover:underline">
+          Вернуться в каталог
+        </Link>
+      </div>
+    );
   }
-
-  const category = product.category_id
-    ? await getCategoryBySlug(product.category_id)
-    : null;
-
-  // Similar products: same category, exclude current, max 4
-  const allCategoryProducts = product.category_id
-    ? await getProductsByCategoryApi(product.category_id, { limit: 5 })
-    : [];
-  const similarProducts = allCategoryProducts
-    .filter((p) => p.id !== product.id)
-    .slice(0, 4);
 
   // Fake old price for design (+15%)
   const oldPrice = Math.round(product.price * 1.15);

@@ -1,33 +1,52 @@
-import type { Metadata } from "next";
+"use client";
+
+import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { searchProducts } from "@/lib/products-api";
 import { AddToCartButton } from "@/components/AddToCartButton";
 import { RequestForm } from "./RequestForm";
+import type { Product } from "@/lib/mock-data";
 
-export const dynamic = "force-dynamic";
-
-export async function generateMetadata({ searchParams }: { searchParams: Promise<{ q?: string }> }): Promise<Metadata> {
-  const { q } = await searchParams;
-  const query = q || "";
-
-  if (!query) {
-    return {
-      title: "Поиск запчастей",
-      description: "Поиск автозапчастей в каталоге ROSAutoAsia. Введите название детали или артикул.",
-    };
-  }
-
-  return {
-    title: `Поиск: ${query}`,
-    description: `Результаты поиска «${query}» в каталоге автозапчастей ROSAutoAsia. Оригиналы и аналоги с доставкой по Кыргызстану.`,
-    robots: { index: false, follow: true },
-  };
+export default function SearchPage() {
+  return (
+    <Suspense fallback={
+      <main className="pt-28 pb-20 max-w-[1440px] mx-auto px-6">
+        <div className="h-4 w-48 bg-surface-low rounded animate-pulse mb-6" />
+        <div className="h-12 w-96 bg-surface-low rounded animate-pulse mb-12" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="bg-surface-lowest rounded-xl p-5 warm-shadow animate-pulse">
+              <div className="aspect-square rounded-lg bg-surface-low mb-4" />
+              <div className="h-5 w-3/4 bg-surface-low rounded mb-4" />
+              <div className="h-8 w-32 bg-surface-low rounded" />
+            </div>
+          ))}
+        </div>
+      </main>
+    }>
+      <SearchPageContent />
+    </Suspense>
+  );
 }
 
-export default async function SearchPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
-  const { q } = await searchParams;
-  const query = q || "";
-  const results = query ? await searchProducts(query) : [];
+function SearchPageContent() {
+  const searchParams = useSearchParams();
+  const query = searchParams.get("q") || "";
+  const [results, setResults] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!query) {
+      setResults([]);
+      return;
+    }
+    setLoading(true);
+    searchProducts(query)
+      .then(setResults)
+      .catch(() => setResults([]))
+      .finally(() => setLoading(false));
+  }, [query]);
 
   // Extract unique car brands for filter chips
   const carBrands = [...new Set(results.map((p) => p.car_brand).filter(Boolean))];
@@ -55,7 +74,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
             "Поиск запчастей"
           )}
         </h1>
-        {query && (
+        {query && !loading && (
           <p className="mt-4 text-on-surface-variant font-medium flex items-center">
             <span
               className="material-symbols-outlined mr-2 text-primary"
@@ -69,8 +88,22 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
         )}
       </header>
 
+      {/* Loading State */}
+      {loading && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[1, 2, 3, 4, 5, 6].map((i) => (
+            <div key={i} className="bg-surface-lowest rounded-xl p-5 warm-shadow animate-pulse">
+              <div className="aspect-square rounded-lg bg-surface-low mb-4" />
+              <div className="h-4 w-20 bg-surface-low rounded mb-2" />
+              <div className="h-5 w-3/4 bg-surface-low rounded mb-4" />
+              <div className="h-8 w-32 bg-surface-low rounded" />
+            </div>
+          ))}
+        </div>
+      )}
+
       {/* Empty Query State */}
-      {!query && (
+      {!query && !loading && (
         <div className="text-center py-16">
           <span className="material-symbols-outlined text-6xl text-outline-variant mb-4 block">
             search
@@ -80,7 +113,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
       )}
 
       {/* No Results State */}
-      {query && results.length === 0 && (
+      {query && !loading && results.length === 0 && (
         <div className="text-center py-16">
           <span className="material-symbols-outlined text-6xl text-outline-variant mb-4 block">
             search_off
@@ -91,7 +124,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
       )}
 
       {/* Filter Chips */}
-      {results.length > 0 && (
+      {!loading && results.length > 0 && (
         <section className="flex flex-wrap gap-3 mb-10">
           <button className="px-6 py-2.5 rounded-full bg-primary-container text-on-primary-container font-semibold text-sm warm-shadow transition-transform active:scale-95">
             Все
@@ -113,7 +146,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
       )}
 
       {/* Product Grid */}
-      {results.length > 0 && (
+      {!loading && results.length > 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {results.map((product) => (
             <article
@@ -180,7 +213,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
       )}
 
       {/* Show More Button */}
-      {results.length > 6 && (
+      {!loading && results.length > 6 && (
         <div className="flex justify-center mt-12 mb-20">
           <button className="px-8 py-3 rounded-full border border-outline-variant text-on-surface font-semibold hover:bg-surface-low transition-all active:scale-95">
             Показать ещё

@@ -1,20 +1,13 @@
-import type { Metadata } from "next";
+"use client";
+
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { getCategories, getFeaturedProducts } from "@/lib/products-api";
-
-export const metadata: Metadata = {
-  title: "ROSAutoAsia — Автозапчасти в Бишкеке | Оригиналы и аналоги",
-  description:
-    "Интернет-магазин автозапчастей ROSAutoAsia. Оригиналы и аналоги из Японии, Кореи и Китая с доставкой по Кыргызстану. Более 100,000 наименований в наличии.",
-  openGraph: {
-    title: "ROSAutoAsia — Автозапчасти в Бишкеке",
-    description:
-      "Оригинальные автозапчасти из Японии, Кореи и Китая с доставкой по Кыргызстану. Более 100,000 наименований.",
-    url: "https://raa.kg",
-  },
-};
-
-export const dynamic = "force-dynamic";
+import {
+  categories as mockCategories,
+  products as mockProducts,
+} from "@/lib/mock-data";
+import type { Product, Category } from "@/lib/mock-data";
 
 /* SVG icons for each category (keyed by slug prefix — matches if slug starts with key) */
 const categoryIconsByPrefix: Record<string, React.ReactNode> = {
@@ -95,11 +88,18 @@ const defaultCategoryIcon = (
   </svg>
 );
 
-export default async function Home() {
-  const [allCategories, featuredProducts] = await Promise.all([
-    getCategories(),
-    getFeaturedProducts(4),
-  ]);
+// Mock data with productCount for initial render
+const mockCategoriesWithCount = mockCategories.map((c) => ({ ...c, productCount: 0 }));
+const mockFeatured = mockProducts.slice(0, 4);
+
+export default function Home() {
+  const [allCategories, setAllCategories] = useState<(Category & { productCount: number })[]>(mockCategoriesWithCount);
+  const [featuredProducts, setFeaturedProducts] = useState<Product[]>(mockFeatured);
+
+  useEffect(() => {
+    getCategories().then(setAllCategories).catch(() => {});
+    getFeaturedProducts(4).then(setFeaturedProducts).catch(() => {});
+  }, []);
 
   // Show top 8 categories by product count
   const topCategories = allCategories.slice(0, 8);

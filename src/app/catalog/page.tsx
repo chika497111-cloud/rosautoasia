@@ -1,20 +1,10 @@
-import type { Metadata } from "next";
+"use client";
+
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { getCategories, getTotalProductCount } from "@/lib/products-api";
-
-export const metadata: Metadata = {
-  title: "Каталог запчастей",
-  description:
-    "Каталог автозапчастей ROSAutoAsia. Тормозная система, двигатель, подвеска, фильтры, электрика и другие категории. Оригиналы и аналоги с доставкой по Кыргызстану.",
-  openGraph: {
-    title: "Каталог запчастей — ROSAutoAsia",
-    description:
-      "Полный каталог автозапчастей: оригиналы и аналоги для всех марок авто.",
-    url: "https://raa.kg/catalog",
-  },
-};
-
-export const dynamic = "force-dynamic";
+import { categories as mockCategories } from "@/lib/mock-data";
+import type { Category } from "@/lib/mock-data";
 
 /** Map slug prefixes to Material Symbols icon names */
 const categoryIconMap: Record<string, string> = {
@@ -40,11 +30,17 @@ function getCategoryIcon(slug: string): string {
   return "category";
 }
 
-export default async function CatalogPage() {
-  const [categories, totalProducts] = await Promise.all([
-    getCategories(),
-    getTotalProductCount(),
-  ]);
+// Mock data with productCount for initial render
+const mockCategoriesWithCount = mockCategories.map((c) => ({ ...c, productCount: 0 }));
+
+export default function CatalogPage() {
+  const [categories, setCategories] = useState<(Category & { productCount: number })[]>(mockCategoriesWithCount);
+  const [totalProducts, setTotalProducts] = useState(0);
+
+  useEffect(() => {
+    getCategories().then(setCategories).catch(() => {});
+    getTotalProductCount().then(setTotalProducts).catch(() => {});
+  }, []);
 
   return (
     <main className="pt-28 pb-20 max-w-[1440px] mx-auto px-6">
