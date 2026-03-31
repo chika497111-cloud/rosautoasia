@@ -330,7 +330,7 @@ export default function CategoryClient({
 
       <div className="flex flex-col md:flex-row gap-8 items-start">
         {/* Desktop Sidebar Filters */}
-        <aside className="hidden md:flex w-64 sticky top-24 rounded-xl bg-surface-mid warm-shadow flex-col shrink-0" style={{ maxHeight: "calc(100vh - 120px)" }}>
+        <aside className="hidden md:flex w-64 rounded-xl bg-surface-mid warm-shadow flex-col shrink-0">
           <div className="py-6 px-6 pb-2">
             <h3 className="font-[family-name:var(--font-headline)] font-bold text-on-surface mb-1">
               Фильтры
