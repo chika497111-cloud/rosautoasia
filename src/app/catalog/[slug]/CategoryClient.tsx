@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useMemo, useEffect, useRef, useCallback, useTransition } from "react";
+import { useState, useMemo, useEffect, useRef, useCallback, useDeferredValue } from "react";
 import { useCart } from "@/lib/cart-context";
 import { useComparison } from "@/lib/comparison-context";
 import type { Product, Category } from "@/lib/mock-data";
@@ -62,6 +62,14 @@ export default function CategoryClient({
     inStockOnly ||
     sortBy !== "default" ||
     priceMax < 50000;
+
+  // Defer filter values — checkboxes respond instantly, grid updates without jerk
+  const deferredCarBrands = useDeferredValue(selectedCarBrands);
+  const deferredBrands = useDeferredValue(selectedBrands);
+  const deferredInStock = useDeferredValue(inStockOnly);
+  const deferredSortBy = useDeferredValue(sortBy);
+  const deferredPriceMax = useDeferredValue(priceMax);
+  const isStale = deferredCarBrands !== selectedCarBrands || deferredBrands !== selectedBrands || deferredInStock !== inStockOnly || deferredSortBy !== sortBy || deferredPriceMax !== priceMax;
 
   // Load ALL products in one server request (for filtering)
   const loadAllProducts = useCallback(async () => {
@@ -142,25 +150,33 @@ export default function CategoryClient({
   const maxPrice = Math.max(...sourceProducts.map((p) => p.price), 50000);
 
   // Filtered & sorted products (only used when filters are active)
+  // Use DEFERRED values for filtering — checkboxes update instantly, grid updates smoothly
+  const deferredFiltersActive =
+    deferredCarBrands.length > 0 ||
+    deferredBrands.length > 0 ||
+    deferredInStock ||
+    deferredSortBy !== "default" ||
+    deferredPriceMax < 50000;
+
   const filteredProducts = useMemo(() => {
-    if (!filtersActive) return null; // signal: use server-side pagination
+    if (!deferredFiltersActive) return null; // signal: use server-side pagination
 
     let result = [...(allProducts ?? initialProducts)];
 
-    if (selectedCarBrands.length > 0) {
-      result = result.filter((p) => selectedCarBrands.includes(p.car_brand));
+    if (deferredCarBrands.length > 0) {
+      result = result.filter((p) => deferredCarBrands.includes(p.car_brand));
     }
-    if (selectedBrands.length > 0) {
-      result = result.filter((p) => selectedBrands.includes(p.brand));
+    if (deferredBrands.length > 0) {
+      result = result.filter((p) => deferredBrands.includes(p.brand));
     }
-    if (inStockOnly) {
+    if (deferredInStock) {
       result = result.filter((p) => p.quantity > 0);
     }
-    if (priceMax < maxPrice) {
-      result = result.filter((p) => p.price <= priceMax);
+    if (deferredPriceMax < maxPrice) {
+      result = result.filter((p) => p.price <= deferredPriceMax);
     }
 
-    switch (sortBy) {
+    switch (deferredSortBy) {
       case "price-asc":
         result.sort((a, b) => a.price - b.price);
         break;
@@ -173,7 +189,7 @@ export default function CategoryClient({
     }
 
     return result;
-  }, [allProducts, initialProducts, selectedCarBrands, selectedBrands, inStockOnly, sortBy, priceMax, maxPrice, filtersActive]);
+  }, [allProducts, initialProducts, deferredCarBrands, deferredBrands, deferredInStock, deferredSortBy, deferredPriceMax, maxPrice, deferredFiltersActive]);
 
   // The products to show on the current page
   const currentPageProducts = useMemo(() => {
@@ -194,32 +210,25 @@ export default function CategoryClient({
   const brands = [...new Set(sourceProducts.map((p) => p.brand).filter(Boolean))];
 
   const sectionRef = useRef<HTMLElement>(null);
-  const [isPending, startTransition] = useTransition();
 
   const toggleCarBrand = (brand: string) => {
-    startTransition(() => {
-      setSelectedCarBrands((prev) =>
-        prev.includes(brand) ? prev.filter((b) => b !== brand) : [...prev, brand]
-      );
-    });
+    setSelectedCarBrands((prev) =>
+      prev.includes(brand) ? prev.filter((b) => b !== brand) : [...prev, brand]
+    );
   };
 
   const toggleBrand = (brand: string) => {
-    startTransition(() => {
-      setSelectedBrands((prev) =>
-        prev.includes(brand) ? prev.filter((b) => b !== brand) : [...prev, brand]
-      );
-    });
+    setSelectedBrands((prev) =>
+      prev.includes(brand) ? prev.filter((b) => b !== brand) : [...prev, brand]
+    );
   };
 
   const resetFilters = () => {
-    startTransition(() => {
-      setSelectedCarBrands([]);
-      setSelectedBrands([]);
-      setInStockOnly(false);
-      setSortBy("default");
-      setPriceMax(maxPrice);
-    });
+    setSelectedCarBrands([]);
+    setSelectedBrands([]);
+    setInStockOnly(false);
+    setSortBy("default");
+    setPriceMax(maxPrice);
   };
 
   // Show loading overlay when fetching a page or loading all products for filters
@@ -490,7 +499,7 @@ export default function CategoryClient({
               </button>
             </div>
           ) : !isLoading ? (
-            <div ref={gridRef} className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 transition-opacity duration-200 ${isPending ? "opacity-60" : "opacity-100"}`}>
+            <div ref={gridRef} className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 transition-opacity duration-150 ${isStale ? "opacity-50" : "opacity-100"}`}>
               {currentPageProducts.map((product) => (
                 <article
                   key={product.id}
