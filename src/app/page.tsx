@@ -2,7 +2,7 @@ import Link from "next/link";
 import { getCategories, getFeaturedProducts } from "@/lib/products-server";
 import type { Product, Category } from "@/lib/mock-data";
 import { HeroTitle, HeroBadge, HeroRotating, ClickSparkWrapper, FloatingHeading } from "@/components/HomeAnimations";
-import { NoiseOverlay, DotGridBackground } from "@/components/BackgroundEffects";
+import { NoiseOverlay } from "@/components/BackgroundEffects";
 
 /* SVG icons for each category (keyed by slug prefix — matches if slug starts with key) */
 const categoryIconsByPrefix: Record<string, React.ReactNode> = {
@@ -256,9 +256,8 @@ export default async function Home() {
       </section>
 
       {/* ===== TRUST SECTION ===== */}
-      <section className="relative bg-white py-20 px-6 scroll-reveal overflow-hidden">
-        <DotGridBackground />
-        <div className="relative max-w-7xl mx-auto" style={{ zIndex: 1 }}>
+      <section className="bg-white py-20 px-6 scroll-reveal">
+        <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {/* 100% Оригинал */}
             <div className="bg-primary-container/10 border border-primary-container/20 rounded-xl p-6">

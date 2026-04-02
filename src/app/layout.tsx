@@ -10,8 +10,6 @@ import { NavLinks } from "@/components/NavLinks";
 import { CompareBar } from "@/components/CompareBar";
 import { SearchBar } from "@/components/SearchBar";
 import { ClickSparkProvider } from "@/components/GlobalEffects";
-import { SmoothScroll } from "@/components/SmoothScroll";
-import { WavesBackground } from "@/components/BackgroundEffects";
 
 const manrope = Manrope({
   subsets: ["latin", "cyrillic"],
@@ -80,7 +78,6 @@ export default function RootLayout({
       </head>
       <body className="min-h-full flex flex-col bg-surface font-[family-name:var(--font-body)] antialiased">
         <Providers>
-          <SmoothScroll />
           <ClickSparkProvider>
           <div className="scroll-progress" />
           <ScrollToTop />
@@ -127,9 +124,8 @@ export default function RootLayout({
           <CompareBar />
 
           {/* Подвал */}
-          <footer className="relative rounded-t-[2rem] mt-20 bg-[#451A03] pt-16 pb-8 scroll-reveal overflow-hidden">
-            <WavesBackground />
-            <div className="relative max-w-screen-2xl mx-auto px-8 sm:px-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
+          <footer className="rounded-t-[2rem] mt-20 bg-[#451A03] pt-16 pb-8 scroll-reveal">
+            <div className="max-w-screen-2xl mx-auto px-8 sm:px-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
               <div>
                 <div className="text-lg font-bold text-primary-container mb-4 font-[family-name:var(--font-headline)]">ROSAutoAsia</div>
                 <p className="text-sm leading-relaxed text-[#FFFBEB]/70 mb-6">
