@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getCategories, getFeaturedProducts } from "@/lib/products-server";
 import type { Product, Category } from "@/lib/mock-data";
 import { HeroTitle, HeroBadge, HeroRotating, ClickSparkWrapper, FloatingHeading } from "@/components/HomeAnimations";
+import { NoiseOverlay, DotGridBackground } from "@/components/BackgroundEffects";
 
 /* SVG icons for each category (keyed by slug prefix — matches if slug starts with key) */
 const categoryIconsByPrefix: Record<string, React.ReactNode> = {
@@ -93,7 +94,8 @@ export default async function Home() {
     <div>
       {/* ===== HERO SECTION ===== */}
       <section className="relative overflow-hidden bg-gradient-to-br from-[#FFFBEB] via-[#FEF3C7] to-white py-20 lg:py-32">
-        <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-12 items-center">
+        <NoiseOverlay />
+        <div className="relative max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-12 items-center">
           <div className="z-10 text-center lg:text-left">
             <span className="inline-block px-4 py-1.5 rounded-full bg-tertiary-container/10 mb-6">
               <HeroBadge />
@@ -254,8 +256,9 @@ export default async function Home() {
       </section>
 
       {/* ===== TRUST SECTION ===== */}
-      <section className="bg-white py-20 px-6 scroll-reveal">
-        <div className="max-w-7xl mx-auto">
+      <section className="relative bg-white py-20 px-6 scroll-reveal overflow-hidden">
+        <DotGridBackground />
+        <div className="relative max-w-7xl mx-auto" style={{ zIndex: 1 }}>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {/* 100% Оригинал */}
             <div className="bg-primary-container/10 border border-primary-container/20 rounded-xl p-6">
