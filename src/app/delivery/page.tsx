@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { AnimatedH1 } from "@/components/AnimatedHeading";
+import { ShinyFree } from "@/components/DeliveryAnimations";
 
 export const metadata: Metadata = {
   title: "Доставка и оплата",
@@ -49,7 +50,7 @@ export default function DeliveryPage() {
                 Удобный способ забрать деталь лично в нашем главном офисе.
               </p>
               <div className="pt-6 border-t border-surface-high space-y-2">
-                <p className="font-bold text-primary shiny-badge inline-block bg-green-100 text-green-700 px-3 py-1 rounded-full">Бесплатно</p>
+                <ShinyFree />
                 <p className="text-sm text-on-surface-variant">г. Бишкек, ул. Льва Толстого, 126</p>
               </div>
             </div>

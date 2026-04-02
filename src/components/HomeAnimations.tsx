@@ -64,3 +64,15 @@ export function ClickSparkWrapper({ children }: { children: React.ReactNode }) {
     </ClickSpark>
   );
 }
+
+export function ShinyBadge({ text, className = "", color = "#16a34a", shineColor = "#4ade80" }: { text: string; className?: string; color?: string; shineColor?: string }) {
+  return (
+    <ShinyText
+      text={text}
+      speed={3}
+      color={color}
+      shineColor={shineColor}
+      className={className}
+    />
+  );
+}

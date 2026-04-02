@@ -6,6 +6,7 @@ import { useCart } from "@/lib/cart-context";
 import { useComparison } from "@/lib/comparison-context";
 import type { Product, Category } from "@/lib/mock-data";
 import { fetchCategoryPage, fetchAllCategoryProducts } from "./actions";
+import { ShinyBadge } from "@/components/HomeAnimations";
 
 interface CategoryClientProps {
   category: Category & { productCount: number };
@@ -534,8 +535,8 @@ export default function CategoryClient({
                   <div className="mb-4">
                     <div className="flex items-center gap-2 mb-1">
                       {product.quantity > 0 ? (
-                        <span className="bg-green-100 text-green-700 text-[10px] font-bold px-2 py-0.5 rounded uppercase shiny-badge">
-                          В наличии
+                        <span className="bg-green-100 text-[10px] font-bold px-2 py-0.5 rounded uppercase">
+                          <ShinyBadge text="В наличии" color="#15803d" shineColor="#4ade80" className="text-[10px] font-bold uppercase" />
                         </span>
                       ) : (
                         <span className="bg-orange-100 text-orange-700 text-[10px] font-bold px-2 py-0.5 rounded uppercase">

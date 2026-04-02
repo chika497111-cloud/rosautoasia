@@ -4614,3 +4614,65 @@ Processing order ROA-000001 (ican, 8500 сом)...
   No orders to check status for
 [02.04.2026 21:51:10,46] ===== Sync complete ===== 
  
+[02.04.2026 22:21:01,72] ===== Starting sync ===== 
+[02.04.2026 22:21:01,72] Syncing products... 
+=== ROSAutoAsia OData Sync ===
+OData URL: http://localhost/unf/odata/standard.odata
+Full sync: false
+Dry run:   false
+
+Fetching products from 1С OData...
+Fetching categories from 1С...
+Fetching prices from 1С...
+  Categories catalog not available, will use product groups
+Sync failed: Error: OData error 502: {"#exception":"{http://v8.1c.ru/8.2/virtual-resource-system}Exception","exception":{"clsid":"580392e6-ba49-4280-ac67-fcd6f2180121","reason":-1,"descr":"Connection error"}}
+    at odataFetch (C:\Users\chika\Desktop\1C\rosautoasia\sync\odata-sync.js:63:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async fetchAllProducts1C (C:\Users\chika\Desktop\1C\rosautoasia\sync\odata-sync.js:81:20)
+    at async Promise.all (index 0)
+    at async main (C:\Users\chika\Desktop\1C\rosautoasia\sync\odata-sync.js:348:50)
+Assertion failed: !(handle->flags & UV_HANDLE_CLOSING), file src\win\async.c, line 76
+[02.04.2026 22:21:02,81] Syncing orders... 
+=== ROSAutoAsia Order Sync ===
+OData URL: http://localhost/unf/odata/standard.odata
+Dry run:   false
+
+Found 5 unsynced orders
+
+Processing order ROA-260401-000955-743 (ican, 590 сом)...
+  Failed to create customer: 401
+  Failed to create order ROA-260401-000955-743: 401 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"> 
+<html xmlns="http://www.w3.org/1999/xhtml"> 
+<head> 
+<title>Подробные данные об ошибке II
+Processing order ROA-260330-010232-428 (ican, 23800 сом)...
+  Failed to create customer: 401
+  Failed to create order ROA-260330-010232-428: 401 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"> 
+<html xmlns="http://www.w3.org/1999/xhtml"> 
+<head> 
+<title>Подробные данные об ошибке II
+Processing order ROA-000001 (ican, 15000 сом)...
+  Failed to create customer: 401
+  Failed to create order ROA-000001: 401 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"> 
+<html xmlns="http://www.w3.org/1999/xhtml"> 
+<head> 
+<title>Подробные данные об ошибке II
+Processing order ROA-260331-175503-143 (ican, 540 сом)...
+  Failed to create customer: 401
+  Failed to create order ROA-260331-175503-143: 401 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"> 
+<html xmlns="http://www.w3.org/1999/xhtml"> 
+<head> 
+<title>Подробные данные об ошибке II
+Processing order ROA-000001 (ican, 8500 сом)...
+  Failed to create customer: 401
+  Failed to create order ROA-000001: 401 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"> 
+<html xmlns="http://www.w3.org/1999/xhtml"> 
+<head> 
+<title>Подробные данные об ошибке II
+
+=== Push done: 0 synced, 5 failed ===
+
+--- Syncing order statuses from 1С ---
+  No orders to check status for
+[02.04.2026 22:21:07,76] ===== Sync complete ===== 
+ 
