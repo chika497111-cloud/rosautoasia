@@ -3,6 +3,7 @@ import { getCategories, getTotalProductCount } from "@/lib/products-server";
 import type { Metadata } from "next";
 import type { Category } from "@/lib/mock-data";
 import { AnimatedH1 } from "@/components/AnimatedHeading";
+import { AnimatedCard } from "@/components/CatalogAnimations";
 
 export const metadata: Metadata = {
   title: "Каталог запчастей — ROSAutoAsia",
@@ -61,33 +62,34 @@ export default async function CatalogPage() {
 
       {/* Categories Grid */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6 scroll-reveal">
-        {categories.map((category) => {
+        {categories.map((category, index) => {
           const count = category.productCount;
           const icon = getCategoryIcon(category.slug);
 
           return (
-            <Link
-              key={category.id}
-              href={`/catalog/${category.slug}`}
-              className="group bg-surface-lowest rounded-xl p-6 warm-shadow transition-all hover:-translate-y-1 hover:bg-primary-container"
-            >
-              {/* Icon */}
-              <div className="w-14 h-14 rounded-full bg-primary-container/15 flex items-center justify-center mb-4 group-hover:bg-white/20 transition-colors">
-                <span className="material-symbols-outlined text-primary text-2xl group-hover:text-white transition-colors">
-                  {icon}
-                </span>
-              </div>
+            <AnimatedCard key={category.id} index={index}>
+              <Link
+                href={`/catalog/${category.slug}`}
+                className="group bg-surface-lowest rounded-xl p-6 warm-shadow transition-all hover:-translate-y-1 hover:bg-primary-container block h-full"
+              >
+                {/* Icon */}
+                <div className="w-14 h-14 rounded-full bg-primary-container/15 flex items-center justify-center mb-4 group-hover:bg-white/20 transition-colors">
+                  <span className="material-symbols-outlined text-primary text-2xl group-hover:text-white transition-colors">
+                    {icon}
+                  </span>
+                </div>
 
-              {/* Name */}
-              <h3 className="font-[family-name:var(--font-headline)] font-bold text-on-surface leading-snug mb-1 group-hover:text-white transition-colors">
-                {category.name}
-              </h3>
+                {/* Name */}
+                <h3 className="font-[family-name:var(--font-headline)] font-bold text-on-surface leading-snug mb-1 group-hover:text-white transition-colors">
+                  {category.name}
+                </h3>
 
-              {/* Count */}
-              <p className="text-sm text-on-surface-variant group-hover:text-white/80 transition-colors">
-                {count} {count === 1 ? "товар" : count < 5 ? "товара" : "товаров"}
-              </p>
-            </Link>
+                {/* Count */}
+                <p className="text-sm text-on-surface-variant group-hover:text-white/80 transition-colors">
+                  {count} {count === 1 ? "товар" : count < 5 ? "товара" : "товаров"}
+                </p>
+              </Link>
+            </AnimatedCard>
           );
         })}
       </div>
