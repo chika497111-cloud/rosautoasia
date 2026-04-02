@@ -14,12 +14,7 @@ export function HeroTitle() {
       animationSpeed={6}
       className="font-[family-name:var(--font-headline)] text-5xl lg:text-6xl font-extrabold leading-tight tracking-tight"
     >
-      <BlurText
-        text="Автозапчасти из Японии, Кореи и Китая"
-        delay={40}
-        animateBy="words"
-        className=""
-      />
+      Автозапчасти из Японии, Кореи и Китая
     </GradientText>
   );
 }
