@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { validatePhone, formatPhoneInput } from "@/lib/phone-utils";
 
-type Step = "phone" | "code" | "name";
+type Step = "phone" | "code" | "name" | "admin";
 
 export default function LoginPage() {
   const { loginWithToken, user, updateProfile } = useAuth();
@@ -19,6 +19,7 @@ export default function LoginPage() {
   const [lastName, setLastName] = useState("");
   const [error, setError] = useState("");
   const [phoneError, setPhoneError] = useState("");
+  const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [countdown, setCountdown] = useState(0);
 
@@ -157,6 +158,45 @@ export default function LoginPage() {
     }
   };
 
+  // Admin login with password
+  const handleAdminLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+
+    const phoneCheck = validatePhone(phone);
+    if (!phoneCheck.valid) {
+      setPhoneError(phoneCheck.error || "");
+      return;
+    }
+
+    if (!password) {
+      setError("Введите пароль");
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      const res = await fetch("/api/sms/admin-login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone: phone.trim(), password }),
+      });
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        setError(data.error || "Ошибка входа");
+        return;
+      }
+
+      await loginWithToken(data.token);
+      router.replace("/admin");
+    } catch {
+      setError("Ошибка сети");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   // Resend code
   const handleResend = async () => {
     if (countdown > 0) return;
@@ -199,6 +239,7 @@ export default function LoginPage() {
             {step === "phone" && "Вход"}
             {step === "code" && "Код подтверждения"}
             {step === "name" && "Как вас зовут?"}
+            {step === "admin" && "Вход для сотрудников"}
           </h1>
           <p className="text-on-surface-variant font-medium">
             {step === "phone" && "Введите номер телефона"}
@@ -206,6 +247,7 @@ export default function LoginPage() {
               <>SMS отправлено на <span className="text-primary font-bold">{phone}</span></>
             )}
             {step === "name" && "Заполните профиль для завершения регистрации"}
+            {step === "admin" && "Введите телефон и пароль"}
           </p>
         </div>
 
@@ -366,28 +408,101 @@ export default function LoginPage() {
           </form>
         )}
 
-        {/* Step indicator */}
-        <div className="flex items-center justify-center gap-2 mt-8">
-          {(["phone", "code", "name"] as Step[]).map((s, i) => (
-            <div
-              key={s}
-              className={`h-1.5 rounded-full transition-all ${
-                s === step ? "w-8 bg-primary" :
-                i < ["phone", "code", "name"].indexOf(step) ? "w-4 bg-primary/40" :
-                "w-4 bg-outline-variant/30"
-              }`}
-            />
-          ))}
-        </div>
+        {/* Step 4: Admin login */}
+        {step === "admin" && (
+          <form onSubmit={handleAdminLogin} className="space-y-6">
+            <div className="space-y-2">
+              <label className="text-sm font-semibold text-on-surface-variant uppercase tracking-wider ml-1">
+                Телефон
+              </label>
+              <input
+                type="tel"
+                required
+                value={phone}
+                onChange={(e) => handlePhoneChange(e.target.value)}
+                placeholder="+7 981 898 2034"
+                className={`w-full px-4 py-4 bg-surface-mid rounded-lg border-none focus:ring-2 text-on-surface placeholder:text-outline/50 transition-all text-lg ${
+                  phoneError ? "ring-2 ring-error/40" : "focus:ring-primary/20"
+                }`}
+                autoFocus
+              />
+              {phoneError && (
+                <p className="text-error text-xs mt-1 ml-1">{phoneError}</p>
+              )}
+            </div>
 
-        {/* Back to home */}
-        <div className="text-center mt-6">
+            <div className="space-y-2">
+              <label className="text-sm font-semibold text-on-surface-variant uppercase tracking-wider ml-1">
+                Пароль
+              </label>
+              <input
+                type="password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Пароль администратора"
+                className="w-full px-4 py-4 bg-surface-mid rounded-lg border-none focus:ring-2 focus:ring-primary/20 text-on-surface placeholder:text-outline/50 transition-all text-lg"
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={submitting}
+              className="w-full cta-gradient text-white font-bold py-4 rounded-full shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all text-lg disabled:opacity-50"
+            >
+              {submitting ? (
+                <span className="flex items-center justify-center gap-2">
+                  <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  Вход...
+                </span>
+              ) : (
+                "Войти"
+              )}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => { setStep("phone"); setError(""); setPassword(""); }}
+              className="text-sm text-on-surface-variant hover:text-primary transition-colors block mx-auto"
+            >
+              Вернуться к входу по SMS
+            </button>
+          </form>
+        )}
+
+        {/* Step indicator (only for SMS flow) */}
+        {step !== "admin" && (
+          <div className="flex items-center justify-center gap-2 mt-8">
+            {(["phone", "code", "name"] as Step[]).map((s, i) => (
+              <div
+                key={s}
+                className={`h-1.5 rounded-full transition-all ${
+                  s === step ? "w-8 bg-primary" :
+                  i < ["phone", "code", "name"].indexOf(step) ? "w-4 bg-primary/40" :
+                  "w-4 bg-outline-variant/30"
+                }`}
+              />
+            ))}
+          </div>
+        )}
+
+        {/* Footer links */}
+        <div className="text-center mt-6 space-y-2">
           <Link
             href="/"
-            className="text-sm text-on-surface-variant hover:text-primary transition-colors"
+            className="text-sm text-on-surface-variant hover:text-primary transition-colors block"
           >
             Вернуться на главную
           </Link>
+          {step === "phone" && (
+            <button
+              type="button"
+              onClick={() => { setStep("admin"); setPhone("+7"); setError(""); setPhoneError(""); }}
+              className="text-xs text-outline hover:text-on-surface-variant transition-colors"
+            >
+              Вход для сотрудников
+            </button>
+          )}
         </div>
       </div>
     </div>
