@@ -122,7 +122,7 @@ export default function RootLayout({
           <CompareBar />
 
           {/* Подвал */}
-          <footer className="rounded-t-[2rem] mt-20 bg-[#451A03] pt-16 pb-8">
+          <footer className="rounded-t-[2rem] mt-20 bg-[#451A03] pt-16 pb-8 scroll-reveal">
             <div className="max-w-screen-2xl mx-auto px-8 sm:px-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
               <div>
                 <div className="text-lg font-bold text-primary-container mb-4 font-[family-name:var(--font-headline)]">ROSAutoAsia</div>

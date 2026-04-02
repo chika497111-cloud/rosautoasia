@@ -60,7 +60,7 @@ export default function CartPage() {
   }
 
   return (
-    <div className="max-w-screen-2xl mx-auto px-8 py-12">
+    <div className="max-w-screen-2xl mx-auto px-8 py-12 scroll-reveal">
       {/* Title + badge */}
       <div className="flex items-center gap-4 mb-10">
         <h1 className="text-4xl font-black text-[#451A03] font-[family-name:var(--font-headline)] tracking-tight">

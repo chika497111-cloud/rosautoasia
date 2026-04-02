@@ -38,7 +38,7 @@ export default function DeliveryPage() {
       {/* Delivery methods */}
       <section className="py-16 px-8 lg:px-24 bg-surface-low">
         <div className="max-w-screen-2xl mx-auto space-y-16">
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-3 gap-8 scroll-reveal">
             {/* Самовывоз */}
             <div className="bg-surface-lowest p-10 rounded-xl warm-shadow flex flex-col h-full border-t-4 border-primary/20">
               <span className="material-symbols-outlined text-primary-container text-5xl mb-6">store</span>
@@ -80,7 +80,7 @@ export default function DeliveryPage() {
           </div>
 
           {/* Payment methods */}
-          <div className="pt-12">
+          <div className="pt-12 scroll-reveal">
             <h3 className="text-2xl font-bold font-[family-name:var(--font-headline)] text-center text-[#451A03] mb-8">
               Способы оплаты
             </h3>
@@ -104,7 +104,7 @@ export default function DeliveryPage() {
 
       {/* FAQ Section */}
       <section className="py-24 px-8 lg:px-24 bg-surface-mid">
-        <div className="max-w-3xl mx-auto space-y-8">
+        <div className="max-w-3xl mx-auto space-y-8 scroll-reveal">
           <h2 className="text-3xl font-bold font-[family-name:var(--font-headline)] text-center text-[#451A03]">
             Часто задаваемые вопросы
           </h2>

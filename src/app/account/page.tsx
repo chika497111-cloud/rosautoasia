@@ -84,7 +84,7 @@ export default function AccountPage() {
         </div>
 
         {/* Profile card */}
-        <div className="bg-surface-lowest rounded-xl warm-shadow p-6 md:p-8 mb-6">
+        <div className="bg-surface-lowest rounded-xl warm-shadow p-6 md:p-8 mb-6 scroll-reveal">
           <div className="flex items-center justify-between mb-5">
             <h3 className="font-[family-name:var(--font-headline)] font-bold text-lg text-[#451A03]">
               Мои данные
@@ -218,7 +218,7 @@ export default function AccountPage() {
         </div>
 
         {/* Orders */}
-        <div className="bg-surface-lowest rounded-xl warm-shadow p-6 md:p-8">
+        <div className="bg-surface-lowest rounded-xl warm-shadow p-6 md:p-8 scroll-reveal">
           <h3 className="font-[family-name:var(--font-headline)] font-bold text-lg text-[#451A03] mb-5">
             История заказов
           </h3>

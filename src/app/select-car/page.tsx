@@ -126,7 +126,7 @@ export default function SelectCarPage() {
             <p className="text-on-surface-variant">Выберите марку автомобиля для поиска запчастей</p>
           </header>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 scroll-reveal">
             {brands.map((brand) => (
               <button
                 key={brand.name}

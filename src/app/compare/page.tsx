@@ -74,7 +74,7 @@ export default function ComparePage() {
         </div>
       </section>
 
-      <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className="max-w-7xl mx-auto px-4 py-8 scroll-reveal">
         <div className="bg-surface-lowest rounded-xl warm-shadow overflow-x-auto">
           <table className="w-full min-w-[600px]">
             <thead>

@@ -147,7 +147,7 @@ function SearchPageContent() {
 
       {/* Product Grid */}
       {!loading && results.length > 0 && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 scroll-reveal">
           {results.map((product, index) => (
             <article
               key={product.id}
@@ -231,7 +231,7 @@ function SearchPageContent() {
       )}
 
       {/* "Не нашли?" Section */}
-      <section className="mt-16 mb-8 relative overflow-hidden">
+      <section className="mt-16 mb-8 relative overflow-hidden scroll-reveal">
         <div className="bg-surface-mid rounded-3xl p-8 md:p-12 warm-shadow grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <div>
             <h2 className="font-[family-name:var(--font-headline)] text-3xl font-black text-[#451A03] mb-4 leading-tight">

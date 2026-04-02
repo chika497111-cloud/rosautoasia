@@ -39,7 +39,7 @@ export default function ContactsPage() {
             {/* Left column: info cards + form */}
             <div className="space-y-8">
               {/* Contact info cards */}
-              <div className="grid sm:grid-cols-2 gap-6">
+              <div className="grid sm:grid-cols-2 gap-6 scroll-reveal">
                 <div className="p-8 bg-surface-low rounded-xl space-y-3 transition-colors hover:bg-surface-mid">
                   <span className="material-symbols-outlined text-primary">call</span>
                   <p className="text-sm font-semibold uppercase tracking-wider text-on-surface-variant">Телефон</p>
@@ -87,7 +87,9 @@ export default function ContactsPage() {
               </div>
 
               {/* Contact Form */}
-              <ContactForm />
+              <div className="scroll-reveal">
+                <ContactForm />
+              </div>
             </div>
 
             {/* Right column: Google Maps */}

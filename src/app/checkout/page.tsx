@@ -174,7 +174,7 @@ export default function CheckoutPage() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
         {/* Customer Form */}
         <div className="lg:col-span-7">
-          <div className="bg-surface-lowest p-10 rounded-xl shadow-[0_10px_30px_rgba(69,26,3,0.04)]">
+          <div className="bg-surface-lowest p-10 rounded-xl shadow-[0_10px_30px_rgba(69,26,3,0.04)] scroll-reveal">
             <h3 className="font-[family-name:var(--font-headline)] font-bold text-[#451A03] text-xl mb-8 flex items-center gap-3">
               <span className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center text-sm font-bold">1</span>
               Данные получателя
@@ -249,7 +249,7 @@ export default function CheckoutPage() {
         {/* Shipping & Payment */}
         <div className="lg:col-span-5 space-y-8">
           {/* Delivery Methods */}
-          <div className="bg-surface-lowest p-8 rounded-xl shadow-[0_10px_30px_rgba(69,26,3,0.04)]">
+          <div className="bg-surface-lowest p-8 rounded-xl shadow-[0_10px_30px_rgba(69,26,3,0.04)] scroll-reveal">
             <h3 className="font-[family-name:var(--font-headline)] font-bold text-[#451A03] text-xl mb-6 flex items-center gap-3">
               <span className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center text-sm font-bold">2</span>
               Способ доставки
@@ -291,7 +291,7 @@ export default function CheckoutPage() {
           </div>
 
           {/* Payment Methods */}
-          <div className="bg-surface-lowest p-8 rounded-xl shadow-[0_10px_30px_rgba(69,26,3,0.04)]">
+          <div className="bg-surface-lowest p-8 rounded-xl shadow-[0_10px_30px_rgba(69,26,3,0.04)] scroll-reveal">
             <h3 className="font-[family-name:var(--font-headline)] font-bold text-[#451A03] text-xl mb-6 flex items-center gap-3">
               <span className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center text-sm font-bold">3</span>
               Способ оплаты
