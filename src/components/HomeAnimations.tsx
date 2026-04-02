@@ -7,6 +7,7 @@ import RotatingText from "@/components/RotatingText";
 import ShinyText from "@/components/ShinyText";
 import ClickSpark from "@/components/ClickSpark";
 import ScrollFloat from "@/components/ScrollFloat";
+import VariableProximity from "@/components/VariableProximity";
 
 export function HeroTitle() {
   return (
