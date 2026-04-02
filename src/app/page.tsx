@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getCategories, getFeaturedProducts } from "@/lib/products-server";
 import type { Product, Category } from "@/lib/mock-data";
+import { HeroTitle, HeroBadge, HeroRotating, ClickSparkWrapper } from "@/components/HomeAnimations";
 
 /* SVG icons for each category (keyed by slug prefix — matches if slug starts with key) */
 const categoryIconsByPrefix: Record<string, React.ReactNode> = {
@@ -94,16 +95,18 @@ export default async function Home() {
       <section className="relative overflow-hidden bg-gradient-to-br from-[#FFFBEB] via-[#FEF3C7] to-white py-20 lg:py-32">
         <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-12 items-center">
           <div className="z-10 text-center lg:text-left">
-            <span className="inline-block px-4 py-1.5 rounded-full bg-tertiary-container/10 text-on-primary-fixed-variant text-xs font-bold tracking-wider uppercase mb-6">
-              Премиум сервис в Кыргызстане
+            <span className="inline-block px-4 py-1.5 rounded-full bg-tertiary-container/10 mb-6">
+              <HeroBadge />
             </span>
-            <h1 className="font-[family-name:var(--font-headline)] text-5xl lg:text-6xl font-extrabold text-[#451A03] leading-tight tracking-tight mb-6">
-              Автозапчасти из <br />
-              <span className="text-primary italic">Японии, Кореи и Китая</span>
-            </h1>
-            <p className="text-lg text-on-surface-variant mb-10 max-w-xl mx-auto lg:mx-0 leading-relaxed">
+            <div className="mb-6">
+              <HeroTitle />
+            </div>
+            <p className="text-lg text-on-surface-variant mb-4 max-w-xl mx-auto lg:mx-0 leading-relaxed">
               Оригинал и аналоги с гарантией и доставкой по всей республике. Более 100,000 наименований в наличии на собственном складе.
             </p>
+            <div className="mb-10">
+              <HeroRotating />
+            </div>
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
               <Link
                 href="/catalog"

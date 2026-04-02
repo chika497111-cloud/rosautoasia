@@ -4452,3 +4452,165 @@ Processing order ROA-000001 (ican, 8500 сом)...
   No orders to check status for
 [02.04.2026 21:21:08,80] ===== Sync complete ===== 
  
+[02.04.2026 21:51:01,89] ===== Starting sync ===== 
+[02.04.2026 21:51:01,89] Syncing products... 
+=== ROSAutoAsia OData Sync ===
+OData URL: http://localhost/unf/odata/standard.odata
+Full sync: false
+Dry run:   false
+
+Fetching products from 1С OData...
+Fetching categories from 1С...
+Fetching prices from 1С...
+  Categories catalog not available, will use product groups
+  Price register not available via OData
+Sync failed: Error: OData error 401: <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"> 
+<html xmlns="http://www.w3.org/1999/xhtml"> 
+<head> 
+<title>Подробные данные об ошибке IIS 10.0 — 401.5 — Unauthorized</title> 
+<style type="text/css"> 
+<!-- 
+body{margin:0;font-size:.7em;font-family:Verdana,Arial,Helvetica,sans-serif;} 
+code{margin:0;color:#006600;font-size:1.1em;font-weight:bold;} 
+.config_source code{font-size:.8em;color:#000000;} 
+pre{margin:0;font-size:1.4em;word-wrap:break-word;} 
+ul,ol{margin:10px 0 10px 5px;} 
+ul.first,ol.first{margin-top:5px;} 
+fieldset{padding:0 15px 10px 15px;word-break:break-all;} 
+.summary-container fieldset{padding-bottom:5px;margin-top:4px;} 
+legend.no-expand-all{padding:2px 15px 4px 10px;margin:0 0 0 -12px;} 
+legend{color:#333333;;margin:4px 0 8px -12px;_margin-top:0px; 
+font-weight:bold;font-size:1em;} 
+a:link,a:visited{color:#007EFF;font-weight:bold;} 
+a:hover{text-decoration:none;} 
+h1{font-size:2.4em;margin:0;color:#FFF;} 
+h2{font-size:1.7em;margin:0;color:#CC0000;} 
+h3{font-size:1.4em;margin:10px 0 0 0;color:#CC0000;} 
+h4{font-size:1.2em;margin:10px 0 5px 0; 
+}#header{width:96%;margin:0 0 0 0;padding:6px 2% 6px 2%;font-family:"trebuchet MS",Verdana,sans-serif; 
+ color:#FFF;background-color:#5C87B2; 
+}#content{margin:0 0 0 2%;position:relative;} 
+.summary-container,.content-container{background:#FFF;width:96%;margin-top:8px;padding:10px;position:relative;} 
+.content-container p{margin:0 0 10px 0; 
+}#details-left{width:35%;float:left;margin-right:2%; 
+}#details-right{width:63%;float:left;overflow:hidden; 
+}#server_version{width:96%;_height:1px;min-height:1px;margin:0 0 5px 0;padding:11px 2% 8px 2%;color:#FFFFFF; 
+ background-color:#5A7FA5;border-bottom:1px solid #C1CFDD;border-top:1px solid #4A6C8E;font-weight:normal; 
+ font-size:1em;color:#FFF;text-align:right; 
+}#server_version p{margin:5px 0;} 
+table{margin:4px 0 4px 0;width:100%;border:none;} 
+td,th{vertical-align:top;padding:3px 0;text-align:left;font-weight:normal;border:none;} 
+th{width:30%;text-align:right;padding-right:2%;font-weight:bold;} 
+thead th{background-color:#ebebeb;width:25%; 
+}#details-right th{width:20%;} 
+table tr.alt td,table tr.alt th{} 
+.highlight-code{color:#CC0000;font-weight:bold;font-style:italic;} 
+.clear{clear:both;} 
+.preferred{padding:0 5px 2px 5px;font-weight:normal;background:#006633;color:#FFF;font-size:.8em;} 
+--> 
+</style> 
+ 
+</head> 
+<body> 
+<div id="content"> 
+<div class="content-container"> 
+  <h3>Ошибка HTTP 401.5 — Unauthorized</h3> 
+  <h4>По URL-адресу, куда надо попасть, установлено приложение ISAPI или CGI, выполняющее проверку учетных данных пользователя до начала обработки данных. Данное приложение не может проверить ваши учетные данные.</h4> 
+</div> 
+<div class="content-container"> 
+ <fieldset><h4>Наиболее вероятные причины:</h4> 
+  <ul> 	<li>Специальное расширение ISAPI, приложение CGI, страница ASP или обработчик заблокировали запрос с ошибкой "Доступ запрещен".</li> </ul> 
+ </fieldset> 
+</div> 
+<div class="content-container"> 
+ <fieldset><h4>Возможные решения:</h4> 
+  <ul> 	<li>Обратитесь к поставщику расширения ISAPI, приложения CGI, страницы ASP или обработчика, блокирующего запрос.</li> 	<li>Создайте правило трассировки, чтобы отслеживать невыполненные запросы для этого кода состояния HTTP. Чтобы получить дополнительные сведения о создании правила трассировки для невыполненных запросов, щелкните <a href="http://go.microsoft.com/fwlink/?LinkID=66439">здесь</a>. </li> </ul> 
+ </fieldset> 
+</div> 
+ 
+<div class="content-container"> 
+ <fieldset><h4>Подробные сведения об ошибке:</h4> 
+  <div id="details-left"> 
+   <table border="0" cellpadding="0" cellspacing="0"> 
+    <tr class="alt"><th>Модуль</th><td>nbsp;&nbsp;&nbsp;IsapiModule</td></tr> 
+    <tr><th>Уведомление</th><td>&nbsp;&nbsp;&nbsp;ExecuteRequestHandler</td></tr> 
+    <tr class="alt"><th>Обработчик</th><td>&nbsp;&nbsp;&nbsp;1C Web-service Extension</td></tr> 
+    <tr><th>Код ошибки</th><td>&nbsp;&nbsp;&nbsp;0x00000000</td></tr> 
+     
+   </table> 
+  </div> 
+  <div id="details-right"> 
+   <table border="0" cellpadding="0" cellspacing="0"> 
+    <tr class="alt"><th>Запрошенный URL-адрес</th><td>&nbsp;&nbsp;&nbsp;http://localhost:80/unf/odata/standard.odata/Catalog_Номенклатура?$format=json&amp;$top=1000&amp;$skip=0&amp;$filter=IsFolder%20eq%20false&amp;$select=Ref_Key,Code,Description,%D0%90%D1%80%D1%82%D0%B8%D0%BA%D1%83%D0%BB,%D0%9A%D0%BE%D0%B4%D0%A2%D0%BE%D0%B2%D0%B0%D1%80%D0%B0,%D0%9A%D0%BE%D0%B4%D0%9F%D0%BE%D1%81%D1%82%D0%B0%D0%B2%D1%89%D0%B8%D0%BA%D0%B0,%D0%92%D0%B5%D1%81,%D0%94%D0%B0%D1%82%D0%B0%D0%98%D0%B7%D0%BC%D0%B5%D0%BD%D0%B5%D0%BD%D0%B8%D1%8F,%D0%9D%D0%B5%D0%B4%D0%B5%D0%B9%D1%81%D1%82%D0%B2%D0%B8%D1%82%D0%B5%D0%BB%D0%B5%D0%BD,%D0%9A%D0%B0%D1%82%D0%B5%D0%B3%D0%BE%D1%80%D0%B8%D1%8F%D0%9D%D0%BE%D0%BC%D0%B5%D0%BD%D0%BA%D0%BB%D0%B0%D1%82%D1%83%D1%80%D1%8B_Key</td></tr> 
+    <tr><th>Физический путь</th><td>&nbsp;&nbsp;&nbsp;C:\inetpub\wwwroot\unf\odata\standard.odata\Catalog_Номенклатура</td></tr> 
+    <tr class="alt"><th>Метод входа</th><td>&nbsp;&nbsp;&nbsp;Анонимная</td></tr> 
+    <tr><th>Пользователь, выполнивший вход</th><td>&nbsp;&nbsp;&nbsp;Анонимная</td></tr> 
+     
+   </table> 
+   <div class="clear"></div> 
+  </div> 
+ </fieldset> 
+</div> 
+ 
+<div class="content-container"> 
+ <fieldset><h4>Дополнительные сведения:</h4> 
+  URL-адрес, куда надо попасть, представляет собой страницу ASP или подключен к расширению ISAPI, приложению CGI либо к специализированному обработчику. Специальное расширение ISAPI, приложение CGI, страница ASP или обработчик отказали в выполнении запроса, возвратив ошибку "Доступ запрещен". 
+  <p><a href="https://go.microsoft.com/fwlink/?LinkID=62293&amp;IIS70Error=401,5,0x00000000,26200">Просмотреть дополнительные сведения &raquo;</a></p> 
+  <p>Статьи базы знаний Microsoft Knowledge Base:</p> 
+ <ul><li>907273</li></ul> 
+ 
+ </fieldset> 
+</div> 
+</div> 
+</body> 
+</html> 
+
+    at odataFetch (C:\Users\chika\Desktop\1C\rosautoasia\sync\odata-sync.js:63:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async fetchAllProducts1C (C:\Users\chika\Desktop\1C\rosautoasia\sync\odata-sync.js:81:20)
+    at async Promise.all (index 0)
+    at async main (C:\Users\chika\Desktop\1C\rosautoasia\sync\odata-sync.js:348:50)
+[02.04.2026 21:51:05,13] Syncing orders... 
+=== ROSAutoAsia Order Sync ===
+OData URL: http://localhost/unf/odata/standard.odata
+Dry run:   false
+
+Found 5 unsynced orders
+
+Processing order ROA-260401-000955-743 (ican, 590 сом)...
+  Failed to create customer: 401
+  Failed to create order ROA-260401-000955-743: 401 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"> 
+<html xmlns="http://www.w3.org/1999/xhtml"> 
+<head> 
+<title>Подробные данные об ошибке II
+Processing order ROA-260330-010232-428 (ican, 23800 сом)...
+  Failed to create customer: 401
+  Failed to create order ROA-260330-010232-428: 401 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"> 
+<html xmlns="http://www.w3.org/1999/xhtml"> 
+<head> 
+<title>Подробные данные об ошибке II
+Processing order ROA-000001 (ican, 15000 сом)...
+  Failed to create customer: 401
+  Failed to create order ROA-000001: 401 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"> 
+<html xmlns="http://www.w3.org/1999/xhtml"> 
+<head> 
+<title>Подробные данные об ошибке II
+Processing order ROA-260331-175503-143 (ican, 540 сом)...
+  Failed to create customer: 401
+  Failed to create order ROA-260331-175503-143: 401 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"> 
+<html xmlns="http://www.w3.org/1999/xhtml"> 
+<head> 
+<title>Подробные данные об ошибке II
+Processing order ROA-000001 (ican, 8500 сом)...
+  Failed to create customer: 401
+  Failed to create order ROA-000001: 401 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"> 
+<html xmlns="http://www.w3.org/1999/xhtml"> 
+<head> 
+<title>Подробные данные об ошибке II
+
+=== Push done: 0 synced, 5 failed ===
+
+--- Syncing order statuses from 1С ---
+  No orders to check status for
+[02.04.2026 21:51:10,46] ===== Sync complete ===== 
+ 

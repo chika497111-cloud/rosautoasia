@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { StatsGrid } from "@/components/AboutAnimations";
 
 export const metadata: Metadata = {
   title: "О компании",
@@ -76,23 +77,8 @@ export default function AboutPage() {
             </div>
           </div>
 
-          {/* Stats Grid — 4 orange gradient cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 scroll-reveal">
-            {[
-              { value: "8+ лет", label: "непрерывной работы на рынке КР" },
-              { value: "100,000+", label: "запчастей в постоянном наличии" },
-              { value: "50+", label: "прямых контрактов с брендами" },
-              { value: "10,000+", label: "довольных постоянных клиентов" },
-            ].map((stat, i) => (
-              <div
-                key={i}
-                className="cta-gradient p-8 rounded-xl text-white warm-shadow group hover:scale-[1.02] transition-transform"
-              >
-                <p className="text-4xl font-extrabold font-[family-name:var(--font-headline)] mb-2">{stat.value}</p>
-                <p className="text-white/90 font-medium">{stat.label}</p>
-              </div>
-            ))}
-          </div>
+          {/* Stats Grid — animated counters */}
+          <StatsGrid />
 
           {/* Values — 3 cards */}
           <div className="grid md:grid-cols-3 gap-8 scroll-reveal">
