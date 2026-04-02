@@ -10,6 +10,7 @@ import { NavLinks } from "@/components/NavLinks";
 import { CompareBar } from "@/components/CompareBar";
 import { SearchBar } from "@/components/SearchBar";
 import { ClickSparkProvider } from "@/components/GlobalEffects";
+import { SmoothScroll } from "@/components/SmoothScroll";
 
 const manrope = Manrope({
   subsets: ["latin", "cyrillic"],
@@ -78,6 +79,7 @@ export default function RootLayout({
       </head>
       <body className="min-h-full flex flex-col bg-surface font-[family-name:var(--font-body)] antialiased">
         <Providers>
+          <SmoothScroll />
           <ClickSparkProvider>
           <div className="scroll-progress" />
           <ScrollToTop />
