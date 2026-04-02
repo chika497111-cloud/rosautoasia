@@ -1,19 +1,20 @@
 "use client";
 
 import CountUp from "@/components/CountUp";
-import BlurText from "@/components/BlurText";
+import GradientText from "@/components/GradientText";
 import RotatingText from "@/components/RotatingText";
 import ShinyText from "@/components/ShinyText";
 import ClickSpark from "@/components/ClickSpark";
 
 export function HeroTitle() {
   return (
-    <BlurText
-      text="Автозапчасти из Японии, Кореи и Китая"
-      className="font-[family-name:var(--font-headline)] text-5xl lg:text-6xl font-extrabold text-[#451A03] leading-tight tracking-tight"
-      delay={40}
-      animateBy="words"
-    />
+    <GradientText
+      colors={["#451A03", "#9d4300", "#f97316", "#ea580c", "#451A03"]}
+      animationSpeed={6}
+      className="font-[family-name:var(--font-headline)] text-5xl lg:text-6xl font-extrabold leading-tight tracking-tight"
+    >
+      Автозапчасти из Японии, Кореи и Китая
+    </GradientText>
   );
 }
 
