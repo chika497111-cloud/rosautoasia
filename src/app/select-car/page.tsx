@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { db } from "@/lib/firebase";
+import FadeContent from "@/components/FadeContent";
 import { collection, getDocs, query, orderBy } from "firebase/firestore";
 
 interface BrandInfo {
@@ -127,12 +128,12 @@ export default function SelectCarPage() {
           </header>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 scroll-reveal">
-            {brands.map((brand) => (
-              <button
-                key={brand.name}
-                onClick={() => setSelectedBrand(brand)}
-                className="bg-white warm-shadow rounded-xl p-6 flex flex-col items-center text-center group hover:bg-primary-container transition-all duration-300 active:scale-95"
-              >
+            {brands.map((brand, index) => (
+              <FadeContent key={brand.name} delay={index * 0.08} duration={0.5} blur>
+                <button
+                  onClick={() => setSelectedBrand(brand)}
+                  className="bg-white warm-shadow rounded-xl p-6 flex flex-col items-center text-center group hover:bg-primary-container transition-all duration-300 active:scale-95 w-full"
+                >
                 <span className="text-4xl mb-3 group-hover:scale-110 transition-transform">
                   {BRAND_ICONS[brand.name] || "🔧"}
                 </span>
@@ -143,6 +144,7 @@ export default function SelectCarPage() {
                   {brand.totalProducts.toLocaleString("ru-RU")} товаров
                 </p>
               </button>
+              </FadeContent>
             ))}
           </div>
         </>
