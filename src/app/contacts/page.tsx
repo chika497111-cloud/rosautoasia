@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import ContactForm from "./ContactForm";
+import { AnimatedH1 } from "@/components/AnimatedHeading";
 
 export const metadata: Metadata = {
   title: "Контакты",
@@ -31,9 +32,12 @@ export default function ContactsPage() {
       {/* Contacts Section */}
       <section className="py-24 px-8 lg:px-24 bg-surface">
         <div className="max-w-screen-2xl mx-auto">
-          <h1 className="text-4xl font-bold font-[family-name:var(--font-headline)] text-[#451A03] mb-16 text-center">
-            Контакты
-          </h1>
+          <div className="mb-16 text-center">
+            <AnimatedH1
+              text="Контакты"
+              className="text-4xl font-bold font-[family-name:var(--font-headline)] text-[#451A03]"
+            />
+          </div>
 
           <div className="grid lg:grid-cols-2 gap-16 items-start">
             {/* Left column: info cards + form */}

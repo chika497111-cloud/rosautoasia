@@ -9,6 +9,7 @@ import { ScrollToTop } from "@/components/ScrollToTop";
 import { NavLinks } from "@/components/NavLinks";
 import { CompareBar } from "@/components/CompareBar";
 import { SearchBar } from "@/components/SearchBar";
+import { ClickSparkProvider } from "@/components/GlobalEffects";
 
 const manrope = Manrope({
   subsets: ["latin", "cyrillic"],
@@ -77,6 +78,7 @@ export default function RootLayout({
       </head>
       <body className="min-h-full flex flex-col bg-surface font-[family-name:var(--font-body)] antialiased">
         <Providers>
+          <ClickSparkProvider>
           <div className="scroll-progress" />
           <ScrollToTop />
           {/* Навигация */}
@@ -190,6 +192,7 @@ export default function RootLayout({
               <p className="text-xs text-[#FFFBEB]/40">© {new Date().getFullYear()} ROSAutoAsia. Все права защищены.</p>
             </div>
           </footer>
+          </ClickSparkProvider>
         </Providers>
       </body>
     </html>

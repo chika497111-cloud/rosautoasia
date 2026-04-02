@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getCategories, getTotalProductCount } from "@/lib/products-server";
 import type { Metadata } from "next";
 import type { Category } from "@/lib/mock-data";
+import { AnimatedH1 } from "@/components/AnimatedHeading";
 
 export const metadata: Metadata = {
   title: "Каталог запчастей — ROSAutoAsia",
@@ -49,9 +50,10 @@ export default async function CatalogPage() {
 
       {/* Title Section */}
       <header className="mb-10">
-        <h1 className="font-[family-name:var(--font-headline)] text-4xl md:text-5xl font-extrabold text-[#451A03] tracking-tight mb-2">
-          Каталог запчастей
-        </h1>
+        <AnimatedH1
+          text="Каталог запчастей"
+          className="font-[family-name:var(--font-headline)] text-4xl md:text-5xl font-extrabold text-[#451A03] tracking-tight mb-2"
+        />
         <p className="text-on-surface-variant">
           {totalProducts} {totalProducts === 1 ? "товар" : totalProducts < 5 ? "товара" : "товаров"} в наличии и под заказ
         </p>

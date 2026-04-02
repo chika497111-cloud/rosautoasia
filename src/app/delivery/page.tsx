@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { AnimatedH1 } from "@/components/AnimatedHeading";
 
 export const metadata: Metadata = {
   title: "Доставка и оплата",
@@ -25,9 +26,10 @@ export default function DeliveryPage() {
             <span className="text-on-surface">Доставка и оплата</span>
           </nav>
           <div className="text-center space-y-4">
-            <h1 className="text-4xl md:text-5xl font-bold font-[family-name:var(--font-headline)] text-[#451A03]">
-              Доставка и оплата
-            </h1>
+            <AnimatedH1
+              text="Доставка и оплата"
+              className="text-4xl md:text-5xl font-bold font-[family-name:var(--font-headline)] text-[#451A03]"
+            />
             <p className="text-on-surface-variant font-medium">
               Простые и понятные способы получения вашего заказа
             </p>
