@@ -503,7 +503,8 @@ export default function CategoryClient({
               {currentPageProducts.map((product, index) => (
                 <article
                   key={product.id}
-                  className="bg-surface-lowest rounded-xl p-5 warm-shadow group transition-all hover:-translate-y-1 relative hover-dim-item"
+                  className="bg-surface-lowest rounded-xl p-5 warm-shadow group transition-all hover:-translate-y-1 relative hover-dim-item animate-[fadeIn_0.3s_ease-out_both]"
+                  style={{ animationDelay: `${Math.min(index * 30, 300)}ms` }}
                 >
                   {/* Image Area */}
                   <Link href={`/product/${product.id}`}>
