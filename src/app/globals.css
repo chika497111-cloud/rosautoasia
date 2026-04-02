@@ -180,6 +180,26 @@ input[type="radio"] {
   accent-color: #f97316;
 }
 
+/* ===== SHINY BADGE (CSS-only, for "В наличии" etc.) ===== */
+.shiny-badge {
+  position: relative;
+  overflow: hidden;
+}
+.shiny-badge::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+  animation: shinyBadgeSweep 3s ease-in-out infinite;
+}
+@keyframes shinyBadgeSweep {
+  0%, 70%, 100% { left: -100%; }
+  40% { left: 150%; }
+}
+
 /* ===== SCROLL-DRIVEN ANIMATIONS (CSS-only, no JS!) ===== */
 
 /* Scroll progress bar */

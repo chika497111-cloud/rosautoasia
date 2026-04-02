@@ -534,7 +534,7 @@ export default function CategoryClient({
                   <div className="mb-4">
                     <div className="flex items-center gap-2 mb-1">
                       {product.quantity > 0 ? (
-                        <span className="bg-green-100 text-green-700 text-[10px] font-bold px-2 py-0.5 rounded uppercase">
+                        <span className="bg-green-100 text-green-700 text-[10px] font-bold px-2 py-0.5 rounded uppercase shiny-badge">
                           В наличии
                         </span>
                       ) : (
