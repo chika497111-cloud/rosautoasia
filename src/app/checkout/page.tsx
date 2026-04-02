@@ -72,12 +72,6 @@ export default function CheckoutPage() {
           >
             Войти
           </Link>
-          <Link
-            href="/register"
-            className="inline-block bg-surface-lowest text-[#451A03] font-[family-name:var(--font-headline)] font-bold px-10 py-4 rounded-full shadow-[0_10px_30px_rgba(69,26,3,0.04)] hover:scale-[1.02] active:scale-95 transition-all"
-          >
-            Зарегистрироваться
-          </Link>
         </div>
       </div>
     );

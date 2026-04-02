@@ -2,6 +2,7 @@ import "server-only";
 
 import { initializeApp, getApps, getApp, cert } from "firebase-admin/app";
 import { getFirestore } from "firebase-admin/firestore";
+import { getAuth as _getAdminAuth } from "firebase-admin/auth";
 
 function initAdmin() {
   if (getApps().length > 0) return getApp();
@@ -18,4 +19,9 @@ function initAdmin() {
 export function getAdminFirestore() {
   initAdmin();
   return getFirestore();
+}
+
+export function getAdminAuth() {
+  initAdmin();
+  return _getAdminAuth();
 }

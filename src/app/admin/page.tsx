@@ -100,7 +100,7 @@ export default function AdminPage() {
       return;
     }
 
-    const result = await createStaffAccount(staffName.trim(), staffPhone.trim(), staffPassword, staffRole);
+    const result = await createStaffAccount(staffName.trim(), staffPhone.trim(), staffRole);
     if (result.success) {
       setStaff(await getStaffAccounts());
       setShowStaffForm(false);
@@ -546,17 +546,6 @@ export default function AdminPage() {
                       }`}
                     />
                     {phoneError && <p className="text-error text-xs mt-1 ml-1">{phoneError}</p>}
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-semibold text-on-surface-variant uppercase tracking-wider ml-1">Пароль</label>
-                    <input
-                      type="password"
-                      required
-                      value={staffPassword}
-                      onChange={(e) => setStaffPassword(e.target.value)}
-                      placeholder="Минимум 6 символов"
-                      className="w-full px-4 py-3 bg-surface-mid rounded-lg border-none focus:ring-2 focus:ring-primary/20 text-on-surface placeholder:text-outline/50 transition-all"
-                    />
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-semibold text-on-surface-variant uppercase tracking-wider ml-1">Роль</label>

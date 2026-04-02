@@ -33,10 +33,13 @@ async def run_test():
         # -> Navigate to http://localhost:3000
         await page.goto("http://localhost:3000", wait_until="commit", timeout=10000)
         
-        # -> Navigate to /catalog (http://localhost:3000/catalog).
-        await page.goto("http://localhost:3000/catalog", wait_until="commit", timeout=10000)
+        # -> Click the 'Каталог' link to open the catalog page (navigate to /catalog).
+        frame = context.pages[-1]
+        # Click element
+        elem = frame.locator('xpath=/html/body/nav/div/div/a').nth(0)
+        await page.wait_for_timeout(3000); await elem.click(timeout=5000)
         
-        # -> Click the 'Тормозная система' category card (element index 670) to open its product listing.
+        # -> Click a category tile (e.g., 'Тормозная система') to open its category page.
         frame = context.pages[-1]
         # Click element
         elem = frame.locator('xpath=/html/body/main/main/div/a').nth(0)

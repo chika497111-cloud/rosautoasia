@@ -119,9 +119,6 @@ export function MobileMenu() {
               <Link href="/login" onClick={close} className="px-5 py-3.5 rounded-2xl bg-orange-500/20 hover:bg-orange-500/30 transition-all active:scale-[0.98] text-base font-medium text-orange-300">
                 Войти
               </Link>
-              <Link href="/register" onClick={close} className="px-5 py-3.5 rounded-2xl bg-orange-500/20 hover:bg-orange-500/30 transition-all active:scale-[0.98] text-base font-medium text-orange-300">
-                Регистрация
-              </Link>
             </>
           )}
         </nav>

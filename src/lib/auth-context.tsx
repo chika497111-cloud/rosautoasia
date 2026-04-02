@@ -2,12 +2,9 @@
 
 import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from "react";
 import { auth, db } from "@/lib/firebase";
-import { initializeApp, deleteApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
 import {
   onAuthStateChanged,
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
+  signInWithCustomToken,
   signOut,
   type User as FirebaseUser,
 } from "firebase/auth";
@@ -36,7 +33,6 @@ export interface User {
   phone: string;
   city?: string;
   address?: string;
-  password: string;
   role: UserRole;
   createdAt: string;
 }
@@ -61,16 +57,14 @@ export interface Order {
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
-  login: (phone: string, password: string) => Promise<{ success: boolean; error?: string }>;
-  register: (firstName: string, lastName: string, phone: string, password: string, city?: string) => Promise<{ success: boolean; error?: string }>;
+  loginWithToken: (token: string) => Promise<void>;
   logout: () => void;
   orders: Order[];
   addOrder: (order: Omit<Order, "id" | "number" | "userId" | "userName" | "userPhone" | "status" | "createdAt">) => Promise<Order>;
-  // Админ-функции
   getAllOrders: () => Promise<Order[]>;
   getAllClients: () => Promise<User[]>;
   updateOrderStatus: (orderId: string, status: Order["status"]) => Promise<boolean>;
-  createStaffAccount: (name: string, phone: string, password: string, role: "admin" | "manager") => Promise<{ success: boolean; error?: string }>;
+  createStaffAccount: (name: string, phone: string, role: "admin" | "manager") => Promise<{ success: boolean; error?: string }>;
   getStaffAccounts: () => Promise<User[]>;
   deleteStaffAccount: (userId: string) => Promise<boolean>;
   updateProfile: (data: { firstName?: string; lastName?: string; city?: string; address?: string }) => Promise<boolean>;
@@ -78,12 +72,6 @@ interface AuthContextType {
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
-
-/** Convert phone to fake email for Firebase Auth: +996555000000 -> 996555000000@raa.kg */
-function phoneToEmail(phone: string): string {
-  const digits = phone.replace(/\D/g, "");
-  return `${digits}@raa.kg`;
-}
 
 /** Read a user profile doc from Firestore */
 async function getUserProfile(uid: string): Promise<User | null> {
@@ -99,7 +87,6 @@ async function getUserProfile(uid: string): Promise<User | null> {
       phone: data.phone ?? "",
       city: data.city ?? "",
       address: data.address ?? "",
-      password: "", // never stored / returned
       role: data.role ?? "client",
       createdAt: data.createdAt ?? new Date().toISOString(),
     };
@@ -108,12 +95,11 @@ async function getUserProfile(uid: string): Promise<User | null> {
   }
 }
 
-/** Read user profile with retry — useful after registration when Firestore write may not be immediately consistent */
+/** Read user profile with retry */
 async function getUserProfileWithRetry(uid: string, maxRetries = 3): Promise<User | null> {
   for (let i = 0; i < maxRetries; i++) {
     const profile = await getUserProfile(uid);
     if (profile) return profile;
-    // Wait before retry, increasing delay each time
     await new Promise((r) => setTimeout(r, 500 * (i + 1)));
   }
   return null;
@@ -160,14 +146,11 @@ function generateOrderNumber(): string {
   const hh = String(now.getHours()).padStart(2, "0");
   const min = String(now.getMinutes()).padStart(2, "0");
   const ss = String(now.getSeconds()).padStart(2, "0");
-  // Add random suffix to avoid collisions
   const rand = String(Math.floor(Math.random() * 1000)).padStart(3, "0");
   return `ROA-${yy}${mm}${dd}-${hh}${min}${ss}-${rand}`;
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  // Start with null/empty — identical on server and client to avoid hydration mismatch.
-  // localStorage cache is loaded in useEffect below.
   const [user, setUser] = useState<User | null>(null);
   const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -235,110 +218,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => unsub();
   }, []);
 
-  // login() ONLY calls Firebase Auth and returns the result.
-  // It does NOT set user, orders, or isLoading.
-  // onAuthStateChanged handles all of that.
-  const login = useCallback(async (phone: string, password: string): Promise<{ success: boolean; error?: string }> => {
-    try {
-      const email = phoneToEmail(phone);
-      await signInWithEmailAndPassword(auth, email, password);
-      // onAuthStateChanged will fire and load profile + orders
-      return { success: true };
-    } catch (err: unknown) {
-      console.error("[login] Error:", err);
-      const code = (err as { code?: string }).code;
-      const message = (err as { message?: string }).message;
-      if (code === "auth/user-not-found" || code === "auth/invalid-credential") {
-        return { success: false, error: "Неверный телефон или пароль" };
-      }
-      if (code === "auth/wrong-password") {
-        return { success: false, error: "Неверный пароль" };
-      }
-      if (code === "auth/network-request-failed") {
-        return { success: false, error: "Нет подключения к интернету. Проверьте соединение." };
-      }
-      if (code === "auth/too-many-requests") {
-        return { success: false, error: "Слишком много попыток. Подождите несколько минут." };
-      }
-      return { success: false, error: `Ошибка входа: ${code || message || "неизвестная ошибка"}` };
-    }
-  }, []);
-
-  // register() creates the auth user + writes the Firestore profile, then returns.
-  // It does NOT set user/orders — onAuthStateChanged will handle that.
-  const register = useCallback(async (firstName: string, lastName: string, phone: string, password: string, city?: string): Promise<{ success: boolean; error?: string }> => {
-    try {
-      if (password.length < 6) {
-        return { success: false, error: "Пароль должен быть не менее 6 символов" };
-      }
-
-      const email = phoneToEmail(phone);
-
-      let cred;
-      try {
-        cred = await createUserWithEmailAndPassword(auth, email, password);
-      } catch (authErr: unknown) {
-        const code = (authErr as { code?: string }).code;
-        if (code === "auth/email-already-in-use") {
-          return { success: false, error: "Пользователь с таким телефоном уже зарегистрирован" };
-        }
-        if (code === "auth/weak-password") {
-          return { success: false, error: "Пароль слишком слабый (минимум 6 символов)" };
-        }
-        return { success: false, error: "Ошибка регистрации. Попробуйте позже." };
-      }
-
-      // Write Firestore profile
-      const now = new Date().toISOString();
-      const name = `${firstName} ${lastName}`;
-      const profileData = {
-        firstName,
-        lastName,
-        name,
-        phone,
-        city: city || "",
-        role: "client" as const,
-        createdAt: now,
-      };
-
-      try {
-        await setDoc(doc(db, "users", cred.user.uid), profileData);
-      } catch {
-        // Retry once
-        await new Promise((r) => setTimeout(r, 1000));
-        try {
-          await setDoc(doc(db, "users", cred.user.uid), profileData);
-        } catch (retryErr) {
-          console.error("[register] Failed to write profile after retry:", retryErr);
-          return { success: false, error: "Аккаунт создан, но профиль не сохранён. Попробуйте войти." };
-        }
-      }
-
-      // onAuthStateChanged will fire (it already fired when createUserWithEmailAndPassword
-      // resolved, but at that point profile may not have been written yet). Since we use
-      // getUserProfileWithRetry in the listener, it will eventually find the profile.
-      // However, onAuthStateChanged may have already fired and failed to find the profile.
-      // In that case we need to manually trigger a reload. We do this by setting isLoading
-      // and letting the caller know registration succeeded — they can redirect, and the
-      // auth listener will have the profile by then.
-
-      // Force a re-check by reloading the current user's token (triggers onAuthStateChanged)
-      // Actually, onAuthStateChanged only fires on sign-in/sign-out, not token refresh.
-      // Since createUserWithEmailAndPassword already triggered it, and our listener uses
-      // getUserProfileWithRetry with 3 retries (500ms, 1000ms, 1500ms = 3s total),
-      // the profile should be found. The profile write above takes ~100-500ms typically,
-      // so by the time retry #2 runs, it should be there.
-
-      return { success: true };
-    } catch (err: unknown) {
-      console.error("[register] Unexpected error:", err);
-      return { success: false, error: "Ошибка регистрации. Попробуйте позже." };
-    }
+  const loginWithToken = useCallback(async (token: string): Promise<void> => {
+    await signInWithCustomToken(auth, token);
+    // onAuthStateChanged will fire and load profile + orders
   }, []);
 
   const logout = useCallback(() => {
     signOut(auth);
-    // onAuthStateChanged will fire with null and clear user/orders
   }, []);
 
   const addOrder = useCallback(
@@ -360,12 +246,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         };
 
         const ref = await addDoc(collection(db, "orders"), orderDoc);
-
-        const newOrder: Order = {
-          ...orderDoc,
-          id: ref.id,
-        };
-
+        const newOrder: Order = { ...orderDoc, id: ref.id };
         setOrders((prev) => [newOrder, ...prev]);
 
         // Send Telegram notification (fire and forget)
@@ -415,7 +296,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           phone: data.phone ?? "",
           city: data.city ?? "",
           address: data.address ?? "",
-          password: "",
           role: data.role ?? "client",
           createdAt: data.createdAt ?? "",
         } as User;
@@ -435,38 +315,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const createStaffAccount = useCallback(async (name: string, phone: string, password: string, role: "admin" | "manager"): Promise<{ success: boolean; error?: string }> => {
-    let secondaryApp;
+  const createStaffAccount = useCallback(async (name: string, phone: string, role: "admin" | "manager"): Promise<{ success: boolean; error?: string }> => {
     try {
-      if (password.length < 6) {
-        return { success: false, error: "Пароль должен быть не менее 6 символов" };
-      }
-
-      const email = phoneToEmail(phone);
-
-      secondaryApp = initializeApp(auth.app.options, "staffCreator_" + Date.now());
-      const secondaryAuth = getAuth(secondaryApp);
-      const cred = await createUserWithEmailAndPassword(secondaryAuth, email, password);
-
-      await setDoc(doc(db, "users", cred.user.uid), {
-        name,
-        phone,
-        role,
-        createdAt: new Date().toISOString(),
+      // Create staff via server API (admin SDK handles Firebase Auth)
+      const res = await fetch("/api/sms/create-staff", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, phone, role }),
       });
-
-      await signOut(secondaryAuth);
-      await deleteApp(secondaryApp);
-
+      const data = await res.json();
+      if (!res.ok) return { success: false, error: data.error || "Ошибка создания аккаунта" };
       return { success: true };
-    } catch (err: unknown) {
-      if (secondaryApp) {
-        try { await deleteApp(secondaryApp); } catch { /* ignore */ }
-      }
-      const code = (err as { code?: string }).code;
-      if (code === "auth/email-already-in-use") {
-        return { success: false, error: "Пользователь с таким телефоном уже существует" };
-      }
+    } catch {
       return { success: false, error: "Ошибка создания аккаунта" };
     }
   }, []);
@@ -484,7 +344,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           lastName: data.lastName ?? "",
           phone: data.phone ?? "",
           city: data.city ?? "",
-          password: "",
           role: data.role ?? "manager",
           createdAt: data.createdAt ?? "",
         } as User;
@@ -511,7 +370,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (data.lastName !== undefined) updates.lastName = data.lastName;
       if (data.city !== undefined) updates.city = data.city;
       if (data.address !== undefined) updates.address = data.address;
-      // Also update the combined name field
       if (data.firstName !== undefined || data.lastName !== undefined) {
         const fn = data.firstName ?? user.firstName ?? "";
         const ln = data.lastName ?? user.lastName ?? "";
@@ -526,40 +384,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [user]);
 
   const createClientAccount = useCallback(async (firstName: string, lastName: string, phone: string, city?: string, address?: string): Promise<{ success: boolean; error?: string }> => {
-    let secondaryApp;
     try {
-      const email = phoneToEmail(phone);
-      // Default password for manually created clients
-      const defaultPassword = "client123456";
-
-      secondaryApp = initializeApp(auth.app.options, "clientCreator_" + Date.now());
-      const secondaryAuth = getAuth(secondaryApp);
-      const cred = await createUserWithEmailAndPassword(secondaryAuth, email, defaultPassword);
-
-      const name = [firstName, lastName].filter(Boolean).join(" ");
-      await setDoc(doc(db, "users", cred.user.uid), {
-        name,
-        firstName,
-        lastName,
-        phone,
-        city: city || "",
-        address: address || "",
-        role: "client" as const,
-        createdAt: new Date().toISOString(),
+      const res = await fetch("/api/sms/create-client", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ firstName, lastName, phone, city, address }),
       });
-
-      await signOut(secondaryAuth);
-      await deleteApp(secondaryApp);
-
+      const data = await res.json();
+      if (!res.ok) return { success: false, error: data.error || "Ошибка создания клиента" };
       return { success: true };
-    } catch (err: unknown) {
-      if (secondaryApp) {
-        try { await deleteApp(secondaryApp); } catch { /* ignore */ }
-      }
-      const code = (err as { code?: string }).code;
-      if (code === "auth/email-already-in-use") {
-        return { success: false, error: "Клиент с таким телефоном уже существует" };
-      }
+    } catch {
       return { success: false, error: "Ошибка создания клиента" };
     }
   }, []);
@@ -567,7 +401,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   return (
     <AuthContext.Provider
       value={{
-        user, isLoading, login, register, logout, orders, addOrder,
+        user, isLoading, loginWithToken, logout, orders, addOrder,
         getAllOrders, getAllClients, updateOrderStatus,
         createStaffAccount, getStaffAccounts, deleteStaffAccount,
         updateProfile, createClientAccount,
