@@ -6,6 +6,7 @@ import GradientText from "@/components/GradientText";
 import RotatingText from "@/components/RotatingText";
 import ShinyText from "@/components/ShinyText";
 import ClickSpark from "@/components/ClickSpark";
+import ScrollFloat from "@/components/ScrollFloat";
 
 export function HeroTitle() {
   return (
@@ -62,6 +63,21 @@ export function ClickSparkWrapper({ children }: { children: React.ReactNode }) {
     <ClickSpark sparkColor="#f97316" sparkSize={10} sparkCount={8} sparkRadius={15} duration={400}>
       {children}
     </ClickSpark>
+  );
+}
+
+export function FloatingHeading({ text, className = "" }: { text: string; className?: string }) {
+  return (
+    <ScrollFloat
+      textClassName={className}
+      animationDuration={1}
+      ease="back.inOut(2)"
+      scrollStart="center bottom+=50%"
+      scrollEnd="bottom bottom-=40%"
+      stagger={0.03}
+    >
+      {text}
+    </ScrollFloat>
   );
 }
 

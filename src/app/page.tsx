@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { getCategories, getFeaturedProducts } from "@/lib/products-server";
 import type { Product, Category } from "@/lib/mock-data";
-import { HeroTitle, HeroBadge, HeroRotating, ClickSparkWrapper, ShinyBadge } from "@/components/HomeAnimations";
+import { HeroTitle, HeroBadge, HeroRotating, ClickSparkWrapper, ShinyBadge, FloatingHeading } from "@/components/HomeAnimations";
 
 /* SVG icons for each category (keyed by slug prefix — matches if slug starts with key) */
 const categoryIconsByPrefix: Record<string, React.ReactNode> = {
@@ -143,9 +143,10 @@ export default async function Home() {
           {/* Header row */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-12 gap-4">
             <div>
-              <h2 className="font-[family-name:var(--font-headline)] text-3xl sm:text-4xl font-extrabold tracking-tight text-on-surface">
-                Популярные категории
-              </h2>
+              <FloatingHeading
+                text="Популярные категории"
+                className="font-[family-name:var(--font-headline)] text-3xl sm:text-4xl font-extrabold tracking-tight text-on-surface"
+              />
               <p className="text-on-surface-variant mt-2">Быстрый доступ к нужным запчастям</p>
             </div>
             <Link href="/catalog" className="text-primary font-bold flex items-center gap-2 hover:gap-4 transition-all shrink-0">
@@ -184,9 +185,10 @@ export default async function Home() {
         <div className="max-w-7xl mx-auto">
           {/* Centered title with orange line */}
           <div className="text-center mb-14">
-            <h2 className="font-[family-name:var(--font-headline)] text-3xl sm:text-4xl font-extrabold tracking-tight text-on-surface mb-4">
-              Рекомендуемые товары
-            </h2>
+            <FloatingHeading
+              text="Рекомендуемые товары"
+              className="font-[family-name:var(--font-headline)] text-3xl sm:text-4xl font-extrabold tracking-tight text-on-surface mb-4"
+            />
             <div className="h-1 w-20 bg-primary mx-auto rounded-full" />
           </div>
 
