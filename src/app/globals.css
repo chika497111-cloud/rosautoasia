@@ -180,6 +180,266 @@ input[type="radio"] {
   accent-color: #f97316;
 }
 
+/* ===== SCROLL-DRIVEN ANIMATIONS (CSS-only, no JS!) ===== */
+
+/* Scroll progress bar */
+.scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg, #9d4300, #f97316);
+  transform-origin: left;
+  z-index: 99999;
+  animation: scaleProgress linear;
+  animation-timeline: scroll(root block);
+}
+@keyframes scaleProgress {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+/* Cards reveal on scroll */
+.scroll-reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  animation: scrollReveal linear both;
+  animation-timeline: view();
+  animation-range: entry 0% entry 30%;
+}
+@keyframes scrollReveal {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Fade in from left */
+.scroll-reveal-left {
+  opacity: 0;
+  transform: translateX(-30px);
+  animation: scrollRevealLeft linear both;
+  animation-timeline: view();
+  animation-range: entry 0% entry 30%;
+}
+@keyframes scrollRevealLeft {
+  from { opacity: 0; transform: translateX(-30px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+/* Fade in from right */
+.scroll-reveal-right {
+  opacity: 0;
+  transform: translateX(30px);
+  animation: scrollRevealRight linear both;
+  animation-timeline: view();
+  animation-range: entry 0% entry 30%;
+}
+@keyframes scrollRevealRight {
+  from { opacity: 0; transform: translateX(30px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+/* Scale up on scroll */
+.scroll-reveal-scale {
+  opacity: 0;
+  transform: scale(0.9);
+  animation: scrollRevealScale linear both;
+  animation-timeline: view();
+  animation-range: entry 0% entry 25%;
+}
+@keyframes scrollRevealScale {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* ===== STAGGER DELAYS for grids ===== */
+.stagger-1 { animation-delay: 0.05s; }
+.stagger-2 { animation-delay: 0.1s; }
+.stagger-3 { animation-delay: 0.15s; }
+.stagger-4 { animation-delay: 0.2s; }
+.stagger-5 { animation-delay: 0.25s; }
+.stagger-6 { animation-delay: 0.3s; }
+.stagger-7 { animation-delay: 0.35s; }
+.stagger-8 { animation-delay: 0.4s; }
+
+/* ===== SHIMMER SKELETON (replaces boring pulse) ===== */
+.skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--surface-mid) 25%,
+    var(--surface-high) 50%,
+    var(--surface-mid) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite ease-in-out;
+  border-radius: 8px;
+}
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ===== ALL-BUT-ME HOVER (product grids) ===== */
+.hover-dim-others:has(.hover-dim-item:hover) .hover-dim-item:not(:hover) {
+  opacity: 0.6;
+  filter: saturate(0.5);
+  transition: opacity 0.3s, filter 0.3s;
+}
+.hover-dim-item {
+  transition: opacity 0.3s, filter 0.3s, transform 0.3s;
+}
+
+/* ===== ANIMATED GRADIENT TEXT ===== */
+.gradient-text-animated {
+  background: linear-gradient(135deg, #9d4300, #f97316, #ea580c, #9d4300);
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gradientShift 4s ease infinite;
+}
+@keyframes gradientShift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+/* ===== RIPPLE CLICK effect on CTA buttons ===== */
+.ripple-button {
+  position: relative;
+  overflow: hidden;
+}
+.ripple-button::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  background-image: radial-gradient(circle, rgba(255,255,255,0.3) 10%, transparent 10.01%);
+  background-repeat: no-repeat;
+  background-position: 50%;
+  transform: scale(10);
+  opacity: 0;
+  transition: transform 0.5s, opacity 0.8s;
+}
+.ripple-button:active::after {
+  transform: scale(0);
+  opacity: 1;
+  transition: 0s;
+}
+
+/* ===== CART BADGE BOUNCE ===== */
+@keyframes cartBounce {
+  0%, 100% { transform: scale(1); }
+  30% { transform: scale(1.4); }
+  60% { transform: scale(0.9); }
+  80% { transform: scale(1.1); }
+}
+.cart-bounce {
+  animation: cartBounce 0.5s ease;
+}
+
+/* ===== IMAGE FADE-IN on load ===== */
+.img-fade-in {
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+.img-fade-in.loaded {
+  opacity: 1;
+}
+
+/* ===== FLOATING GRADIENT ORBS (decorative backgrounds) ===== */
+@keyframes floatOrb {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(30px, -20px) scale(1.05); }
+  66% { transform: translate(-20px, 15px) scale(0.95); }
+}
+.floating-orb {
+  animation: floatOrb 8s ease-in-out infinite;
+  border-radius: 50%;
+  filter: blur(40px);
+  opacity: 0.15;
+  pointer-events: none;
+}
+
+/* ===== INPUT FOCUS ANIMATION ===== */
+.input-animated {
+  transition: box-shadow 0.3s ease, border-color 0.3s ease, transform 0.2s ease;
+}
+.input-animated:focus {
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15);
+  transform: translateY(-1px);
+}
+
+/* ===== COUNTER ANIMATION (for stats) ===== */
+@property --num {
+  syntax: '<integer>';
+  inherits: false;
+  initial-value: 0;
+}
+.counter-animate {
+  transition: --num 2s ease-out;
+  counter-reset: num var(--num);
+}
+.counter-animate::after {
+  content: counter(num);
+}
+
+/* ===== GLOW ON HOVER (for important buttons) ===== */
+.glow-hover {
+  transition: box-shadow 0.3s ease;
+}
+.glow-hover:hover {
+  box-shadow: 0 0 20px rgba(249, 115, 22, 0.4), 0 0 40px rgba(249, 115, 22, 0.2);
+}
+
+/* ===== MARQUEE (infinite scroll text/logos) ===== */
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.marquee {
+  animation: marquee 30s linear infinite;
+}
+
+/* ===== TEXT BALANCE for headlines ===== */
+h1, h2, h3 {
+  text-wrap: balance;
+}
+p {
+  text-wrap: pretty;
+}
+
+/* ===== SMOOTH GRADIENT BORDER ROTATION ===== */
+@property --border-angle {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+.gradient-border-spin {
+  --border-angle: 0deg;
+  border: 2px solid transparent;
+  background:
+    linear-gradient(var(--surface-lowest), var(--surface-lowest)) padding-box,
+    conic-gradient(from var(--border-angle), #9d4300, #f97316, #ea580c, #9d4300) border-box;
+  animation: borderSpin 4s linear infinite;
+}
+@keyframes borderSpin {
+  to { --border-angle: 360deg; }
+}
+
+/* ===== REDUCED MOTION — respect user preference ===== */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .scroll-progress { display: none; }
+}
+
 ::selection {
   background: var(--primary-fixed);
   color: var(--on-primary-fixed-variant);

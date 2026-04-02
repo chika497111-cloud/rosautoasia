@@ -499,11 +499,11 @@ export default function CategoryClient({
               </button>
             </div>
           ) : !isLoading ? (
-            <div ref={gridRef} className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 transition-opacity duration-150 ${isStale ? "opacity-50" : "opacity-100"}`}>
+            <div ref={gridRef} className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 transition-opacity duration-150 hover-dim-others ${isStale ? "opacity-50" : "opacity-100"}`}>
               {currentPageProducts.map((product, index) => (
                 <article
                   key={product.id}
-                  className="bg-surface-lowest rounded-xl p-5 warm-shadow group transition-all hover:-translate-y-1 relative"
+                  className="bg-surface-lowest rounded-xl p-5 warm-shadow group transition-all hover:-translate-y-1 relative hover-dim-item"
                 >
                   {/* Image Area */}
                   <Link href={`/product/${product.id}`}>

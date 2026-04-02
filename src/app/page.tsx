@@ -107,7 +107,7 @@ export default async function Home() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
               <Link
                 href="/catalog"
-                className="cta-gradient text-white px-10 py-4 rounded-full font-bold shadow-lg hover:shadow-xl hover:shadow-primary/25 transition-all active:scale-95 inline-flex items-center justify-center gap-2"
+                className="cta-gradient text-white px-10 py-4 rounded-full font-bold shadow-lg hover:shadow-xl hover:shadow-primary/25 transition-all active:scale-95 inline-flex items-center justify-center gap-2 ripple-button glow-hover"
               >
                 Перейти в каталог
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -135,7 +135,7 @@ export default async function Home() {
       </section>
 
       {/* ===== CATEGORIES SECTION ===== */}
-      <section className="py-20 px-6">
+      <section className="py-20 px-6 scroll-reveal">
         <div className="max-w-7xl mx-auto">
           {/* Header row */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-12 gap-4">
@@ -177,7 +177,7 @@ export default async function Home() {
       </section>
 
       {/* ===== PRODUCTS SECTION ===== */}
-      <section className="bg-surface-low py-20 px-6">
+      <section className="bg-surface-low py-20 px-6 scroll-reveal">
         <div className="max-w-7xl mx-auto">
           {/* Centered title with orange line */}
           <div className="text-center mb-14">
@@ -249,7 +249,7 @@ export default async function Home() {
       </section>
 
       {/* ===== TRUST SECTION ===== */}
-      <section className="bg-white py-20 px-6">
+      <section className="bg-white py-20 px-6 scroll-reveal">
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {/* 100% Оригинал */}

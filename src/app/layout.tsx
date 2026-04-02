@@ -77,6 +77,7 @@ export default function RootLayout({
       </head>
       <body className="min-h-full flex flex-col bg-surface font-[family-name:var(--font-body)] antialiased">
         <Providers>
+          <div className="scroll-progress" />
           <ScrollToTop />
           {/* Навигация */}
           <nav className="fixed top-0 w-full z-50 glass-nav">

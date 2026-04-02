@@ -64,7 +64,7 @@ export default function AboutPage() {
       <section className="py-24 px-8 lg:px-24 bg-surface">
         <div className="max-w-screen-2xl mx-auto space-y-20">
           {/* Mission Card */}
-          <div className="bg-surface-lowest p-12 rounded-xl warm-shadow flex flex-col md:flex-row items-center gap-12 border-l-8 border-primary">
+          <div className="bg-surface-lowest p-12 rounded-xl warm-shadow flex flex-col md:flex-row items-center gap-12 border-l-8 border-primary scroll-reveal">
             <div className="flex-1 space-y-4">
               <h2 className="text-3xl font-bold font-[family-name:var(--font-headline)] text-[#451A03]">Наша миссия</h2>
               <p className="text-2xl text-on-surface-variant leading-relaxed italic font-light">
@@ -77,7 +77,7 @@ export default function AboutPage() {
           </div>
 
           {/* Stats Grid — 4 orange gradient cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 scroll-reveal">
             {[
               { value: "8+ лет", label: "непрерывной работы на рынке КР" },
               { value: "100,000+", label: "запчастей в постоянном наличии" },
@@ -95,7 +95,7 @@ export default function AboutPage() {
           </div>
 
           {/* Values — 3 cards */}
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-3 gap-8 scroll-reveal">
             {[
               {
                 icon: "verified",
