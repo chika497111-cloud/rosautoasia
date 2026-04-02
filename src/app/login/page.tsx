@@ -20,7 +20,6 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [phoneError, setPhoneError] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const [transactionId, setTransactionId] = useState("");
   const [countdown, setCountdown] = useState(0);
 
   const codeInputRef = useRef<HTMLInputElement>(null);
@@ -82,7 +81,6 @@ export default function LoginPage() {
         return;
       }
 
-      setTransactionId(data.transactionId);
       setStep("code");
       setCountdown(60);
     } catch {
@@ -107,7 +105,7 @@ export default function LoginPage() {
       const res = await fetch("/api/sms/verify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone: phone.trim(), code, transactionId }),
+        body: JSON.stringify({ phone: phone.trim(), code }),
       });
       const data = await res.json();
 
@@ -173,7 +171,6 @@ export default function LoginPage() {
       });
       const data = await res.json();
       if (res.ok && data.success) {
-        setTransactionId(data.transactionId);
         setCountdown(60);
       } else {
         setError(data.error || "Не удалось отправить SMS");

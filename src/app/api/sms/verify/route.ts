@@ -1,10 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAdminFirestore, getAdminAuth } from "@/lib/firebase-admin";
 
-const NIKITA_API_KEY = process.env.NIKITA_API_KEY!;
-const OTP_CHECK_ENDPOINT = "https://smspro.nikita.kg/api/otp/check";
-
-/** Convert phone to fake email for Firebase Auth: +996555000000 -> 996555000000@raa.kg */
+/** Convert phone to fake email for Firebase Auth */
 function phoneToEmail(phone: string): string {
   const digits = phone.replace(/\D/g, "");
   return `${digits}@raa.kg`;
@@ -12,30 +9,54 @@ function phoneToEmail(phone: string): string {
 
 export async function POST(request: Request) {
   try {
-    const { phone, code, transactionId } = await request.json();
+    const { phone, code } = await request.json();
 
-    if (!phone || !code || !transactionId) {
-      return NextResponse.json({ error: "Все поля обязательны" }, { status: 400 });
+    if (!phone || !code) {
+      return NextResponse.json({ error: "Телефон и код обязательны" }, { status: 400 });
     }
 
-    // Verify OTP with Nikita
-    const url = `${OTP_CHECK_ENDPOINT}?api_key=${NIKITA_API_KEY}&transaction_id=${transactionId}&code=${code}`;
-    const res = await fetch(url, { method: "GET" });
-    const data = await res.json();
+    const digits = phone.replace(/\D/g, "");
+    const formattedPhone = `+${digits}`;
+    const db = getAdminFirestore();
 
-    if (data.status !== 0) {
+    // Get stored OTP
+    const otpDoc = await db.collection("sms_codes").doc(formattedPhone).get();
+
+    if (!otpDoc.exists) {
+      return NextResponse.json({ error: "Код не найден. Запросите новый." }, { status: 400 });
+    }
+
+    const otpData = otpDoc.data()!;
+
+    // Check expiry
+    if (Date.now() > otpData.expiresAt) {
+      await db.collection("sms_codes").doc(formattedPhone).delete();
+      return NextResponse.json({ error: "Код истёк. Запросите новый." }, { status: 400 });
+    }
+
+    // Check attempts (max 5)
+    if (otpData.attempts >= 5) {
+      await db.collection("sms_codes").doc(formattedPhone).delete();
+      return NextResponse.json({ error: "Слишком много попыток. Запросите новый код." }, { status: 400 });
+    }
+
+    // Increment attempts
+    await db.collection("sms_codes").doc(formattedPhone).update({
+      attempts: (otpData.attempts || 0) + 1,
+    });
+
+    // Verify code
+    if (otpData.code !== code.trim()) {
       return NextResponse.json({ error: "Неверный код. Попробуйте ещё раз." }, { status: 400 });
     }
 
-    // OTP verified! Now check if user exists in Firestore
-    const digits = phone.replace(/\D/g, "");
-    const db = getAdminFirestore();
-    const adminAuth = getAdminAuth();
+    // Code correct! Delete it
+    await db.collection("sms_codes").doc(formattedPhone).delete();
 
-    // Search by phone (try with + and without)
-    const phonesToSearch = [`+${digits}`, digits, phone];
+    // Check if user exists in Firestore
+    const adminAuth = getAdminAuth();
+    const phonesToSearch = [formattedPhone, digits, phone];
     let userId: string | null = null;
-    let isNewUser = false;
 
     for (const p of phonesToSearch) {
       const snap = await db.collection("users").where("phone", "==", p).limit(1).get();
@@ -56,17 +77,13 @@ export async function POST(request: Request) {
     let newUid: string;
 
     try {
-      // Check if Auth user already exists (e.g. from old password-based registration)
       const existingUser = await adminAuth.getUserByEmail(email);
       newUid = existingUser.uid;
     } catch {
-      // User doesn't exist in Auth — create new one
       const newUser = await adminAuth.createUser({ email });
       newUid = newUser.uid;
     }
 
-    // Write minimal Firestore profile (name will be filled in next step)
-    const formattedPhone = digits.startsWith("996") ? `+${digits}` : phone;
     await db.collection("users").doc(newUid).set({
       phone: formattedPhone,
       name: "",
