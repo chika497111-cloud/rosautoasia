@@ -536,7 +536,7 @@ export default function CategoryClient({
                     <div className="flex items-center gap-2 mb-1">
                       {product.quantity > 0 ? (
                         <span className="bg-green-100 text-[10px] font-bold px-2 py-0.5 rounded uppercase">
-                          <ShinyBadge text="В наличии" color="#15803d" shineColor="#4ade80" className="text-[10px] font-bold uppercase" />
+                          <ShinyBadge text="В наличии" color="#15803d" shineColor="#ffffff" className="text-[10px] font-bold uppercase" />
                         </span>
                       ) : (
                         <span className="bg-orange-100 text-orange-700 text-[10px] font-bold px-2 py-0.5 rounded uppercase">
