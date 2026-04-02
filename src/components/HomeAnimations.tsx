@@ -1,6 +1,7 @@
 "use client";
 
 import CountUp from "@/components/CountUp";
+import BlurText from "@/components/BlurText";
 import GradientText from "@/components/GradientText";
 import RotatingText from "@/components/RotatingText";
 import ShinyText from "@/components/ShinyText";
@@ -13,7 +14,12 @@ export function HeroTitle() {
       animationSpeed={6}
       className="font-[family-name:var(--font-headline)] text-5xl lg:text-6xl font-extrabold leading-tight tracking-tight"
     >
-      Автозапчасти из Японии, Кореи и Китая
+      <BlurText
+        text="Автозапчасти из Японии, Кореи и Китая"
+        delay={40}
+        animateBy="words"
+        className=""
+      />
     </GradientText>
   );
 }
